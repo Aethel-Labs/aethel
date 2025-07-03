@@ -1,8 +1,8 @@
-import pkg from 'pg';
-const { Pool } = pkg;
+import { DATABASE_URL } from '@/config';
+import { Pool } from 'pg';
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: DATABASE_URL,
 });
 
 pool.on('error', () => {

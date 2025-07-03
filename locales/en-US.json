@@ -7,6 +7,12 @@
     "reddit": {
         "from": "From r/{subreddit}"
     },
+    "error": "Error!",
+    "common": {
+        "ogmessage": "Original Message",
+        "jumptomessage": "Jump to message",
+        "messagelink": "Message link"
+    },
     "commands": {
         "8ball": {
             "name": "8ball",
@@ -97,7 +103,24 @@
             "nooptions": "No options"
         },
         "remind": {
-            "name": "remind"
+            "name": "remind",
+            "reminder": "Reminder!",
+            "remindyou": "You asked me to remind me about: {message}",
+            "timeelapsed": "Time elapsed",
+            "originaltime": "Original Time",
+            
+            "errors": {
+                "base": "An error occurred while setting your reminder. Please try again later.",
+                "failedtosave": "Failed to save your reminder. Please try again later.",
+                "invalidformat": "Invalid time format! Use combinations like: 1h30m, 45m, or 2h",
+                "providevalidchars": "Please provide a valid message (1-1000 characters)",
+                "atleastoneminute": "Reminder time must be at least 1 minute!",
+                "notlongerthanaday": "Reminder time cannot be longer than 24 hours!"
+            },
+            "reminderset": "Reminder set",
+            "iwillremindyou": "I'll remind you about: {message}",
+            "time": "Time",
+            "willtrigger": "Will trigger"
         },
         "whois": {
             "name": "whois",

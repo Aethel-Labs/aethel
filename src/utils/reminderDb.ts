@@ -1,15 +1,23 @@
-import pool from './pgClient.js';
-import logger from './logger.js';
+import pool from './pgClient';
+import logger from './logger';
 
 interface ReminderData {
   reminder_id: string;
   user_id: string;
   user_tag: string;
   channel_id: string;
-  guild_id: string;
+  guild_id: string | null;
   message: string;
   expires_at: Date;
-  metadata?: Record<string, any>;
+  created_at?: Date;
+  locale: string;
+  metadata?: {
+    source: string;
+    command_id?: string;
+    original_message_id?: string;
+    original_channel_id?: string;
+    message_url?: string;
+  };
 }
 
 interface ReminderRecord extends ReminderData {
