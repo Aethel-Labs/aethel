@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, InteractionContextType, ApplicationIntegrationType, MessageFlags } from 'discord.js';
-import fetch from 'node-fetch';
+import fetch from '@/utils/dynamicFetch';
 import { sanitizeInput } from '@/utils/validation';
 
 import logger from '@/utils/logger';

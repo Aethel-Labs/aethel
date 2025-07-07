@@ -1,10 +1,10 @@
 // as long as you do not look up something weird im fine
 
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags, InteractionContextType, ApplicationIntegrationType } from 'discord.js';
-import fetch from 'node-fetch';
+import fetch from '@/utils/dynamicFetch';
 import logger from '@/utils/logger';
 import { WikiPage, WikiPageResponse, WikiSearchResponse } from '@/types/base';
-import { SlashCommandProps } from '@/types/command.js';
+import { SlashCommandProps } from '@/types/command';
 
 const cooldowns = new Map();
 const COOLDOWN_TIME = 3000;
