@@ -130,7 +130,41 @@
             "notvalid": "Please provide a valid domain name or IP address."
         },
         "ai": {
-            "name": "ai"
+            "name": "ai",
+            "description": "Chat with an AI assistant",
+            "optioins": {
+                "prompt": {
+                    "name": "prompt",
+                    "description": "Your message to the ai"
+                },
+                "customapi": "Use your own API key?",
+                "reset": "Reset your ai chat history"
+            },
+            "request": {
+                "inprogress": "You already have a request in progress. Please wait for it to complete."
+            },
+            "reset": "Your AI chat history has been reset.",
+            "defaultapi": " Switched to default API. Your custom API key has been cleared and the default model will be used.",
+            "modal": {
+                "title": "Enter your API Credentials",
+                "apikey": "API Key",
+                "apikeyplaceholder": "To stop using your key: /ai use_custom_api false",
+                "apiurl": "API Url",
+                "apiurlplaceholder": "Your API Url",
+                "model": "Model",
+                "modelplaceholder": "Model name (eg. gpt-4)"
+            },
+            "nopendingrequest": "No pending request found. Please try the command again.",
+            "apicredssaved": "API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`",
+            "process" : {
+                "dailylimit": "You've reached your daily limit of AI requests",
+                "noapikey": "Please set up your API key first"
+            },
+            "errors": {
+                "failed": "Failed to process AI response",
+                "nores": "No response from AI",
+                "toolong": "Message is too long"
+            }
         }
     },
     "categories": {
