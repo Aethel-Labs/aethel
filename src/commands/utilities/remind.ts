@@ -6,6 +6,12 @@ import {
   MessageFlags,
   InteractionContextType,
   ApplicationIntegrationType,
+  ContextMenuCommandInteraction,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  ActionRowBuilder,
+  ModalSubmitInteraction,
 } from 'discord.js';
 import logger from '@/utils/logger';
 import {
@@ -15,7 +21,7 @@ import {
   formatTimeString,
 } from '@/utils/validation';
 import { saveReminder, completeReminder, cleanupReminders } from '@/utils/reminderDb';
-import { SlashCommandProps } from '@/types/command';
+import { RemindCommandProps, SlashCommandProps } from '@/types/command';
 import BotClient from '@/services/Client';
 
 interface Reminder {
@@ -51,7 +57,7 @@ interface MessageInfo {
   userTag: string;
   userId: string;
   locale: string;
-}
+};
 
 const activeReminders = new Map<string, ActiveReminder>();
 
@@ -118,7 +124,7 @@ function createReminderHandler(client: BotClient, reminder: Reminder) {
       }
 
       await user.send({
-        content: `${user}`,
+        // content: `${user}`,
         embeds: [reminderEmbed],
       });
 
@@ -210,7 +216,7 @@ function createContextMenu(): ContextMenuCommandBuilder {
 
 export default {
   data: createCommandBuilder(),
-  // contextMenu: createContextMenu(),
+  contextMenu: createContextMenu(),
   // cooldown: 5,
 
   async execute(client, interaction) {
@@ -312,7 +318,7 @@ export default {
         const embed = new EmbedBuilder()
           .setColor(0xfaa0a0)
           .setTitle("⏰ " + await client.getLocaleText("commands.remind.reminderset", interaction.locale))
-          .setDescription(await client.getLocaleText("commands.remind.iwillremindyou", interaction.locale, { message }))
+          .setDescription(await client.getLocaleText("commands.remind.iwillremindyou", interaction.locale, { message, time: formatTimeString(minutes) }))
           .addFields(
             {
               name: "⏱️ " + await client.getLocaleText("commands.remind.time", interaction.locale),
@@ -325,7 +331,7 @@ export default {
               inline: true,
             }
           )
-          .setFooter({ text: `Reminder ID: ${reminderId.slice(-6)}` })
+          .setFooter({ text: await client.getLocaleText("commands.remind.reminderid", interaction.locale, { reminderID: reminderId.slice(-6) }) })
           .setTimestamp();
 
         await interaction.editReply({ embeds: [embed] });
@@ -379,271 +385,213 @@ export default {
     }
   },
 
-  // async contextMenuExecute(interaction: Interaction) {
-  //   if (!interaction.isMessageContextMenuCommand()) return;
+  async contextMenuExecute(client, interaction) {
+    if (!interaction.isMessageContextMenuCommand()) return;
 
-  //   const { user, targetMessage: message } = interaction as MessageContextMenuCommandInteraction;
+    const { user, targetMessage: message } = interaction;
 
-  //   try {
-  //     const modalId = `remind_${message.id}`;
+    try {
+      const modalId = `remind_${message.id}`;
 
-  //     global._reminders.set(modalId, {
-  //       content: message.content,
-  //       url: message.url,
-  //       channelId: message.channelId,
-  //       messageId: message.id,
-  //       guildId: message.guildId,
-  //       userTag: user.tag,
-  //       userId: user.id,
-  //       locale: interaction.locale || 'en',
-  //     });
+      global._reminders.set(modalId, {
+        content: message.content,
+        url: message.url,
+        channelId: message.channelId,
+        messageId: message.id,
+        guildId: message.guildId,
+        userTag: user.tag,
+        userId: user.id,
+        locale: interaction.locale || 'en',
+      });
 
-  //     logger.info(
-  //       `Context menu reminder initiated by ${user.tag} (${user.id}) for message ${message.id}`,
-  //       {
-  //         userId: user.id,
-  //         userTag: user.tag,
-  //         messageId: message.id,
-  //         channelId: message.channelId,
-  //         guildId: message.guildId,
-  //       }
-  //     );
+      logger.info(
+        `Context menu reminder initiated by ${user.tag} (${user.id}) for message ${message.id}`,
+        {
+          userId: user.id,
+          userTag: user.tag,
+          messageId: message.id,
+          channelId: message.channelId,
+          guildId: message.guildId,
+        }
+      );
 
-  //     const modalTitle = await i18n(
-  //       '⏰ Set Reminder',
-  //       { userId: user.id, locale: interaction.locale || 'en' },
-  //       '⏰ Set Reminder'
-  //     );
-  //     const timeLabel = await i18n(
-  //       'When to remind you? (e.g., 10m, 1h, 2h30m)',
-  //       { userId: user.id, locale: interaction.locale || 'en' },
-  //       'When to remind you? (e.g., 10m, 1h, 2h30m)'
-  //     );
-  //     const timePlaceholder = await i18n(
-  //       '10m, 1h, or 2h30m',
-  //       { userId: user.id, locale: interaction.locale || 'en' },
-  //       '10m, 1h, or 2h30m'
-  //     );
+      const modalTitle = await client.getLocaleText("commands.remind.modal.setreminder", interaction.locale)
+      const timeLabel = await client.getLocaleText("commands.remind.modal.whento", interaction.locale)
+      const modal = new ModalBuilder().setCustomId(modalId).setTitle(modalTitle);
 
-  //     const modal = new ModalBuilder().setCustomId(modalId).setTitle(modalTitle);
+      const timeInput = new TextInputBuilder()
+        .setCustomId('time')
+        .setLabel(timeLabel)
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder(`10m, 1h, or 2h30m`)
+        .setRequired(true);
 
-  //     const timeInput = new TextInputBuilder()
-  //       .setCustomId('time')
-  //       .setLabel(timeLabel)
-  //       .setStyle(TextInputStyle.Short)
-  //       .setPlaceholder(timePlaceholder)
-  //       .setRequired(true);
+      modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(timeInput));
 
-  //     modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(timeInput));
+      await interaction.showModal(modal);
+      logger.info(`Modal shown to ${user.tag} (${user.id}) for message ${message.id}`);
+    } catch (error) {
+      logger.error(`Error showing reminder modal to ${user.tag} (${user.id}): ${(error as Error).message}`, {
+        error,
+        userId: user.id,
+        userTag: user.tag,
+        messageId: message?.id,
+      });
 
-  //     await interaction.showModal(modal);
-  //     logger.info(`Modal shown to ${user.tag} (${user.id}) for message ${message.id}`);
-  //   } catch (error) {
-  //     logger.error(`Error showing reminder modal to ${user.tag} (${user.id}): ${(error as Error).message}`, {
-  //       error,
-  //       userId: user.id,
-  //       userTag: user.tag,
-  //       messageId: message?.id,
-  //     });
+      const errorEmbed = new EmbedBuilder()
+        .setColor(0xff0000)
+        .setTitle('❌ Error')
+        .setDescription('Failed to open the reminder prompt. Please try again.')
+        .setTimestamp();
 
-  //     try {
-  //       const errorEmbed = new EmbedBuilder()
-  //         .setColor(0xff0000)
-  //         .setTitle('❌ Error')
-  //         .setDescription('Failed to open the reminder prompt. Please try again.')
-  //         .setTimestamp();
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({ embeds: [errorEmbed] });
+      } else {
+        await interaction.reply({ embeds: [errorEmbed], flags: MessageFlags.Ephemeral });
+      }
+    }
+  },
 
-  //       if (interaction.replied || interaction.deferred) {
-  //         await interaction.followUp({ embeds: [errorEmbed], flags: 1 << 6 });
-  //       } else {
-  //         await interaction.reply({ embeds: [errorEmbed], flags: 1 << 6 });
-  //       }
-  //     } catch (replyError) {
-  //       logger.error('Failed to send error response for context menu', { error: replyError });
-  //     }
-  //   }
-  // },
+  async handleModal(client, interaction) {
+    if (!interaction.isModalSubmit() || !interaction.customId.startsWith('remind_')) return;
 
-  // async handleModal(interaction: Interaction) {
-  //   if (!interaction.isModalSubmit() || !interaction.customId.startsWith('remind_')) return;
+    const modalInteraction = interaction as ModalSubmitInteraction;
+    const { user, customId: modalId } = modalInteraction;
 
-  //   const modalInteraction = interaction as ModalSubmitInteraction;
-  //   const { user, customId: modalId } = modalInteraction;
+    await modalInteraction.deferReply({ flags: 1 << 6 });
 
-  //   await modalInteraction.deferReply({ flags: 1 << 6 });
+    try {
+      const messageInfo = global._reminders.get(modalId);
 
-  //   try {
-  //     const messageInfo = global._reminders.get(modalId);
+      if (!messageInfo) {
+        logger.warn(`No message info found for modal ID: ${modalId}`, { userId: user.id });
+        return await modalInteraction.editReply({
+          content: '❌ This reminder setup has expired. Please try again.',
+          flags: 1 << 6,
+        });
+      }
 
-  //     if (!messageInfo) {
-  //       logger.warn(`No message info found for modal ID: ${modalId}`, { userId: user.id });
-  //       return await modalInteraction.editReply({
-  //         content: '❌ This reminder setup has expired. Please try again.',
-  //         flags: 1 << 6,
-  //       });
-  //     }
+      global._reminders.delete(modalId);
 
-  //     global._reminders.delete(modalId);
+      const timeStr = modalInteraction.fields.getTextInputValue('time');
+      const userLocale = messageInfo.locale || modalInteraction.locale || 'en';
 
-  //     const timeStr = modalInteraction.fields.getTextInputValue('time');
-  //     const userLocale = messageInfo.locale || modalInteraction.locale || 'en';
+      if (!validateTimeString(timeStr)) {
+        logger.warn(`Invalid time format from ${user.tag} in modal: ${timeStr}`);
+        const errorMsg = await client.getLocaleText("commands.remind.errors.invalidformat", interaction.locale);
+        return await modalInteraction.editReply({
+          content: errorMsg,
+          flags: 1 << 6,
+        });
+      }
 
-  //     if (!validateTimeString(timeStr)) {
-  //       logger.warn(`Invalid time format from ${user.tag} in modal: ${timeStr}`);
-  //       const errorMsg = await i18n(
-  //         '❌ Invalid time format! Use combinations like: 1h30m, 45m, or 2h',
-  //         { userId: user.id, locale: userLocale },
-  //         '❌ Invalid time format! Use combinations like: 1h30m, 45m, or 2h'
-  //       );
-  //       return await modalInteraction.editReply({
-  //         content: errorMsg,
-  //         flags: 1 << 6,
-  //       });
-  //     }
+      const minutes = parseTimeString(timeStr)!;
 
-  //     const minutes = parseTimeString(timeStr);
+      if (minutes < 1 || minutes > 60 * 24) {
+        logger.warn(`Invalid time duration from ${user.tag} in modal: ${minutes} minutes`);
+        const errorMsg = await client.getLocaleText("commands.remind.errors.notlongerthanaday", interaction.locale);
+        return await modalInteraction.editReply({
+          content: errorMsg,
+          flags: 1 << 6,
+        });
+      }
 
-  //     if (minutes < 1 || minutes > 60 * 24) {
-  //       logger.warn(`Invalid time duration from ${user.tag} in modal: ${minutes} minutes`);
-  //       const errorMsg = await i18n(
-  //         '❌ Reminder time must be between 1 minute and 24 hours!',
-  //         { userId: user.id, locale: userLocale },
-  //         '❌ Reminder time must be between 1 minute and 24 hours!'
-  //       );
-  //       return await modalInteraction.editReply({
-  //         content: errorMsg,
-  //         flags: 1 << 6,
-  //       });
-  //     }
+      const reminderId = `${user.id}-${Date.now()}`;
+      const expiresAt = new Date(Date.now() + minutes * 60 * 1000);
+      const createdAt = new Date();
 
-  //     const reminderId = `${user.id}-${Date.now()}`;
-  //     const expiresAt = new Date(Date.now() + minutes * 60 * 1000);
-  //     const createdAt = new Date();
+      const reminderMessage = messageInfo.content
+        ? `"${sanitizeInput(messageInfo.content)}"`
+        : `[View message](${messageInfo.url})`;
 
-  //     const reminderMessage = messageInfo.content
-  //       ? `"${sanitizeInput(messageInfo.content)}"`
-  //       : `[View message](${messageInfo.url})`;
+      let reminderData: Reminder;
+      try {
+        reminderData = {
+          reminder_id: reminderId,
+          user_id: user.id,
+          user_tag: user.tag,
+          locale: userLocale,
+          channel_id: messageInfo.channelId,
+          guild_id: messageInfo.guildId,
+          message: reminderMessage,
+          expires_at: expiresAt,
+          created_at: createdAt,
+          metadata: {
+            source: 'context_menu',
+            original_message_id: messageInfo.messageId,
+            original_channel_id: messageInfo.channelId,
+            message_url: messageInfo.url,
+          },
+        };
 
-  //     let reminderData: Reminder;
-  //     try {
-  //       reminderData = {
-  //         reminder_id: reminderId,
-  //         user_id: user.id,
-  //         user_tag: user.tag,
-  //         locale: userLocale,
-  //         channel_id: messageInfo.channelId,
-  //         guild_id: messageInfo.guildId,
-  //         message: reminderMessage,
-  //         expires_at: expiresAt,
-  //         created_at: createdAt,
-  //         metadata: {
-  //           source: 'context_menu',
-  //           original_message_id: messageInfo.messageId,
-  //           original_channel_id: messageInfo.channelId,
-  //           message_url: messageInfo.url,
-  //         },
-  //       };
+        await saveReminder(reminderData);
+      } catch (error) {
+        logger.error(`Error saving reminder to database: ${(error as Error).message}`, { error });
+        return await modalInteraction.editReply({
+          content: '❌ Failed to save your reminder. Please try again later.',
+          flags: 1 << 6,
+        });
+      }
 
-  //       await saveReminder(reminderData);
-  //     } catch (error) {
-  //       logger.error(`Error saving reminder to database: ${(error as Error).message}`, { error });
-  //       return await modalInteraction.editReply({
-  //         content: '❌ Failed to save your reminder. Please try again later.',
-  //         flags: 1 << 6,
-  //       });
-  //     }
+      const timeoutId = setTimeout(
+        createReminderHandler(client, {
+          ...reminderData,
+          metadata: {
+            source: 'context_menu',
+            original_message_id: messageInfo.messageId,
+            original_channel_id: messageInfo.channelId,
+            message_url: messageInfo.url,
+          },
+        }),
+        minutes * 60 * 1000
+      );
 
-  //     const timeoutId = setTimeout(
-  //       createReminderHandler(modalInteraction.client, {
-  //         ...reminderData,
-  //         metadata: {
-  //           source: 'context_menu',
-  //           original_message_id: messageInfo.messageId,
-  //           original_channel_id: messageInfo.channelId,
-  //           message_url: messageInfo.url,
-  //         },
-  //       }),
-  //       minutes * 60 * 1000
-  //     );
+      activeReminders.set(reminderId, {
+        timeoutId,
+        expiresAt: expiresAt.getTime(),
+      });
 
-  //     activeReminders.set(reminderId, {
-  //       timeoutId,
-  //       expiresAt: expiresAt.getTime(),
-  //     });
+      const jumpToMessageField = await client.getLocaleText("common.jumptomessage", interaction.locale);
 
-  //     const reminderSetTitle = await i18n(
-  //       '⏰ Reminder Set!',
-  //       { userId: user.id, locale: userLocale },
-  //       '⏰ Reminder Set!'
-  //     );
-  //     let reminderSetDesc = await i18n(
-  //       "I'll remind you about this message in {time}",
-  //       { userId: user.id, locale: userLocale },
-  //       `I'll remind you about this message in ${formatTimeString(minutes)}`
-  //     );
-  //     reminderSetDesc = reminderSetDesc.replace('{time}', formatTimeString(minutes));
-  //     const messageLinkField = await i18n(
-  //       'Message Link',
-  //       { userId: user.id, locale: userLocale },
-  //       'Message Link'
-  //     );
-  //     const jumpToMessageField = await i18n(
-  //       'Jump to message',
-  //       { userId: user.id, locale: userLocale },
-  //       'Jump to message'
-  //     );
-  //     const willTriggerField = await i18n(
-  //       'Will Trigger',
-  //       { userId: user.id, locale: userLocale },
-  //       'Will Trigger'
-  //     );
-  //     let reminderIdField = await i18n(
-  //       'Reminder ID: {id}',
-  //       { userId: user.id, locale: userLocale },
-  //       `Reminder ID: ${reminderId.slice(-6)}`
-  //     );
-  //     reminderIdField = reminderIdField.replace('{id}', reminderId.slice(-6));
+      const embed = new EmbedBuilder()
+        .setColor(0xfaa0a0)
+        .setTitle("⏰ " + await client.getLocaleText("commands.remind.reminderset", interaction.locale))
+        // .setTitle(reminderSetTitle)
+        .setDescription(await client.getLocaleText("commands.remind.contextiwillremindyou", interaction.locale, { time: formatTimeString(minutes) }))
+        // .setDescription(reminderSetDesc)
+        .addFields({
+          name: await client.getLocaleText("common.messagelink", interaction.locale),
+          value: `[${jumpToMessageField}](${messageInfo.url})`,
+        }, {
+          name: await client.getLocaleText("commands.remind.willtrigger", interaction.locale),
+          value: `<t:${Math.floor(expiresAt.getTime() / 1000)}:R>`,
+          inline: true,
+        })
+        .setFooter({ text: await client.getLocaleText("commands.remind.reminderid", interaction.locale, { reminderId: reminderId.slice(-6) }) })
+        .setTimestamp();
 
-  //     const embed = new EmbedBuilder()
-  //       .setColor(0xfaa0a0)
-  //       .setTitle(reminderSetTitle)
-  //       .setDescription(reminderSetDesc)
-  //       .addFields(
-  //         {
-  //           name: messageLinkField,
-  //           value: `[${jumpToMessageField}](${messageInfo.url})`,
-  //         },
-  //         {
-  //           name: willTriggerField,
-  //           value: `<t:${Math.floor(expiresAt.getTime() / 1000)}:R>`,
-  //           inline: true,
-  //         }
-  //       )
-  //       .setFooter({ text: reminderIdField })
-  //       .setTimestamp();
+      await modalInteraction.editReply({ embeds: [embed] });
 
-  //     await modalInteraction.editReply({ embeds: [embed] });
+      logger.info(`Reminder set via modal for ${user.tag} (${user.id})`, {
+        reminderId,
+        messageId: messageInfo.messageId,
+        channelId: messageInfo.channelId,
+        minutes,
+      });
+    } catch (error) {
+      logger.error(`Error handling reminder modal for ${user.tag} (${user.id}): ${(error as Error).message}`, {
+        error,
+        modalId,
+      });
 
-  //     logger.info(`Reminder set via modal for ${user.tag} (${user.id})`, {
-  //       reminderId,
-  //       messageId: messageInfo.messageId,
-  //       channelId: messageInfo.channelId,
-  //       minutes,
-  //     });
-  //   } catch (error) {
-  //     logger.error(`Error handling reminder modal for ${user.tag} (${user.id}): ${(error as Error).message}`, {
-  //       error,
-  //       modalId,
-  //     });
-
-  //     try {
-  //       await modalInteraction.editReply({
-  //         content: '❌ An error occurred while setting your reminder. Please try again later.',
-  //         flags: 1 << 6,
-  //       });
-  //     } catch (replyError) {
-  //       logger.error('Failed to send error response to user:', { error: replyError });
-  //     }
-  //   }
-  // },
-} as SlashCommandProps;
+      try {
+        await modalInteraction.editReply({
+          content: '❌ An error occurred while setting your reminder. Please try again later.',
+          flags: 1 << 6,
+        });
+      } catch (replyError) {
+        logger.error('Failed to send error response to user:', { error: replyError });
+      }
+    }
+  },
+} as RemindCommandProps;

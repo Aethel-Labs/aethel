@@ -117,10 +117,17 @@
                 "atleastoneminute": "Reminder time must be at least 1 minute!",
                 "notlongerthanaday": "Reminder time cannot be longer than 24 hours!"
             },
+
+            "modal": {
+                "setreminder": "Set reminder",
+                "whento": "When to remind you? (e.g., 10m, 1h, 2h30m)"
+            },
             "reminderset": "Reminder set",
-            "iwillremindyou": "I'll remind you about: {message}",
+            "iwillremindyou": "I'll remind you about {message} in {time}",
+            "contextiwillremindyou": "I'll remind you about this message in {time}",
             "time": "Time",
-            "willtrigger": "Will trigger"
+            "willtrigger": "Will trigger",
+            "reminderid": "Reminder ID: {reminderId}"
         },
         "whois": {
             "name": "whois",
