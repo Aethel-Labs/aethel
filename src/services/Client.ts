@@ -4,6 +4,7 @@ import { SlashCommandProps } from "@/types/command";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
 import { promises, readdirSync } from "fs";
 import path from "path";
+import { pathToFileURL } from "url";
 
 export const srcDir = path.join(__dirname, '..');
 
@@ -34,7 +35,8 @@ export default class BotClient extends Client {
         const eventsDir = path.join(srcDir, 'events');
         for (const event of readdirSync(path.join(eventsDir))) {
             const filepath = path.join(eventsDir, event);
-            const EventClass = await (await import(filepath)).default;
+            const fileURL = pathToFileURL(filepath).href
+            const EventClass = await (await import(fileURL)).default;
             new EventClass(this);
         }
     };

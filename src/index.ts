@@ -50,7 +50,6 @@ app.use((req, res, next) => {
 });
 
 const bot = new BotClient();
-
 bot.init()
 
 app.use(authenticateApiKey);
