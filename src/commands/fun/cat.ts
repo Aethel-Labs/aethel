@@ -71,11 +71,10 @@ export default {
 
         const embed = new EmbedBuilder().setColor(0xfaa0a0).setTitle(title).setImage(catData.url);
 
-        let footerText = await client.getLocaleText("poweredby", interaction.locale) + " pur.cat";
-        embed.setFooter({ text: footerText });
+        embed.setFooter({ text: await client.getLocaleText("poweredby", interaction.locale) + " pur.cat" });
 
         if (catData.subreddit) {
-          let fromText = await client.getLocaleText("reddit.from", interaction.locale, { subreddit: catData.subreddit });
+          const fromText = await client.getLocaleText("reddit.from", interaction.locale, { subreddit: catData.subreddit });
           embed.setDescription(fromText);
         }
         const refreshLabel = await client.getLocaleText("commands.cat.newcat", interaction.locale);

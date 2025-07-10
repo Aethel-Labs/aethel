@@ -71,12 +71,10 @@ export default {
         const title = dogData.title ? sanitizeInput(dogData.title).slice(0, 245) + '...' : await client.getLocaleText("commands.dog.randomdog", interaction.locale);
 
         const embed = new EmbedBuilder().setColor(0x8a2be2).setTitle(title).setImage(dogData.url);
-
-        let footerText = await client.getLocaleText("poweredby", interaction.locale) + " erm.dog";
-        embed.setFooter({ text: footerText });
+        embed.setFooter({ text: await client.getLocaleText("poweredby", interaction.locale) + " erm.dog" });
 
         if (dogData.subreddit) {
-          let fromText = await client.getLocaleText("reddit.from", interaction.locale, { subreddit: dogData.subreddit });
+          const fromText = await client.getLocaleText("reddit.from", interaction.locale, { subreddit: dogData.subreddit });
           embed.setDescription(fromText);
         }
         const refreshLabel = await client.getLocaleText("commands.dog.newdog", interaction.locale);

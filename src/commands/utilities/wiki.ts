@@ -3,7 +3,7 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags, InteractionContextType, ApplicationIntegrationType } from 'discord.js';
 import fetch from '@/utils/dynamicFetch';
 import logger from '@/utils/logger';
-import { WikiPage, WikiPageResponse, WikiSearchResponse } from '@/types/base';
+import { WikiPageResponse, WikiSearchResponse } from '@/types/base';
 import { SlashCommandProps } from '@/types/command';
 
 const cooldowns = new Map();
@@ -125,7 +125,7 @@ export default {
         }
 
         const readMore = await client.getLocaleText("commands.wiki.readmoreonwiki", interaction.locale);
-        let title = await client.getLocaleText("commands.wiki.pedia", interaction.locale, { article: article.title });
+        const title = await client.getLocaleText("commands.wiki.pedia", interaction.locale, { article: article.title });
 
         const embed = new EmbedBuilder()
           .setTitle(title)

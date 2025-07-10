@@ -4,12 +4,12 @@ import { SlashCommandProps } from "@/types/command";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
 import { promises, readdirSync } from "fs";
 import path from "path";
-import { pathToFileURL } from "url";
 
 export const srcDir = path.join(__dirname, '..');
 
 export default class BotClient extends Client {
     public commands = new Collection<string, SlashCommandProps>();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public t = new Collection<string, any>();
     constructor() {
         super({
@@ -35,11 +35,11 @@ export default class BotClient extends Client {
         const eventsDir = path.join(srcDir, 'events');
         for (const event of readdirSync(path.join(eventsDir))) {
             const filepath = path.join(eventsDir, event);
-            const fileURL = pathToFileURL(filepath).href
-            const EventClass = await (await import(fileURL)).default;
+            const EventClass = await (await import(filepath)).default;
             new EventClass(this);
         }
     };
+
     private async setupLocalization() {
         console.log("Initilizing localization languages..")
         const localesDir = path.join(srcDir, '..', 'locales');
@@ -54,6 +54,7 @@ export default class BotClient extends Client {
 
         let langMap = this.t.get(locale) || this.t.get(fallbackLocale);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const getValueFromMap = (map: any, keyPath: string): any => {
             return keyPath.split('.').reduce((prev, cur) => (prev && prev[cur] !== undefined) ? prev[cur] : undefined, map);
         };

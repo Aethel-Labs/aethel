@@ -1,14 +1,4 @@
-import {
-    SlashCommandBuilder,
-    ModalBuilder,
-    TextInputBuilder,
-    TextInputStyle,
-    ActionRowBuilder,
-    Interaction,
-    ModalSubmitInteraction,
-    ChatInputCommandInteraction,
-    MessageFlags,
-} from 'discord.js';
+import { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ModalSubmitInteraction, ChatInputCommandInteraction, MessageFlags } from 'discord.js';
 import pool from '@/utils/pgClient';
 import { encrypt, decrypt } from '@/utils/encrypt';
 import { SlashCommandProps } from '@/types/command';
@@ -113,6 +103,7 @@ async function getUserCredentials(userId: string): Promise<UserCredentials> {
     if (user.api_key_encrypted) {
         try {
             apiKey = decrypt(user.api_key_encrypted);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
             // console.error('Failed to decrypt API key for user', userId, e);
         }
@@ -231,7 +222,6 @@ export default {
 
             const { apiKey } = await getUserCredentials(userId);
             if (useCustomApi && !apiKey) {
-                const locale = interaction.locale || 'en';
                 const modal = new ModalBuilder().setCustomId('apiCredentials').setTitle(
                     await client.getLocaleText('commands.ai.modal.title', interaction.locale)
                 );
@@ -277,6 +267,7 @@ export default {
                 await interaction.deferReply();
                 await this.processAIRequest(client, interaction);
             }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             pendingRequests.delete(userId);
             if (!interaction.replied && !interaction.deferred) {
@@ -308,9 +299,9 @@ export default {
 
                 const { interaction: originalInteraction } = pendingRequest;
 
-                let apiKey = interaction.fields.getTextInputValue('apiKey').trim();
-                let apiUrl = interaction.fields.getTextInputValue('apiUrl').trim();
-                let model = interaction.fields.getTextInputValue('model').trim();
+                const apiKey = interaction.fields.getTextInputValue('apiKey').trim();
+                const apiUrl = interaction.fields.getTextInputValue('apiUrl').trim();
+                const model = interaction.fields.getTextInputValue('model').trim();
 
                 await setUserApiKey(userId, apiKey, model, apiUrl);
 
@@ -322,6 +313,7 @@ export default {
 
                 await this.processAIRequest(client, originalInteraction);
             }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             await interaction.editReply({
                 content: await client.getLocaleText("failedrequest", interaction.locale),
@@ -436,6 +428,7 @@ export default {
                     await interaction.editReply(await client.getLocaleText("failedrequest", interaction.locale));
                     console.log(errorMessage);
                     return
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch (e) {
                     pendingRequests.delete(interaction.user.id);
                     await interaction.editReply(await client.getLocaleText("failedrequest", interaction.locale));
@@ -446,6 +439,7 @@ export default {
             let data: AIResponse;
             try {
                 data = JSON.parse(responseText);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (e) {
                 pendingRequests.delete(interaction.user.id);
                 await interaction.editReply("❌ " + await client.getLocaleText("commands.ai.errors.failed", interaction.locale));
@@ -503,16 +497,20 @@ export default {
                         ephemeral: true,
                     });
                 }
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (error) {
                 try {
                     await interaction.editReply(`${chunks[0]}\n\n*${"❌ " + await client.getLocaleText("commands.ai.errors.toolong", interaction.locale)}*`);
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch (e) {
                     // Swallow error
                 }
             }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             try {
                 await interaction.editReply(await client.getLocaleText("failedrequest", interaction.locale));
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (e) {
                 // Swallow error
             }

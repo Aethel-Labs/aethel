@@ -69,7 +69,6 @@ export default {
       const now = Date.now();
       const cooldownKey = `${interaction.user.id}-8ball`;
       const cooldownEnd = cooldowns.get(cooldownKey) || 0;
-      const userId = interaction.user.id;
 
       if (now < cooldownEnd) {
         const timeLeft = Math.ceil((cooldownEnd - now) / 1000);

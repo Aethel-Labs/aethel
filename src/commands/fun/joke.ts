@@ -100,7 +100,7 @@ export default {
 
         const joke = await fetchJoke(jokeType);
 
-        let jokeTitle = await client.getLocaleText("commands.joke.type.default", interaction.locale, {
+        const jokeTitle = await client.getLocaleText("commands.joke.type.default", interaction.locale, {
           type: await client.getLocaleText(`commands.joke.type.${joke.type}`, interaction.locale),
         });
 

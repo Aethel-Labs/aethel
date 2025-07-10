@@ -20,11 +20,7 @@ interface ReminderData {
   };
 }
 
-interface ReminderRecord extends ReminderData {
-  // Include any additional fields returned from DB if needed
-}
-
-async function saveReminder(reminderData: ReminderData): Promise<ReminderRecord> {
+async function saveReminder(reminderData: ReminderData): Promise<ReminderData> {
   const query = `
     INSERT INTO reminders (
       reminder_id, user_id, user_tag, channel_id, guild_id, 
@@ -45,7 +41,7 @@ async function saveReminder(reminderData: ReminderData): Promise<ReminderRecord>
   ];
 
   try {
-    const result = await pool.query<ReminderRecord>(query, values);
+    const result = await pool.query<ReminderData>(query, values);
     return result.rows[0];
   } catch (error) {
     logger.error('Error saving reminder to database:', error);

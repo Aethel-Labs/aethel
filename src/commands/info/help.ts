@@ -51,6 +51,7 @@ export default {
         });
       }
       await interaction.editReply({ embeds: [embed] });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       const errorMsg = await client.getLocaleText("unexpectederror", interaction.locale);
       if (interaction.replied || interaction.deferred) {

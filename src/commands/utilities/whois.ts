@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   SlashCommandBuilder,
   EmbedBuilder,
@@ -262,6 +263,7 @@ function formatWhoisData(data: any): string {
     }
 
     return formatRawWhoisData(JSON.stringify(data, null, 2));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return '```\nError formatting WHOIS data. Please check the logs for details.\n```';
   }

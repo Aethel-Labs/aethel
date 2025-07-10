@@ -1,18 +1,4 @@
-import {
-  SlashCommandBuilder,
-  ContextMenuCommandBuilder,
-  ApplicationCommandType,
-  EmbedBuilder,
-  MessageFlags,
-  InteractionContextType,
-  ApplicationIntegrationType,
-  ContextMenuCommandInteraction,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  ActionRowBuilder,
-  ModalSubmitInteraction,
-} from 'discord.js';
+import { SlashCommandBuilder, ContextMenuCommandBuilder, ApplicationCommandType, EmbedBuilder, MessageFlags, InteractionContextType, ApplicationIntegrationType, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ModalSubmitInteraction } from 'discord.js';
 import logger from '@/utils/logger';
 import {
   sanitizeInput,
@@ -63,7 +49,6 @@ const activeReminders = new Map<string, ActiveReminder>();
 
 declare global {
   // Extend the NodeJS.Global interface to include _reminders
-  // eslint-disable-next-line no-var
   var _reminders: Map<string, MessageInfo>;
 }
 

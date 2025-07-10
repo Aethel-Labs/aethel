@@ -105,6 +105,7 @@ export default {
       let metricData: WeatherAPIResponse
       try {
         metricData = await fetchWeatherData(location, 'metric');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         logger.error('Error in weather command:', error);
         let errorMsg = await client.getLocaleText("commands.weather.error", interaction.locale);
@@ -127,22 +128,12 @@ export default {
         metricData = await fetchWeatherData(location, 'imperial');
       }
 
-      // eslint-disable-next-line no-unused-vars
       const tempUnit = useFahrenheit ? '°F' : '°C';
       const windUnit = useFahrenheit ? 'mph' : 'km/h';
       const windSpeed = useFahrenheit ? Math.round(data.wind.speed) : Math.round(data.wind.speed * 3.6);
 
       const weatherEmoji = getWeatherEmoji(data.weather[0].main);
       const description = data.weather[0].description.split(' ').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-
-      const currentTime = new Date();
-      const formattedDateString = currentTime.toLocaleString(interaction.locale || 'en', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
 
       const [tempText, feelsLikeText, weatherText, humidityText, windText, pressureText, title, footer] = await Promise.all([
         await client.getLocaleText("commands.weather.temperature", interaction.locale),

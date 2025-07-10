@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { browserHeaders } from "@/constants/index";
 import BotClient from "@/services/Client";
 import { RandomReddit } from "@/types/base";
@@ -61,8 +62,6 @@ export default class InteractionCreateEvent {
                 }
 
                 if (i.customId === 'refresh_cat') {
-                    // await withTranslation(interaction, client);
-                    const locale = i.locale || 'en';
                     try {
                         const response = await fetch('https://api.pur.cat/random-cat');
                         if (!response.ok) {
@@ -77,11 +76,11 @@ export default class InteractionCreateEvent {
 
                             const embed = new EmbedBuilder().setColor(0xfaa0a0).setTitle(title).setImage(data.url);
 
-                            let footerText = await this.client.getLocaleText("poweredby", i.locale) + " pur.cat";
+                            const footerText = await this.client.getLocaleText("poweredby", i.locale) + " pur.cat";
                             embed.setFooter({ text: footerText });
 
                             if (data.subreddit) {
-                                let fromText = await this.client.getLocaleText("reddit.from", i.locale, { subreddit: data.subreddit });
+                                const fromText = await this.client.getLocaleText("reddit.from", i.locale, { subreddit: data.subreddit });
                                 embed.setDescription(fromText);
                             }
                             const refreshLabel = await this.client.getLocaleText("commands.cat.newcat", i.locale);
@@ -109,7 +108,6 @@ export default class InteractionCreateEvent {
                         });
                     }
                 } else if (i.customId === 'refresh_dog') {
-                    const locale = i.locale || 'en';
                     try {
                         const response = await fetch('https://api.erm.dog/random-dog', {
                             headers: browserHeaders,
@@ -142,11 +140,11 @@ export default class InteractionCreateEvent {
 
                             const embed = new EmbedBuilder().setColor(0x8a2be2).setTitle(title).setImage(data!.url);
 
-                            let footerText = await this.client.getLocaleText("poweredby", i.locale) + " erm.dog";
+                            const footerText = await this.client.getLocaleText("poweredby", i.locale) + " erm.dog";
                             embed.setFooter({ text: footerText });
 
                             if (data!.subreddit) {
-                                let fromText = await this.client.getLocaleText("reddit.from", i.locale, { subreddit: data!.subreddit });
+                                const fromText = await this.client.getLocaleText("reddit.from", i.locale, { subreddit: data!.subreddit });
                                 embed.setDescription(fromText);
                             }
                             const refreshLabel = await this.client.getLocaleText("commands.dog.newdog", i.locale);
