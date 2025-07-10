@@ -1,5 +1,5 @@
-import { STATUS_API_KEY } from "@/config";
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import * as config from "@/config";
+import { RequestHandler } from "express";
 
 const authenticateApiKey: RequestHandler = (req, res, next) => {
   const apiKey = req.headers['x-api-key'];
@@ -8,7 +8,7 @@ const authenticateApiKey: RequestHandler = (req, res, next) => {
     return
   }
   const clientKey = Buffer.from(apiKey);
-  const serverKey = Buffer.from(STATUS_API_KEY);
+  const serverKey = Buffer.from(config.STATUS_API_KEY);
 
   if (clientKey.length !== serverKey.length) {
     res.status(401).json({ error: 'Unauthorized: Invalid API key' });

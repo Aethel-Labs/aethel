@@ -1,4 +1,4 @@
-import { TOKEN } from "@/config";
+import * as config from "@/config";
 import initialzeCommands from "@/handlers/initialzeCommands";
 import { SlashCommandProps } from "@/types/command";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
@@ -27,7 +27,7 @@ export default class BotClient extends Client {
         await initialzeCommands(this);
         await this.setupLocalization();
         await this.setupEvents();
-        this.login(TOKEN);
+        this.login(config.TOKEN);
     }
 
     private async setupEvents() {

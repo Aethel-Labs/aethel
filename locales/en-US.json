@@ -17,11 +17,11 @@
         "8ball": {
             "name": "8ball",
             "description": "Ask the magic 8-ball a question",
-            "says":"The Magic 8-Ball says...",
-            "question":"Question",
-            "answer":"Answer",
-            "anotherfortune":"Ask again for another fortune!",
-            "spoken":"The magic 8-ball has spoken!",
+            "says": "The Magic 8-Ball says...",
+            "question": "Question",
+            "answer": "Answer",
+            "anotherfortune": "Ask again for another fortune!",
+            "spoken": "The magic 8-ball has spoken!",
             "responces": {
                 "itiscertain": "It is certain",
                 "itisdecidedlyso": "It is decidedly so",
@@ -50,7 +50,7 @@
             "description": "Get a random cat image!",
             "randomcat": "Random cat",
             "newcat": "New cat",
-            "error":"Sorry, I had trouble fetching a cat image. Please try again later!"
+            "error": "Sorry, I had trouble fetching a cat image. Please try again later!"
         },
         "dog": {
             "name": "dog",
@@ -95,7 +95,7 @@
         },
         "help": {
             "name": "help",
-            "description":"Show all available commands and their usage",
+            "description": "Show all available commands and their usage",
             "embed": {
                 "title": "Aethel commands",
                 "description": "Here are all the available commands"
@@ -108,7 +108,6 @@
             "remindyou": "You asked me to remind me about: {message}",
             "timeelapsed": "Time elapsed",
             "originaltime": "Original Time",
-            
             "errors": {
                 "base": "An error occurred while setting your reminder. Please try again later.",
                 "failedtosave": "Failed to save your reminder. Please try again later.",
@@ -117,7 +116,6 @@
                 "atleastoneminute": "Reminder time must be at least 1 minute!",
                 "notlongerthanaday": "Reminder time cannot be longer than 24 hours!"
             },
-
             "modal": {
                 "setreminder": "Set reminder",
                 "whento": "When to remind you? (e.g., 10m, 1h, 2h30m)"
@@ -131,8 +129,8 @@
         },
         "whois": {
             "name": "whois",
-            "description": "die",
-            "error":"Sorry, I had trouble fetching WHOIS data. Please try again later!",
+            "description": "Look up WHOIS information for a domain or IP address",
+            "error": "Sorry, I had trouble fetching WHOIS data. Please try again later!",
             "nodata": "No WHOIS data found for the specified domain or IP.",
             "notvalid": "Please provide a valid domain name or IP address."
         },
@@ -163,7 +161,7 @@
             },
             "nopendingrequest": "No pending request found. Please try the command again.",
             "apicredssaved": "API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`",
-            "process" : {
+            "process": {
                 "dailylimit": "You've reached your daily limit of AI requests",
                 "noapikey": "Please set up your API key first"
             },
@@ -175,8 +173,8 @@
         }
     },
     "categories": {
-        "fun":"Fun",
-        "info":"Info",
-        "utilities":"Utilities"
+        "fun": "Fun",
+        "info": "Info",
+        "utilities": "Utilities"
     }
 }

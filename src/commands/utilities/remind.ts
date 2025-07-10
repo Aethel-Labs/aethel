@@ -21,7 +21,7 @@ import {
   formatTimeString,
 } from '@/utils/validation';
 import { saveReminder, completeReminder, cleanupReminders } from '@/utils/reminderDb';
-import { RemindCommandProps, SlashCommandProps } from '@/types/command';
+import { RemindCommandProps } from '@/types/command';
 import BotClient from '@/services/Client';
 
 interface Reminder {
@@ -82,7 +82,7 @@ function createReminderHandler(client: BotClient, reminder: Reminder) {
         (new Date(reminder.expires_at).getTime() - new Date(reminder.created_at!).getTime()) / (60 * 1000)
       );
 
-      const reminderTitle = "⏰ " + await client.getLocaleText("command.remind.reminder", reminder.locale);
+      const reminderTitle = "⏰ " + await client.getLocaleText("commands.remind.reminder", reminder.locale);
       const reminderDesc = await client.getLocaleText("commands.remind.remindyou", reminder.locale, { message: reminder.message });
 
       const timeElapsedText = "⏱️ " + await client.getLocaleText("commands.remind.timeelapsed", reminder.locale);
@@ -331,7 +331,7 @@ export default {
               inline: true,
             }
           )
-          .setFooter({ text: await client.getLocaleText("commands.remind.reminderid", interaction.locale, { reminderID: reminderId.slice(-6) }) })
+          .setFooter({ text: await client.getLocaleText("commands.remind.reminderid", interaction.locale, { reminderId: reminderId.slice(-6) }) })
           .setTimestamp();
 
         await interaction.editReply({ embeds: [embed] });
@@ -346,6 +346,7 @@ export default {
             messagePreview: message.length > 50 ? `${message.substring(0, 50)}...` : message,
           }
         );
+        return;
       } catch (error) {
         logger.error(`Error saving reminder to database: ${(error as Error).message}`, {
           error,
@@ -382,6 +383,7 @@ export default {
           flags: MessageFlags.Ephemeral,
         });
       }
+      return;
     }
   },
 
@@ -578,6 +580,7 @@ export default {
         channelId: messageInfo.channelId,
         minutes,
       });
+      return;
     } catch (error) {
       logger.error(`Error handling reminder modal for ${user.tag} (${user.id}): ${(error as Error).message}`, {
         error,
@@ -592,6 +595,7 @@ export default {
       } catch (replyError) {
         logger.error('Failed to send error response to user:', { error: replyError });
       }
+      return;
     }
   },
 } as RemindCommandProps;

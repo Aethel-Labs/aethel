@@ -1,10 +1,10 @@
 // Very super duper smart encryption
 
-import { API_KEY_ENCRYPTION_SECRET } from '@/config';
+import * as config from "@/config";
 import crypto from 'crypto';
 
 const ALGO = 'aes-256-gcm';
-const KEY = crypto.createHash('sha256').update(API_KEY_ENCRYPTION_SECRET).digest();
+const KEY = crypto.createHash('sha256').update(config.API_KEY_ENCRYPTION_SECRET).digest();
 const IV_LENGTH = 12;
 
 function encrypt(text: string) {

@@ -3,7 +3,7 @@ import fetch from '@/utils/dynamicFetch';
 import { sanitizeInput } from '@/utils/validation';
 import logger from '@/utils/logger';
 import { SlashCommandProps } from '@/types/command';
-import { OPENWEATHER_API_KEY } from '@/config';
+import * as config from "@/config";
 import { WeatherAPIResponse, WeatherErrorResponse, WeatherResponse } from '@/types/base';
 
 const cooldowns = new Map();
@@ -27,7 +27,7 @@ function getWeatherEmoji(weatherType: string) {
 }
 
 async function fetchWeatherData(location: string, units = 'metric') {
-  const apiKey = OPENWEATHER_API_KEY;
+  const apiKey = config.OPENWEATHER_API_KEY;
   if (!apiKey) {
     throw new Error('OpenWeather API key not configured');
   }
@@ -157,17 +157,9 @@ export default {
         await client.getLocaleText("poweredby", interaction.locale),
       ]);
 
-      const replacedTitle = title
-        .replace(/%city%/gi, sanitizeInput(data.name))
-        .replace(/%country%/gi, data.sys.country)
-        .replace(/%emoji%/gi, weatherEmoji)
-        .replace(/%date%/gi, formattedDateString);
-
-      const replacedFooter = footer.replace(/%date%/gi, formattedDateString);
-
       const embed = new EmbedBuilder()
         .setColor(0x4285f4)
-        .setTitle(replacedTitle)
+        .setTitle(title)
         .addFields(
           { name: tempText, value: `${Math.round(data.main.temp)}${tempUnit}`, inline: true },
           { name: feelsLikeText, value: `${Math.round(data.main.feels_like)}${tempUnit}`, inline: true },
@@ -176,7 +168,7 @@ export default {
           { name: windText, value: `${windSpeed} ${windUnit}`, inline: true },
           { name: pressureText, value: `${data.main.pressure} hPa`, inline: true }
         )
-        .setFooter({ text: replacedFooter })
+        .setFooter({ text: footer + " Open Weather" })
         .setTimestamp();
       await interaction.editReply({ embeds: [embed] });
     } catch (error) {

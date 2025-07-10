@@ -1,4 +1,4 @@
-import { CLIENT_ID, TOKEN } from '@/config';
+import * as config from "@/config";
 import BotClient from '@/services/Client';
 import { SlashCommandProps } from '@/types/command';
 import { REST, Routes, SlashCommandBuilder } from 'discord.js';
@@ -25,8 +25,8 @@ export default async (c: BotClient) => {
     }));
   }
   try {
-    const rest = new REST({ version: "10" }).setToken(TOKEN!);
-    await rest.put(Routes.applicationCommands(CLIENT_ID!), { body: commands });
+    const rest = new REST({ version: "10" }).setToken(config.TOKEN!);
+    await rest.put(Routes.applicationCommands(config.CLIENT_ID!), { body: commands });
     console.log("all commands has been registered")
   } catch (error) {
 
