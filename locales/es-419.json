@@ -2,7 +2,7 @@
     "cooldown": "Por favor espera {cooldown} segundo(s) antes de usar este comando de nuevo.",
     "failedrequest": "Ocurrió un error al procesar tu solicitud. Por favor, inténtalo de nuevo más tarde.",
     "unexpectederror": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.",
-    "poweredby": "Tecnologia de",
+    "poweredby": "Tecnología de",
     "providedby": "Datos proporcionados por",
     "reddit": {
         "from": "De r/{subreddit}"
