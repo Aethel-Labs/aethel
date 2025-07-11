@@ -1,180 +1,180 @@
 {
-  "cooldown": "Bitte warte {cooldown} Sekunde(n), bevor du diesen Befehl erneut verwendest.",
-  "failedrequest": "Beim Verarbeiten deiner Anfrage ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
-  "unexpectederror": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut.",
-  "poweredby": "Technologie von",
-  "providedby": "Daten bereitgestellt von",
-  "reddit": {
-    "from": "Von r/{subreddit}"
-  },
-  "error": "Fehler!",
-  "common": {
-    "ogmessage": "Ursprüngliche Nachricht",
-    "jumptomessage": "Zur Nachricht springen",
-    "messagelink": "Nachrichtenlink"
-  },
-  "commands": {
-    "8ball": {
-      "name": "8ball",
-      "description": "Stelle der magischen 8-Ball eine Frage",
-      "says": "Die magische 8-Ball sagt...",
-      "question": "Frage",
-      "answer": "Antwort",
-      "anotherfortune": "Frag nochmal für eine weitere Vorhersage!",
-      "spoken": "Die magische 8-Ball hat gesprochen!",
-      "responces": {
-        "itiscertain": "Es ist sicher",
-        "itisdecidedlyso": "Ganz bestimmt",
-        "withoutadoubt": "Ohne Zweifel",
-        "yesdefinitely": "Ja, definitiv",
-        "youmayrelyonit": "Du kannst dich darauf verlassen",
-        "asiseeityes": "So wie ich es sehe, ja",
-        "mostlikely": "Höchstwahrscheinlich",
-        "outlookgood": "Sieht gut aus",
-        "yes": "Ja",
-        "signspointtoyes": "Anzeichen deuten auf Ja",
-        "replyhazytryagain": "Antwort unklar, versuche es erneut",
-        "askagainlater": "Frag später nochmal",
-        "betternottellyounow": "Besser, ich sage es dir jetzt nicht",
-        "cannotpredictnow": "Kann jetzt nicht vorhersagen",
-        "concentrateandaskagain": "Konzentriere dich und frage erneut",
-        "dontcountonit": "Verlass dich nicht darauf",
-        "myreplyisno": "Meine Antwort ist nein",
-        "mysourcessayno": "Meine Quellen sagen nein",
-        "outlooknotsogood": "Sieht nicht so gut aus",
-        "verydoubtful": "Sehr zweifelhaft"
-      }
+    "cooldown": "Bitte warte {cooldown} Sekunde(n), bevor du diesen Befehl erneut verwendest.",
+    "failedrequest": "Beim Verarbeiten deiner Anfrage ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
+    "unexpectederror": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut.",
+    "poweredby": "Technologie von",
+    "providedby": "Daten bereitgestellt von",
+    "reddit": {
+        "from": "Von r/{subreddit}"
     },
-    "cat": {
-      "name": "katze",
-      "description": "Erhalte ein zufälliges Katzenbild!",
-      "randomcat": "Zufällige Katze",
-      "newcat": "Neue Katze",
-      "error": "Entschuldigung, ich konnte kein Katzenbild abrufen. Bitte versuche es später erneut!"
+    "error": "Fehler!",
+    "common": {
+        "ogmessage": "Ursprüngliche Nachricht",
+        "jumptomessage": "Zur Nachricht springen",
+        "messagelink": "Nachrichtenlink"
     },
-    "dog": {
-      "name": "hund",
-      "description": "Erhalte ein zufälliges Hundebild!",
-      "randomdog": "Zufälliger Hund",
-      "newdog": "Neuer Hund",
-      "error": "Entschuldigung, ich konnte kein Hundebild abrufen. Bitte versuche es später erneut!"
-    },
-    "wiki": {
-      "name": "wiki",
-      "description": "Suche ein Thema bei Wikipedia",
-      "pedia": "Wikipedia: {article}",
-      "error": "Entschuldigung, ich konnte den Wikipedia-Artikel nicht abrufen. Bitte versuche es später erneut!",
-      "nosummary": "Keine Zusammenfassung verfügbar",
-      "readmoreonwiki": "Mehr lesen"
-    },
-    "weather": {
-      "name": "wetter",
-      "description": "Erhalte das aktuelle Wetter für einen Ort",
-      "temperature": "Temperatur",
-      "feelslike": "Gefühlte Temperatur",
-      "default": "Wetter",
-      "humidity": "Luftfeuchtigkeit",
-      "windspeed": "Windgeschwindigkeit",
-      "pressure": "Luftdruck",
-      "weatherin": "Wetter in {location}",
-      "error": "Entschuldigung, ich konnte das Wetter nicht abrufen. Bitte versuche es später erneut!",
-      "nolocation": "Ort nicht gefunden. Bitte überprüfe den Stadtnamen und versuche es erneut.",
-      "apikeymissing": "OpenWeather API-Schlüssel fehlt oder ist ungültig."
-    },
-    "joke": {
-      "name": "witz",
-      "description": "Erhalte einen zufälligen Witz!",
-      "waitingpunchline": "Die Pointe erscheint in {seconds} Sekunden...",
-      "error": "Entschuldigung, ich konnte keinen Witz abrufen. Bitte versuche es später erneut!",
-      "type": {
-        "default": "{type}-Witz",
-        "general": "Allgemein",
-        "programming": "Programmierung",
-        "dad": "Papa"
-      }
-    },
-    "help": {
-      "name": "hilfe",
-      "description": "Zeige alle verfügbaren Befehle und deren Verwendung",
-      "embed": {
-        "title": "Aethel-Befehle",
-        "description": "Hier sind alle verfügbaren Befehle"
-      },
-      "nooptions": "Keine Optionen"
-    },
-    "remind": {
-      "name": "erinnern",
-      "reminder": "Erinnerung!",
-      "remindyou": "Du hast mich gebeten, dich an folgendes zu erinnern: {message}",
-      "timeelapsed": "Verstrichene Zeit",
-      "originaltime": "Ursprüngliche Zeit",
-      "errors": {
-        "base": "Beim Einrichten deiner Erinnerung ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
-        "failedtosave": "Deine Erinnerung konnte nicht gespeichert werden. Bitte versuche es später erneut.",
-        "invalidformat": "Ungültiges Zeitformat! Verwende Kombinationen wie: 1h30m, 45m oder 2h",
-        "providevalidchars": "Bitte gib eine gültige Nachricht ein (1-1000 Zeichen)",
-        "atleastoneminute": "Die Erinnerung muss mindestens 1 Minute betragen!",
-        "notlongerthanaday": "Die Erinnerung darf nicht länger als 24 Stunden sein!"
-      },
-      "modal": {
-        "setreminder": "Erinnerung einstellen",
-        "whento": "Wann soll ich dich erinnern? (z.B. 10m, 1h, 2h30m)"
-      },
-      "reminderset": "Erinnerung eingestellt",
-      "iwillremindyou": "Ich werde dich an {message} in {time} erinnern",
-      "contextiwillremindyou": "Ich werde dich an diese Nachricht in {time} erinnern",
-      "time": "Zeit",
-      "willtrigger": "Wird ausgelöst",
-      "reminderid": "Erinnerungs-ID: {reminderId}"
-    },
-    "whois": {
-      "name": "whois",
-      "description": "WHOIS-Informationen für eine Domain oder IP-Adresse abrufen",
-      "error": "Entschuldigung, ich konnte die WHOIS-Daten nicht abrufen. Bitte versuche es später erneut!",
-      "nodata": "Keine WHOIS-Daten für die angegebene Domain oder IP gefunden.",
-      "notvalid": "Bitte gib einen gültigen Domainnamen oder eine gültige IP-Adresse an."
-    },
-    "ai": {
-      "name": "ai",
-      "description": "Chatte mit einem KI-Assistenten",
-      "optioins": {
-        "prompt": {
-          "name": "eingabe",
-          "description": "Deine Nachricht an die KI"
+    "commands": {
+        "8ball": {
+            "name": "8ball",
+            "description": "Stelle der magischen 8-Ball eine Frage",
+            "says": "Die magische 8-Ball sagt…",
+            "question": "Frage",
+            "answer": "Antwort",
+            "anotherfortune": "Frag nochmal für eine weitere Vorhersage!",
+            "spoken": "Die magische 8-Ball hat gesprochen!",
+            "responces": {
+                "itiscertain": "Es ist sicher",
+                "itisdecidedlyso": "Ganz bestimmt",
+                "withoutadoubt": "Ohne Zweifel",
+                "yesdefinitely": "Ja, definitiv",
+                "youmayrelyonit": "Du kannst dich darauf verlassen",
+                "asiseeityes": "So wie ich es sehe, ja",
+                "mostlikely": "Höchstwahrscheinlich",
+                "outlookgood": "Sieht gut aus",
+                "yes": "Ja",
+                "signspointtoyes": "Anzeichen deuten auf Ja",
+                "replyhazytryagain": "Antwort unklar, versuche es erneut",
+                "askagainlater": "Frag später nochmal",
+                "betternottellyounow": "Besser, ich sage es dir jetzt nicht",
+                "cannotpredictnow": "Kann jetzt nicht vorhersagen",
+                "concentrateandaskagain": "Konzentriere dich und frage erneut",
+                "dontcountonit": "Verlass dich nicht darauf",
+                "myreplyisno": "Meine Antwort ist nein",
+                "mysourcessayno": "Meine Quellen sagen nein",
+                "outlooknotsogood": "Sieht nicht so gut aus",
+                "verydoubtful": "Sehr zweifelhaft"
+            }
         },
-        "customapi": "Eigener API-Schlüssel verwenden?",
-        "reset": "Deinen KI-Chatverlauf zurücksetzen"
-      },
-      "request": {
-        "inprogress": "Du hast bereits eine laufende Anfrage. Bitte warte, bis sie abgeschlossen ist."
-      },
-      "reset": "Dein KI-Chatverlauf wurde zurückgesetzt.",
-      "defaultapi": " Zurück zur Standard-API gewechselt. Dein eigener API-Schlüssel wurde entfernt und das Standardmodell wird verwendet.",
-      "modal": {
-        "title": "Gib deine API-Zugangsdaten ein",
-        "apikey": "API-Schlüssel",
-        "apikeyplaceholder": "Um deinen Schlüssel nicht mehr zu verwenden: /ai use_custom_api false",
-        "apiurl": "API-URL",
-        "apiurlplaceholder": "Deine API-URL",
-        "model": "Modell",
-        "modelplaceholder": "Modellname (z.B. gpt-4)"
-      },
-      "nopendingrequest": "Keine ausstehende Anfrage gefunden. Bitte versuche den Befehl erneut.",
-      "apicredssaved": "API-Zugangsdaten gespeichert. Du kannst jetzt den Befehl `/ai` verwenden, ohne deine Zugangsdaten erneut einzugeben. Um deinen Schlüssel nicht mehr zu verwenden, nutze `/ai use_custom_api false`",
-      "process": {
-        "dailylimit": "Du hast dein tägliches Limit an KI-Anfragen erreicht",
-        "noapikey": "Bitte richte zuerst deinen API-Schlüssel ein"
-      },
-      "errors": {
-        "failed": "KI-Antwort konnte nicht verarbeitet werden",
-        "nores": "Keine Antwort von der KI",
-        "toolong": "Nachricht ist zu lang"
-      }
+        "cat": {
+            "name": "katze",
+            "description": "Erhalte ein zufälliges Katzenbild!",
+            "randomcat": "Zufällige Katze",
+            "newcat": "Neue Katze",
+            "error": "Entschuldigung, ich konnte kein Katzenbild abrufen. Bitte versuche es später erneut!"
+        },
+        "dog": {
+            "name": "hund",
+            "description": "Erhalte ein zufälliges Hundebild!",
+            "randomdog": "Zufälliger Hund",
+            "newdog": "Neuer Hund",
+            "error": "Entschuldigung, ich konnte kein Hundebild abrufen. Bitte versuche es später erneut!"
+        },
+        "wiki": {
+            "name": "wiki",
+            "description": "Suche ein Thema bei Wikipedia",
+            "pedia": "Wikipedia: {article}",
+            "error": "Entschuldigung, ich konnte den Wikipedia-Artikel nicht abrufen. Bitte versuche es später erneut!",
+            "nosummary": "Keine Zusammenfassung verfügbar",
+            "readmoreonwiki": "Mehr lesen"
+        },
+        "weather": {
+            "name": "wetter",
+            "description": "Erhalte das aktuelle Wetter für einen Ort",
+            "temperature": "Temperatur",
+            "feelslike": "Gefühlte Temperatur",
+            "default": "Wetter",
+            "humidity": "Luftfeuchtigkeit",
+            "windspeed": "Windgeschwindigkeit",
+            "pressure": "Luftdruck",
+            "weatherin": "Wetter in {location}",
+            "error": "Entschuldigung, ich konnte das Wetter nicht abrufen. Bitte versuche es später erneut!",
+            "nolocation": "Ort nicht gefunden. Bitte überprüfe den Stadtnamen und versuche es erneut.",
+            "apikeymissing": "OpenWeather API-Schlüssel fehlt oder ist ungültig."
+        },
+        "joke": {
+            "name": "witz",
+            "description": "Erhalte einen zufälligen Witz!",
+            "waitingpunchline": "Die Pointe erscheint in {seconds} Sekunden…",
+            "error": "Entschuldigung, ich konnte keinen Witz abrufen. Bitte versuche es später erneut!",
+            "type": {
+                "default": "{type}-Witz",
+                "general": "Allgemein",
+                "programming": "Programmierung",
+                "dad": "Papa"
+            }
+        },
+        "help": {
+            "name": "hilfe",
+            "description": "Zeige alle verfügbaren Befehle und deren Verwendung",
+            "embed": {
+                "title": "Aethel-Befehle",
+                "description": "Hier sind alle verfügbaren Befehle"
+            },
+            "nooptions": "Keine Optionen"
+        },
+        "remind": {
+            "name": "erinnern",
+            "reminder": "Erinnerung!",
+            "remindyou": "Du hast mich gebeten, dich an folgendes zu erinnern: {message}",
+            "timeelapsed": "Verstrichene Zeit",
+            "originaltime": "Ursprüngliche Zeit",
+            "errors": {
+                "base": "Beim Einrichten deiner Erinnerung ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
+                "failedtosave": "Deine Erinnerung konnte nicht gespeichert werden. Bitte versuche es später erneut.",
+                "invalidformat": "Ungültiges Zeitformat! Verwende Kombinationen wie: 1h30m, 45m oder 2h",
+                "providevalidchars": "Bitte gib eine gültige Nachricht ein (1-1000 Zeichen)",
+                "atleastoneminute": "Die Erinnerung muss mindestens 1 Minute betragen!",
+                "notlongerthanaday": "Die Erinnerung darf nicht länger als 24 Stunden sein!"
+            },
+            "modal": {
+                "setreminder": "Erinnerung einstellen",
+                "whento": "Wann soll ich dich erinnern? (z.B. 10m, 1h, 2h30m)"
+            },
+            "reminderset": "Erinnerung eingestellt",
+            "iwillremindyou": "Ich werde dich an {message} in {time} erinnern",
+            "contextiwillremindyou": "Ich werde dich an diese Nachricht in {time} erinnern",
+            "time": "Zeit",
+            "willtrigger": "Wird ausgelöst",
+            "reminderid": "Erinnerungs-ID: {reminderId}"
+        },
+        "whois": {
+            "name": "whois",
+            "description": "WHOIS-Informationen für eine Domain oder IP-Adresse abrufen",
+            "error": "Entschuldigung, ich konnte die WHOIS-Daten nicht abrufen. Bitte versuche es später erneut!",
+            "nodata": "Keine WHOIS-Daten für die angegebene Domain oder IP gefunden.",
+            "notvalid": "Bitte gib einen gültigen Domainnamen oder eine gültige IP-Adresse an."
+        },
+        "ai": {
+            "name": "ai",
+            "description": "Chatte mit einem KI-Assistenten",
+            "optioins": {
+                "prompt": {
+                    "name": "eingabe",
+                    "description": "Deine Nachricht an die KI"
+                },
+                "customapi": "Eigener API-Schlüssel verwenden?",
+                "reset": "Deinen KI-Chatverlauf zurücksetzen"
+            },
+            "request": {
+                "inprogress": "Du hast bereits eine laufende Anfrage. Bitte warte, bis sie abgeschlossen ist."
+            },
+            "reset": "Dein KI-Chatverlauf wurde zurückgesetzt.",
+            "defaultapi": " Zurück zur Standard-API gewechselt. Dein eigener API-Schlüssel wurde entfernt und das Standardmodell wird verwendet.",
+            "modal": {
+                "title": "Gib deine API-Zugangsdaten ein",
+                "apikey": "API-Schlüssel",
+                "apikeyplaceholder": "Um deinen Schlüssel nicht mehr zu verwenden: /ai use_custom_api false",
+                "apiurl": "API-URL",
+                "apiurlplaceholder": "Deine API-URL",
+                "model": "Modell",
+                "modelplaceholder": "Modellname (z.B. gpt-4)"
+            },
+            "nopendingrequest": "Keine ausstehende Anfrage gefunden. Bitte versuche den Befehl erneut.",
+            "apicredssaved": "API-Zugangsdaten gespeichert. Du kannst jetzt den Befehl `/ai` verwenden, ohne deine Zugangsdaten erneut einzugeben. Um deinen Schlüssel nicht mehr zu verwenden, nutze `/ai use_custom_api false`",
+            "process": {
+                "dailylimit": "Du hast dein tägliches Limit an KI-Anfragen erreicht",
+                "noapikey": "Bitte richte zuerst deinen API-Schlüssel ein"
+            },
+            "errors": {
+                "failed": "KI-Antwort konnte nicht verarbeitet werden",
+                "nores": "Keine Antwort von der KI",
+                "toolong": "Nachricht ist zu lang"
+            }
+        }
+    },
+    "categories": {
+        "fun": "Spaß",
+        "info": "Info",
+        "utilities": "Dienstprogramme"
     }
-  },
-  "categories": {
-    "fun": "Spaß",
-    "info": "Info",
-    "utilities": "Dienstprogramme"
-  }
 }
