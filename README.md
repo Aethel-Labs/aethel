@@ -2,7 +2,7 @@
 
 [![Node.js](https://img.shields.io/badge/node-%3E=16.9.0-green?logo=node.js)](https://nodejs.org/) 
 
-A privacy-conscious, production-ready Discord user bot with AI chat, reminders, and utility commands. Built with Node.js, Discord.js v14, PostgreSQL, and robust security best practices.
+A privacy-conscious, production-ready Discord user-installed bot with AI chat, reminders, and utility commands. Built with Node.js, Discord.js v14, PostgreSQL, and robust security best practices.
 
 ---
 
@@ -23,7 +23,7 @@ A privacy-conscious, production-ready Discord user bot with AI chat, reminders, 
 ### 1. Clone & Install
 
 ```sh
-git clone https://github.com/scanash00/bot.git
+git clone https://github.com/aethel-labs/aethel.git
 cd bot
 pnpm i
 ```
