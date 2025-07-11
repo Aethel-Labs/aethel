@@ -1,6 +1,6 @@
 {
   "name": "aethel",
-  "version": "1.10.0",
+  "version": "2.0.0",
   "description": "A privacy-conscious, production-ready Discord user bot",
   "type": "module",
   "main": "dist/index.js",
