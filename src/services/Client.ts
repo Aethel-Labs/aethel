@@ -57,8 +57,24 @@ export default class BotClient extends Client {
     }
     public async getLocaleText(key: string, locale: string, replaces = {}): Promise<string> {
         const fallbackLocale = 'en-US';
-
-        let langMap = this.t.get(locale) || this.t.get(fallbackLocale);
+        let selectedLocale = locale;
+        let langMap = this.t.get(locale);
+        if (!langMap) {
+            const langOnly = locale.split('-')[0];
+            langMap = this.t.get(langOnly);
+            if (langMap) {
+                selectedLocale = langOnly;
+            } else {
+                const fuzzyLocale = Array.from(this.t.keys()).find(k => k.startsWith(langOnly + '-'));
+                if (fuzzyLocale) {
+                    langMap = this.t.get(fuzzyLocale);
+                    selectedLocale = fuzzyLocale;
+                } else {
+                    langMap = this.t.get(fallbackLocale);
+                    selectedLocale = fallbackLocale;
+                }
+            }
+        }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const getValueFromMap = (map: any, keyPath: string): any => {
@@ -69,6 +85,7 @@ export default class BotClient extends Client {
 
         if (text === undefined && locale !== fallbackLocale) {
             langMap = this.t.get(fallbackLocale);
+            selectedLocale = fallbackLocale;
             text = getValueFromMap(langMap, key);
         }
 
