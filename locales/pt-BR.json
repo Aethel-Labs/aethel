@@ -1,180 +1,180 @@
 {
-  "cooldown": "Por favor, aguarde {cooldown} segundo(s) antes de usar este comando novamente.",
-  "failedrequest": "Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde.",
-  "unexpectederror": "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.",
-  "poweredby": "Tecnologia de",
-  "providedby": "Dados fornecidos por",
-  "reddit": {
-    "from": "De r/{subreddit}"
-  },
-  "error": "Erro!",
-  "common": {
-    "ogmessage": "Mensagem original",
-    "jumptomessage": "Ir para a mensagem",
-    "messagelink": "Link da mensagem"
-  },
-  "commands": {
-    "8ball": {
-      "name": "8ball",
-      "description": "Faça uma pergunta à bola mágica 8",
-      "says": "A bola mágica 8 diz...",
-      "question": "Pergunta",
-      "answer": "Resposta",
-      "anotherfortune": "Pergunte novamente para outra previsão!",
-      "spoken": "A bola mágica 8 falou!",
-      "responces": {
-        "itiscertain": "É certo",
-        "itisdecidedlyso": "Definitivamente sim",
-        "withoutadoubt": "Sem dúvida",
-        "yesdefinitely": "Sim, definitivamente",
-        "youmayrelyonit": "Você pode confiar nisso",
-        "asiseeityes": "Pelo que vejo, sim",
-        "mostlikely": "Muito provável",
-        "outlookgood": "Parece bom",
-        "yes": "Sim",
-        "signspointtoyes": "Os sinais apontam que sim",
-        "replyhazytryagain": "Resposta confusa, tente novamente",
-        "askagainlater": "Pergunte novamente mais tarde",
-        "betternottellyounow": "Melhor não te dizer agora",
-        "cannotpredictnow": "Não posso prever agora",
-        "concentrateandaskagain": "Concentre-se e pergunte novamente",
-        "dontcountonit": "Não conte com isso",
-        "myreplyisno": "Minha resposta é não",
-        "mysourcessayno": "Minhas fontes dizem que não",
-        "outlooknotsogood": "Não parece bom",
-        "verydoubtful": "Muito duvidoso"
-      }
+    "cooldown": "Por favor, aguarde {cooldown} segundo(s) antes de usar este comando novamente.",
+    "failedrequest": "Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde.",
+    "unexpectederror": "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.",
+    "poweredby": "Tecnologia de",
+    "providedby": "Dados fornecidos por",
+    "reddit": {
+        "from": "De r/{subreddit}"
     },
-    "cat": {
-      "name": "gato",
-      "description": "Obtenha uma imagem aleatória de um gato!",
-      "randomcat": "Gato aleatório",
-      "newcat": "Novo gato",
-      "error": "Desculpe, tive problemas para buscar uma imagem de gato. Por favor, tente novamente mais tarde!"
+    "error": "Erro!",
+    "common": {
+        "ogmessage": "Mensagem original",
+        "jumptomessage": "Ir para a mensagem",
+        "messagelink": "Link da mensagem"
     },
-    "dog": {
-      "name": "cachorro",
-      "description": "Obtenha uma imagem aleatória de um cachorro!",
-      "randomdog": "Cachorro aleatório",
-      "newdog": "Novo cachorro",
-      "error": "Desculpe, tive problemas para buscar uma imagem de cachorro. Por favor, tente novamente mais tarde!"
-    },
-    "wiki": {
-      "name": "wiki",
-      "description": "Pesquise um tópico na Wikipédia",
-      "pedia": "Wikipédia: {article}",
-      "error": "Desculpe, tive problemas para buscar o artigo da Wikipédia. Por favor, tente novamente mais tarde!",
-      "nosummary": "Nenhum resumo disponível",
-      "readmoreonwiki": "Leia mais"
-    },
-    "weather": {
-      "name": "clima",
-      "description": "Obtenha o clima atual de um local",
-      "temperature": "Temperatura",
-      "feelslike": "Sensação térmica",
-      "default": "Clima",
-      "humidity": "Umidade",
-      "windspeed": "Velocidade do vento",
-      "pressure": "Pressão",
-      "weatherin": "Clima em {location}",
-      "error": "Desculpe, tive problemas para buscar o clima. Por favor, tente novamente mais tarde!",
-      "nolocation": "Local não encontrado. Por favor, verifique o nome da cidade e tente novamente.",
-      "apikeymissing": "A chave da API OpenWeather está ausente ou inválida."
-    },
-    "joke": {
-      "name": "piada",
-      "description": "Obtenha uma piada aleatória!",
-      "waitingpunchline": "A resposta aparecerá em {seconds} segundos...",
-      "error": "Desculpe, tive problemas para buscar uma piada. Por favor, tente novamente mais tarde!",
-      "type": {
-        "default": "Piada de {type}",
-        "general": "Geral",
-        "programming": "Programação",
-        "dad": "Pai"
-      }
-    },
-    "help": {
-      "name": "ajuda",
-      "description": "Mostra todos os comandos disponíveis e como usá-los",
-      "embed": {
-        "title": "Comandos do Aethel",
-        "description": "Aqui estão todos os comandos disponíveis"
-      },
-      "nooptions": "Sem opções"
-    },
-    "remind": {
-      "name": "lembrar",
-      "reminder": "Lembrete!",
-      "remindyou": "Você me pediu para lembrar sobre: {message}",
-      "timeelapsed": "Tempo decorrido",
-      "originaltime": "Hora original",
-      "errors": {
-        "base": "Ocorreu um erro ao configurar seu lembrete. Por favor, tente novamente mais tarde.",
-        "failedtosave": "Não foi possível salvar seu lembrete. Por favor, tente novamente mais tarde.",
-        "invalidformat": "Formato de tempo inválido! Use combinações como: 1h30m, 45m ou 2h",
-        "providevalidchars": "Por favor, forneça uma mensagem válida (1-1000 caracteres)",
-        "atleastoneminute": "O lembrete deve ter pelo menos 1 minuto!",
-        "notlongerthanaday": "O lembrete não pode ser maior que 24 horas!"
-      },
-      "modal": {
-        "setreminder": "Definir lembrete",
-        "whento": "Quando lembrar você? (ex: 10m, 1h, 2h30m)"
-      },
-      "reminderset": "Lembrete definido",
-      "iwillremindyou": "Vou lembrar você sobre {message} em {time}",
-      "contextiwillremindyou": "Vou lembrar você sobre esta mensagem em {time}",
-      "time": "Tempo",
-      "willtrigger": "Será ativado",
-      "reminderid": "ID do lembrete: {reminderId}"
-    },
-    "whois": {
-      "name": "whois",
-      "description": "Procure informações WHOIS para um domínio ou endereço IP",
-      "error": "Desculpe, tive problemas para buscar os dados WHOIS. Por favor, tente novamente mais tarde!",
-      "nodata": "Nenhum dado WHOIS encontrado para o domínio ou IP especificado.",
-      "notvalid": "Por favor, forneça um nome de domínio ou endereço IP válido."
-    },
-    "ai": {
-      "name": "ia",
-      "description": "Converse com um assistente de IA",
-      "optioins": {
-        "prompt": {
-          "name": "mensagem",
-          "description": "Sua mensagem para a IA"
+    "commands": {
+        "8ball": {
+            "name": "8ball",
+            "description": "Faça uma pergunta à bola mágica 8",
+            "says": "A bola mágica 8 diz…",
+            "question": "Pergunta",
+            "answer": "Resposta",
+            "anotherfortune": "Pergunte novamente para outra previsão!",
+            "spoken": "A bola mágica 8 falou!",
+            "responces": {
+                "itiscertain": "É certo",
+                "itisdecidedlyso": "Definitivamente sim",
+                "withoutadoubt": "Sem dúvida",
+                "yesdefinitely": "Sim, definitivamente",
+                "youmayrelyonit": "Você pode confiar nisso",
+                "asiseeityes": "Pelo que vejo, sim",
+                "mostlikely": "Muito provável",
+                "outlookgood": "Parece bom",
+                "yes": "Sim",
+                "signspointtoyes": "Os sinais apontam que sim",
+                "replyhazytryagain": "Resposta confusa, tente novamente",
+                "askagainlater": "Pergunte novamente mais tarde",
+                "betternottellyounow": "Melhor não te dizer agora",
+                "cannotpredictnow": "Não posso prever agora",
+                "concentrateandaskagain": "Concentre-se e pergunte novamente",
+                "dontcountonit": "Não conte com isso",
+                "myreplyisno": "Minha resposta é não",
+                "mysourcessayno": "Minhas fontes dizem que não",
+                "outlooknotsogood": "Não parece bom",
+                "verydoubtful": "Muito duvidoso"
+            }
         },
-        "customapi": "Usar sua própria chave de API?",
-        "reset": "Redefinir seu histórico de chat de IA"
-      },
-      "request": {
-        "inprogress": "Você já tem uma solicitação em andamento. Por favor, aguarde até que seja concluída."
-      },
-      "reset": "Seu histórico de chat de IA foi redefinido.",
-      "defaultapi": " Alterado para a API padrão. Sua chave de API personalizada foi removida e o modelo padrão será usado.",
-      "modal": {
-        "title": "Insira suas credenciais de API",
-        "apikey": "Chave de API",
-        "apikeyplaceholder": "Para parar de usar sua chave: /ai use_custom_api false",
-        "apiurl": "URL da API",
-        "apiurlplaceholder": "Sua URL de API",
-        "model": "Modelo",
-        "modelplaceholder": "Nome do modelo (ex. gpt-4)"
-      },
-      "nopendingrequest": "Nenhuma solicitação pendente encontrada. Por favor, tente o comando novamente.",
-      "apicredssaved": "Credenciais de API salvas. Agora você pode usar o comando `/ai` sem reinserir suas credenciais. Para parar de usar sua chave, use `/ai use_custom_api false`",
-      "process": {
-        "dailylimit": "Você atingiu seu limite diário de solicitações de IA",
-        "noapikey": "Por favor, configure sua chave de API primeiro"
-      },
-      "errors": {
-        "failed": "Falha ao processar a resposta da IA",
-        "nores": "Sem resposta da IA",
-        "toolong": "A mensagem é muito longa"
-      }
+        "cat": {
+            "name": "gato",
+            "description": "Obtenha uma imagem aleatória de um gato!",
+            "randomcat": "Gato aleatório",
+            "newcat": "Novo gato",
+            "error": "Desculpe, tive problemas para buscar uma imagem de gato. Por favor, tente novamente mais tarde!"
+        },
+        "dog": {
+            "name": "cachorro",
+            "description": "Obtenha uma imagem aleatória de um cachorro!",
+            "randomdog": "Cachorro aleatório",
+            "newdog": "Novo cachorro",
+            "error": "Desculpe, tive problemas para buscar uma imagem de cachorro. Por favor, tente novamente mais tarde!"
+        },
+        "wiki": {
+            "name": "wiki",
+            "description": "Pesquise um tópico na Wikipédia",
+            "pedia": "Wikipédia: {article}",
+            "error": "Desculpe, tive problemas para buscar o artigo da Wikipédia. Por favor, tente novamente mais tarde!",
+            "nosummary": "Nenhum resumo disponível",
+            "readmoreonwiki": "Leia mais"
+        },
+        "weather": {
+            "name": "clima",
+            "description": "Obtenha o clima atual de um local",
+            "temperature": "Temperatura",
+            "feelslike": "Sensação térmica",
+            "default": "Clima",
+            "humidity": "Umidade",
+            "windspeed": "Velocidade do vento",
+            "pressure": "Pressão",
+            "weatherin": "Clima em {location}",
+            "error": "Desculpe, tive problemas para buscar o clima. Por favor, tente novamente mais tarde!",
+            "nolocation": "Local não encontrado. Por favor, verifique o nome da cidade e tente novamente.",
+            "apikeymissing": "A chave da API OpenWeather está ausente ou inválida."
+        },
+        "joke": {
+            "name": "piada",
+            "description": "Obtenha uma piada aleatória!",
+            "waitingpunchline": "A resposta aparecerá em {seconds} segundos…",
+            "error": "Desculpe, tive problemas para buscar uma piada. Por favor, tente novamente mais tarde!",
+            "type": {
+                "default": "Piada de {type}",
+                "general": "Geral",
+                "programming": "Programação",
+                "dad": "Pai"
+            }
+        },
+        "help": {
+            "name": "ajuda",
+            "description": "Mostra todos os comandos disponíveis e como usá-los",
+            "embed": {
+                "title": "Comandos do Aethel",
+                "description": "Aqui estão todos os comandos disponíveis"
+            },
+            "nooptions": "Sem opções"
+        },
+        "remind": {
+            "name": "lembrar",
+            "reminder": "Lembrete!",
+            "remindyou": "Você me pediu para lembrar sobre: {message}",
+            "timeelapsed": "Tempo decorrido",
+            "originaltime": "Hora original",
+            "errors": {
+                "base": "Ocorreu um erro ao configurar seu lembrete. Por favor, tente novamente mais tarde.",
+                "failedtosave": "Não foi possível salvar seu lembrete. Por favor, tente novamente mais tarde.",
+                "invalidformat": "Formato de tempo inválido! Use combinações como: 1h30m, 45m ou 2h",
+                "providevalidchars": "Por favor, forneça uma mensagem válida (1-1000 caracteres)",
+                "atleastoneminute": "O lembrete deve ter pelo menos 1 minuto!",
+                "notlongerthanaday": "O lembrete não pode ser maior que 24 horas!"
+            },
+            "modal": {
+                "setreminder": "Definir lembrete",
+                "whento": "Quando lembrar você? (ex: 10m, 1h, 2h30m)"
+            },
+            "reminderset": "Lembrete definido",
+            "iwillremindyou": "Vou lembrar você sobre {message} em {time}",
+            "contextiwillremindyou": "Vou lembrar você sobre esta mensagem em {time}",
+            "time": "Tempo",
+            "willtrigger": "Será ativado",
+            "reminderid": "ID do lembrete: {reminderId}"
+        },
+        "whois": {
+            "name": "whois",
+            "description": "Procure informações WHOIS para um domínio ou endereço IP",
+            "error": "Desculpe, tive problemas para buscar os dados WHOIS. Por favor, tente novamente mais tarde!",
+            "nodata": "Nenhum dado WHOIS encontrado para o domínio ou IP especificado.",
+            "notvalid": "Por favor, forneça um nome de domínio ou endereço IP válido."
+        },
+        "ai": {
+            "name": "ia",
+            "description": "Converse com um assistente de IA",
+            "optioins": {
+                "prompt": {
+                    "name": "mensagem",
+                    "description": "Sua mensagem para a IA"
+                },
+                "customapi": "Usar sua própria chave de API?",
+                "reset": "Redefinir seu histórico de chat de IA"
+            },
+            "request": {
+                "inprogress": "Você já tem uma solicitação em andamento. Por favor, aguarde até que seja concluída."
+            },
+            "reset": "Seu histórico de chat de IA foi redefinido.",
+            "defaultapi": " Alterado para a API padrão. Sua chave de API personalizada foi removida e o modelo padrão será usado.",
+            "modal": {
+                "title": "Insira suas credenciais de API",
+                "apikey": "Chave de API",
+                "apikeyplaceholder": "Para parar de usar sua chave: /ai use_custom_api false",
+                "apiurl": "URL da API",
+                "apiurlplaceholder": "Sua URL de API",
+                "model": "Modelo",
+                "modelplaceholder": "Nome do modelo (ex. gpt-4)"
+            },
+            "nopendingrequest": "Nenhuma solicitação pendente encontrada. Por favor, tente o comando novamente.",
+            "apicredssaved": "Credenciais de API salvas. Agora você pode usar o comando `/ai` sem reinserir suas credenciais. Para parar de usar sua chave, use `/ai use_custom_api false`",
+            "process": {
+                "dailylimit": "Você atingiu seu limite diário de solicitações de IA",
+                "noapikey": "Por favor, configure sua chave de API primeiro"
+            },
+            "errors": {
+                "failed": "Falha ao processar a resposta da IA",
+                "nores": "Sem resposta da IA",
+                "toolong": "A mensagem é muito longa"
+            }
+        }
+    },
+    "categories": {
+        "fun": "Diversão",
+        "info": "Informação",
+        "utilities": "Utilidades"
     }
-  },
-  "categories": {
-    "fun": "Diversão",
-    "info": "Informação",
-    "utilities": "Utilidades"
-  }
 }
