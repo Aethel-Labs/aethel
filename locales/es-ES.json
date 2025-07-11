@@ -193,7 +193,30 @@
             "notfound": "No se encontró esa tarea: **{item}**",
             "todo_title": "Tareas",
             "done_title": "Hechas",
-            "none": "—"
+            "none": "—",
+            "add_error": "❌ No se ha podido añadir su tarea. Inténtalo de nuevo más tarde.",
+            "done_error": "❌ No se ha podido marcar la tarea como realizada. Inténtalo de nuevo más tarde."
+        },
+        "time": {
+            "embed": {
+                "footer_multi": "Se han encontrado varias ciudades con nombres similares",
+                "title_single": "Tiempo en {city}, {country}",
+                "title_multi": "Hora en {ciudad}",
+                "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+                "notfound": "Ciudad no encontrada.",
+                "field_day_of_week": "Día de la semana",
+                "field_time": "Tiempo",
+                "field_date": "Fecha",
+                "footer": "Zona horaria: {timezone}",
+                "author": "Hora actual",
+                "multi_city_description": "Múltiples ciudades encontradas para “{city}”:"
+            },
+            "name": "tiempo",
+            "description": "Obtener la hora actual de una zona horaria",
+            "option_timezone": {
+                "name": "zona horaria",
+                "description": "La zona horaria a comprobar (por ejemplo, Europa/Madrid)"
+            }
         }
     },
     "time": {
