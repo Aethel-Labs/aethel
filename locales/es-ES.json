@@ -170,29 +170,6 @@
         "nores": "Sin respuesta de la IA",
         "toolong": "El mensaje es demasiado largo"
       }
-    },
-    "time": {
-      "name": "hora",
-      "description": "Obtén la hora actual de una ubicación",
-      "embed": {
-        "title_single": "Hora para {city}, {country}",
-        "title_multi": "Hora para {city}",
-        "time_format": "dddd, D [de] MMMM [de] YYYY, h:mm A z",
-        "notfound": "Ciudad no encontrada.",
-        "day_of_week": "Día de la semana: {day}",
-        "time": "Hora: {time}",
-        "date": "Fecha: {date}",
-        "bullet": "• {city}, {country}:\n{day_of_week}\n{time}\n{date}",
-        "footer": "Zona horaria: {timezone}",
-        "author": "Hora actual",
-        "multi_city_description": "Se encontraron varias ciudades para '{city}':",
-        "field_day_of_week": "**Día de la semana**",
-        "field_time": "**Hora**",
-        "field_date": "**Fecha**"
-      },
-      "error": "Lo siento, tuve problemas para obtener la hora. ¡Por favor, inténtalo de nuevo más tarde!",
-      "nolocation": "Ubicación no encontrada. Por favor, revisa el nombre de la ciudad e inténtalo de nuevo.",
-      "apikeymissing": "La clave de API de OpenWeather falta o no es válida."
     }
   },
   "categories": {
