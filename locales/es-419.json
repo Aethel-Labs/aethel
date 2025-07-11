@@ -170,6 +170,21 @@
                 "nores": "Sin respuesta de la IA",
                 "toolong": "El mensaje es demasiado largo"
             }
+        },
+        "todo": {
+            "name": "tarea",
+            "description": "Gestione su lista de tareas pendientes",
+            "add": {
+                "name": "añada",
+                "description": "Añadir una nueva tarea"
+            },
+            "done": {
+                "name": "hecho",
+                "description": "Marcar una tarea como realizada"
+            },
+            "list": {
+                "name": "lista"
+            }
         }
     },
     "categories": {
