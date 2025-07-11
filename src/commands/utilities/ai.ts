@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ModalSubmitInteraction, ChatInputCommandInteraction, MessageFlags } from 'discord.js';
+import { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ModalSubmitInteraction, ChatInputCommandInteraction, MessageFlags, InteractionContextType, ApplicationIntegrationType } from 'discord.js';
 import pool from '@/utils/pgClient';
 import { encrypt, decrypt } from '@/utils/encrypt';
 import { SlashCommandProps } from '@/types/command';
@@ -174,7 +174,13 @@ export default {
         )
         .addBooleanOption((option) =>
             option.setName('reset').setDescription('Reset your AI chat history').setRequired(false)
-        ),
+        )
+        .setContexts([
+            InteractionContextType.BotDM,
+            InteractionContextType.Guild,
+            InteractionContextType.PrivateChannel
+        ])
+        .setIntegrationTypes(ApplicationIntegrationType.UserInstall),
 
     async execute(client, interaction) {
         const userId = interaction.user.id;

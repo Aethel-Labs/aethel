@@ -196,7 +196,13 @@ function createContextMenu(): ContextMenuCommandBuilder {
       'es-ES': 'Recordarme',
       'es-419': 'Recordarme',
     })
-    .setType(ApplicationCommandType.Message);
+    .setType(ApplicationCommandType.Message)
+    .setContexts([
+      InteractionContextType.BotDM,
+      InteractionContextType.Guild,
+      InteractionContextType.PrivateChannel
+    ])
+    .setIntegrationTypes(ApplicationIntegrationType.UserInstall);
 }
 
 export default {
