@@ -84,7 +84,7 @@
         "joke": {
             "name": "joke",
             "description": "Get a random joke!",
-            "waitingpunchline": "The punchline will appear in {seconds} seconds...",
+            "waitingpunchline": "The punchline will appear in {seconds} seconds…",
             "error": "Sorry, I had trouble fetching a joke. Please try again later!",
             "type": {
                 "default": "{type} joke",
