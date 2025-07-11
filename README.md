@@ -100,3 +100,50 @@ See [LICENSE](LICENSE) for details.
 
 - Node.js 16.9.0 or higher
 - Discord.js 14.11.0
+
+## 🌐 Translations & Localization
+
+Aethel supports multiple languages! You can help improve or add new translations for the bot.
+
+### Supported Languages
+- English (en-US)
+  <a href="http://translate.aethel.xyz/engage/aethel/en/">
+    <img src="http://translate.aethel.xyz/widgets/aethel/en/svg-badge.svg" alt="English translation status" />
+  </a>
+- Spanish (es-ES)
+  <a href="http://translate.aethel.xyz/engage/aethel/es/">
+    <img src="http://translate.aethel.xyz/widgets/aethel/es/svg-badge.svg" alt="Spanish translation status" />
+  </a>
+- Spanish (Latin America) (es-419)
+  <a href="http://translate.aethel.xyz/engage/aethel/es_419/">
+    <img src="http://translate.aethel.xyz/widgets/aethel/es_419/svg-badge.svg" alt="Spanish (Latin America) translation status" />
+  </a>
+- German (de-DE)
+  <a href="http://translate.aethel.xyz/engage/aethel/de/">
+    <img src="http://translate.aethel.xyz/widgets/aethel/de/svg-badge.svg" alt="German translation status" />
+  </a>
+- French (fr-FR)
+  <a href="http://translate.aethel.xyz/engage/aethel/fr/">
+    <img src="http://translate.aethel.xyz/widgets/aethel/fr/svg-badge.svg" alt="French translation status" />
+  </a>
+- Portuguese (Brazil) (pt-BR)
+  <a href="http://translate.aethel.xyz/engage/aethel/pt_BR/">
+    <img src="http://translate.aethel.xyz/widgets/aethel/pt_BR/svg-badge.svg" alt="Portuguese (Brazil) translation status" />
+  </a>
+- Japanese (ja)
+  <a href="http://translate.aethel.xyz/engage/aethel/ja/">
+    <img src="http://translate.aethel.xyz/widgets/aethel/ja/svg-badge.svg" alt="Japanese translation status" />
+  </a>
+
+### Contribute a Translation
+We use [Weblate](https://translate.aethel.xyz/projects/aethel/) for collaborative translation. Anyone can contribute:
+
+- Visit the [Aethel Weblate project](https://translate.aethel.xyz/projects/aethel/)
+- Sign in or register (free)
+- Pick your language and start translating or reviewing existing translations
+
+Your help makes Aethel accessible to more people around the world!
+
+<a href="http://translate.aethel.xyz/engage/aethel/">
+  <img src="http://translate.aethel.xyz/widget/aethel/svg-badge.svg" alt="Translation status" />
+</a>
