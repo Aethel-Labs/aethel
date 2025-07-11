@@ -173,26 +173,26 @@
     },
     "todo": {
       "name": "todo",
-      "description": "Gestiona tus tareas pendientes",
+      "description": "Gestiona tu lista de tareas",
       "add": {
         "name": "add",
-        "description": "Añadir una tarea"
+        "description": "Añade una nueva tarea"
       },
       "done": {
         "name": "done",
-        "description": "Marcar una tarea como completada"
+        "description": "Marca una tarea como hecha"
       },
       "list": {
         "name": "list",
         "description": "Ver tu lista de tareas"
       },
       "added": "✅ Tarea añadida: **{item}**",
-      "empty": "Tu lista de tareas está vacía! 🎉",
+      "empty": "¡Tu lista de tareas está vacía! 🎉",
       "list_title": "📝 Tu Lista de Tareas",
-      "checked": "✅ Tarea completada: **{item}**",
-      "notfound": "La tarea no fue encontrada: **{item}**",
+      "checked": "✅ Tarea marcada como hecha: **{item}**",
+      "notfound": "No se encontró esa tarea: **{item}**",
       "todo_title": "Tareas",
-      "done_title": "Completadas",
+      "done_title": "Hechas",
       "none": "—"
     }
   },
