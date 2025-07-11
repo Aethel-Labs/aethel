@@ -5,8 +5,8 @@ const pool = new Pool({
   connectionString: config.DATABASE_URL,
 });
 
-pool.on('error', () => {
-  // console.error('Postgres Pool Error:', err);
+pool.on('error', (err) => {
+  console.error('Postgres Pool Error:', err);
 });
 
 export default pool;

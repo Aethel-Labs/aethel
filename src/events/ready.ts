@@ -1,4 +1,5 @@
 import BotClient from "@/services/Client";
+import logger from "@/utils/logger";
 
 export default class ReadyEvent {
     constructor(c: BotClient) {
@@ -6,7 +7,11 @@ export default class ReadyEvent {
     }
 
     private async readyEvent(client: BotClient) {
-        console.log(`Logged in as`, client.user?.username);
-        await client.application?.commands.fetch({ withLocalizations: true });
+        try {
+            logger.info(`Logged in as ${client.user?.username}`);
+            await client.application?.commands.fetch({ withLocalizations: true });
+        } catch (error) {
+            logger.error('Error during ready event:', error);
+        }
     }
 }

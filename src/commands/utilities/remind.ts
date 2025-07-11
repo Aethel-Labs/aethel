@@ -252,7 +252,7 @@ export default {
 
       if (!minutes || minutes < 1) {
         logger.warn(`Reminder time too short from ${userTag}: ${timeStr}`);
-        const errorMsg = await client.getLocaleText("commands.remind.errors.atleastoneminute", interaction.locale);;
+        const errorMsg = await client.getLocaleText("commands.remind.errors.atleastoneminute", interaction.locale);
         return await interaction.editReply({
           content: errorMsg,
           flags: 1 << 6,
@@ -261,7 +261,7 @@ export default {
 
       if (minutes > 60 * 24) {
         logger.warn(`Reminder time too long from ${userTag}: ${minutes} minutes`);
-        const errorMsg = await client.getLocaleText("commands.remind.errors.notlongerthanaday", interaction.locale);;
+        const errorMsg = await client.getLocaleText("commands.remind.errors.notlongerthanaday", interaction.locale);
         return await interaction.editReply({
           content: errorMsg,
           flags: 1 << 6,
@@ -429,10 +429,12 @@ export default {
         messageId: message?.id,
       });
 
+      const errorTitle = await client.getLocaleText("error", interaction.locale);
+      const errorDescription = await client.getLocaleText("commands.remind.errors.modalfailed", interaction.locale);
       const errorEmbed = new EmbedBuilder()
         .setColor(0xff0000)
-        .setTitle('❌ Error')
-        .setDescription('Failed to open the reminder prompt. Please try again.')
+        .setTitle(`❌ ${errorTitle}`)
+        .setDescription(errorDescription)
         .setTimestamp();
 
       if (interaction.replied || interaction.deferred) {
@@ -458,8 +460,9 @@ export default {
 
       if (!messageInfo) {
         logger.warn(`No message info found for modal ID: ${modalId}`, { userId: user.id });
+        const errorMsg = await client.getLocaleText("commands.remind.errors.expired", interaction.locale);
         return await modalInteraction.editReply({
-          content: '❌ This reminder setup has expired. Please try again.',
+          content: errorMsg,
           flags: 1 << 6,
         });
       }
@@ -520,8 +523,9 @@ export default {
         await saveReminder(reminderData);
       } catch (error) {
         logger.error(`Error saving reminder to database: ${(error as Error).message}`, { error });
+        const errorMsg = await client.getLocaleText("commands.remind.errors.failedtosave", interaction.locale);
         return await modalInteraction.editReply({
-          content: '❌ Failed to save your reminder. Please try again later.',
+          content: errorMsg,
           flags: 1 << 6,
         });
       }
@@ -579,8 +583,9 @@ export default {
       });
 
       try {
+        const errorMsg = await client.getLocaleText("commands.remind.errors.base", interaction.locale);
         await modalInteraction.editReply({
-          content: '❌ An error occurred while setting your reminder. Please try again later.',
+          content: errorMsg,
           flags: 1 << 6,
         });
       } catch (replyError) {

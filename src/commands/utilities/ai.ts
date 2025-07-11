@@ -347,7 +347,8 @@ export default {
             }
 
             if (usingDefaultKey) {
-                if (interaction.user.id !== '827389583342698536') {
+                const exemptUserId = process.env.AI_EXEMPT_USER_ID;
+                if (interaction.user.id !== exemptUserId) {
                     const allowed = await incrementAndCheckDailyLimit(interaction.user.id, 10);
                     if (!allowed) {
                         await interaction.editReply("❌ " + await client.getLocaleText("commands.ai.process.dailylimit", interaction.locale));
@@ -355,8 +356,8 @@ export default {
                     }
                 }
             } else if (!finalApiKey) {
-                await interaction.editReply("❌" + await client.getLocaleText("commands.ai.process.noapikey", interaction.locale));
-                return
+                await interaction.editReply("❌ " + await client.getLocaleText("commands.ai.process.noapikey", interaction.locale));
+                return;
             }
 
             let conversation = userConversations.get(interaction.user.id) || [];
@@ -434,12 +435,12 @@ export default {
                     pendingRequests.delete(interaction.user.id);
                     await interaction.editReply(await client.getLocaleText("failedrequest", interaction.locale));
                     console.log(errorMessage);
-                    return
+                    return;
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch (e) {
                     pendingRequests.delete(interaction.user.id);
                     await interaction.editReply(await client.getLocaleText("failedrequest", interaction.locale));
-                    return
+                    return;
                 }
             }
 
@@ -450,7 +451,7 @@ export default {
             } catch (e) {
                 pendingRequests.delete(interaction.user.id);
                 await interaction.editReply("❌ " + await client.getLocaleText("commands.ai.errors.failed", interaction.locale));
-                return
+                return;
             }
 
             let aiResponse: string;

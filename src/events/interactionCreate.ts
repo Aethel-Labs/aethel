@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { browserHeaders } from "@/constants/index";
 import BotClient from "@/services/Client";
 import { RandomReddit } from "@/types/base";
@@ -22,13 +21,13 @@ export default class InteractionCreateEvent {
             if (!command) {
                 return i.reply({
                     content: "Command not found",
-                    flags: [MessageFlags.Ephemeral]
+                    flags: MessageFlags.Ephemeral
                 });
             };
             try {
                 command.execute(this.client, i);
             } catch (e) {
-                console.error(`[COMMAND ERROR] ${i.commandName}:`, e);;
+                console.error(`[COMMAND ERROR] ${i.commandName}:`, e);
                 await i.reply({
                     content: 'There was an error executing this command!',
                     ephemeral: true,

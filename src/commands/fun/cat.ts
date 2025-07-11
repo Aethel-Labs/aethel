@@ -67,7 +67,7 @@ export default {
         if (!catData || !catData.url) {
           throw new Error('No image URL found in response');
         }
-        const title = catData.title ? sanitizeInput(catData.title).slice(0, 245) + '...' : await await client.getLocaleText("random.cat", interaction.locale);
+        const title = catData.title ? sanitizeInput(catData.title).slice(0, 245) + '...' : await client.getLocaleText("random.cat", interaction.locale);
 
         const embed = new EmbedBuilder().setColor(0xfaa0a0).setTitle(title).setImage(catData.url);
 
