@@ -1,180 +1,180 @@
 {
-  "cooldown": "Please wait {cooldown} second(s) before using this command again.",
-  "failedrequest": "An error occurred while processing your request. Please try again later.",
-  "unexpectederror": "An unexpected error occurred. Please try again later.",
-  "poweredby": "Powered by",
-  "providedby": "Data provided by",
-  "reddit": {
-    "from": "From r/{subreddit}"
-  },
-  "error": "Error!",
-  "common": {
-    "ogmessage": "Original Message",
-    "jumptomessage": "Jump to message",
-    "messagelink": "Message link"
-  },
-  "commands": {
-    "8ball": {
-      "name": "8ball",
-      "description": "Ask the magic 8-ball a question",
-      "says": "The Magic 8-Ball says...",
-      "question": "Question",
-      "answer": "Answer",
-      "anotherfortune": "Ask again for another fortune!",
-      "spoken": "The magic 8-ball has spoken!",
-      "responces": {
-        "itiscertain": "It is certain",
-        "itisdecidedlyso": "It is decidedly so",
-        "withoutadoubt": "Without a doubt",
-        "yesdefinitely": "Yes definitely",
-        "youmayrelyonit": "You may rely on it",
-        "asiseeityes": "As I see it, yes",
-        "mostlikely": "Most likely",
-        "outlookgood": "Outlook good",
-        "yes": "Yes",
-        "signspointtoyes": "Signs point to yes",
-        "replyhazytryagain": "Reply hazy, try again",
-        "askagainlater": "Ask again later",
-        "betternottellyounow": "Better not tell you now",
-        "cannotpredictnow": "Cannot predict now",
-        "concentrateandaskagain": "Concentrate and ask again",
-        "dontcountonit": "Don't count on it",
-        "myreplyisno": "My reply is no",
-        "mysourcessayno": "My sources say no",
-        "outlooknotsogood": "Outlook not so good",
-        "verydoubtful": "Very doubtful"
-      }
+    "cooldown": "Please wait {cooldown} second(s) before using this command again.",
+    "failedrequest": "An error occurred while processing your request. Please try again later.",
+    "unexpectederror": "An unexpected error occurred. Please try again later.",
+    "poweredby": "Powered by",
+    "providedby": "Data provided by",
+    "reddit": {
+        "from": "From r/{subreddit}"
     },
-    "cat": {
-      "name": "cat",
-      "description": "Get a random cat image!",
-      "randomcat": "Random cat",
-      "newcat": "New cat",
-      "error": "Sorry, I had trouble fetching a cat image. Please try again later!"
+    "error": "Error!",
+    "common": {
+        "ogmessage": "Original Message",
+        "jumptomessage": "Jump to message",
+        "messagelink": "Message link"
     },
-    "dog": {
-      "name": "dog",
-      "description": "Get a random dog image!",
-      "randomdog": "Random dog",
-      "newdog": "New dog",
-      "error": "Sorry, I had trouble fetching a dog image. Please try again later!"
-    },
-    "wiki": {
-      "name": "wiki",
-      "description": "Search Wikipedia for a topic",
-      "pedia": "Wikipedia: {article}",
-      "error": "Sorry, I had trouble fetching the Wikipedia article. Please try again later!",
-      "nosummary": "No summary available",
-      "readmoreonwiki": "Read more"
-    },
-    "weather": {
-      "name": "weather",
-      "description": "Get the current weather for a location",
-      "temperature": "Temperature",
-      "feelslike": "Feels like",
-      "default": "Weather",
-      "humidity": "Humidity",
-      "windspeed": "Wind speed",
-      "pressure": "Pressure",
-      "weatherin": "Weather in {location}",
-      "error": "Sorry, I had trouble fetching the weather. Please try again later!",
-      "nolocation": "Location not found. Please check the city name and try again.",
-      "apikeymissing": "OpenWeather API key is missing or invalid."
-    },
-    "joke": {
-      "name": "joke",
-      "description": "Get a random joke!",
-      "waitingpunchline": "The punchline will appear in {seconds} seconds...",
-      "error": "Sorry, I had trouble fetching a joke. Please try again later!",
-      "type": {
-        "default": "{type} joke",
-        "general": "General",
-        "programming": "Programming",
-        "dad": "Dad"
-      }
-    },
-    "help": {
-      "name": "help",
-      "description": "Show all available commands and their usage",
-      "embed": {
-        "title": "Aethel commands",
-        "description": "Here are all the available commands"
-      },
-      "nooptions": "No options"
-    },
-    "remind": {
-      "name": "remind",
-      "reminder": "Reminder!",
-      "remindyou": "You asked me to remind me about: {message}",
-      "timeelapsed": "Time elapsed",
-      "originaltime": "Original Time",
-      "errors": {
-        "base": "An error occurred while setting your reminder. Please try again later.",
-        "failedtosave": "Failed to save your reminder. Please try again later.",
-        "invalidformat": "Invalid time format! Use combinations like: 1h30m, 45m, or 2h",
-        "providevalidchars": "Please provide a valid message (1-1000 characters)",
-        "atleastoneminute": "Reminder time must be at least 1 minute!",
-        "notlongerthanaday": "Reminder time cannot be longer than 24 hours!"
-      },
-      "modal": {
-        "setreminder": "Set reminder",
-        "whento": "When to remind you? (e.g., 10m, 1h, 2h30m)"
-      },
-      "reminderset": "Reminder set",
-      "iwillremindyou": "I'll remind you about {message} in {time}",
-      "contextiwillremindyou": "I'll remind you about this message in {time}",
-      "time": "Time",
-      "willtrigger": "Will trigger",
-      "reminderid": "Reminder ID: {reminderId}"
-    },
-    "whois": {
-      "name": "whois",
-      "description": "Look up WHOIS information for a domain or IP address",
-      "error": "Sorry, I had trouble fetching WHOIS data. Please try again later!",
-      "nodata": "No WHOIS data found for the specified domain or IP.",
-      "notvalid": "Please provide a valid domain name or IP address."
-    },
-    "ai": {
-      "name": "ai",
-      "description": "Chat with an AI assistant",
-      "optioins": {
-        "prompt": {
-          "name": "prompt",
-          "description": "Your message to the ai"
+    "commands": {
+        "8ball": {
+            "name": "8ball",
+            "description": "Ask the magic 8-ball a question",
+            "says": "The Magic 8-Ball says…",
+            "question": "Question",
+            "answer": "Answer",
+            "anotherfortune": "Ask again for another fortune!",
+            "spoken": "The magic 8-ball has spoken!",
+            "responces": {
+                "itiscertain": "It is certain",
+                "itisdecidedlyso": "It is decidedly so",
+                "withoutadoubt": "Without a doubt",
+                "yesdefinitely": "Yes definitely",
+                "youmayrelyonit": "You may rely on it",
+                "asiseeityes": "As I see it, yes",
+                "mostlikely": "Most likely",
+                "outlookgood": "Outlook good",
+                "yes": "Yes",
+                "signspointtoyes": "Signs point to yes",
+                "replyhazytryagain": "Reply hazy, try again",
+                "askagainlater": "Ask again later",
+                "betternottellyounow": "Better not tell you now",
+                "cannotpredictnow": "Cannot predict now",
+                "concentrateandaskagain": "Concentrate and ask again",
+                "dontcountonit": "Don't count on it",
+                "myreplyisno": "My reply is no",
+                "mysourcessayno": "My sources say no",
+                "outlooknotsogood": "Outlook not so good",
+                "verydoubtful": "Very doubtful"
+            }
         },
-        "customapi": "Use your own API key?",
-        "reset": "Reset your ai chat history"
-      },
-      "request": {
-        "inprogress": "You already have a request in progress. Please wait for it to complete."
-      },
-      "reset": "Your AI chat history has been reset.",
-      "defaultapi": " Switched to default API. Your custom API key has been cleared and the default model will be used.",
-      "modal": {
-        "title": "Enter your API Credentials",
-        "apikey": "API Key",
-        "apikeyplaceholder": "To stop using your key: /ai use_custom_api false",
-        "apiurl": "API Url",
-        "apiurlplaceholder": "Your API Url",
-        "model": "Model",
-        "modelplaceholder": "Model name (eg. gpt-4)"
-      },
-      "nopendingrequest": "No pending request found. Please try the command again.",
-      "apicredssaved": "API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`",
-      "process": {
-        "dailylimit": "You've reached your daily limit of AI requests",
-        "noapikey": "Please set up your API key first"
-      },
-      "errors": {
-        "failed": "Failed to process AI response",
-        "nores": "No response from AI",
-        "toolong": "Message is too long"
-      }
+        "cat": {
+            "name": "cat",
+            "description": "Get a random cat image!",
+            "randomcat": "Random cat",
+            "newcat": "New cat",
+            "error": "Sorry, I had trouble fetching a cat image. Please try again later!"
+        },
+        "dog": {
+            "name": "dog",
+            "description": "Get a random dog image!",
+            "randomdog": "Random dog",
+            "newdog": "New dog",
+            "error": "Sorry, I had trouble fetching a dog image. Please try again later!"
+        },
+        "wiki": {
+            "name": "wiki",
+            "description": "Search Wikipedia for a topic",
+            "pedia": "Wikipedia: {article}",
+            "error": "Sorry, I had trouble fetching the Wikipedia article. Please try again later!",
+            "nosummary": "No summary available",
+            "readmoreonwiki": "Read more"
+        },
+        "weather": {
+            "name": "weather",
+            "description": "Get the current weather for a location",
+            "temperature": "Temperature",
+            "feelslike": "Feels like",
+            "default": "Weather",
+            "humidity": "Humidity",
+            "windspeed": "Wind speed",
+            "pressure": "Pressure",
+            "weatherin": "Weather in {location}",
+            "error": "Sorry, I had trouble fetching the weather. Please try again later!",
+            "nolocation": "Location not found. Please check the city name and try again.",
+            "apikeymissing": "OpenWeather API key is missing or invalid."
+        },
+        "joke": {
+            "name": "joke",
+            "description": "Get a random joke!",
+            "waitingpunchline": "The punchline will appear in {seconds} seconds…",
+            "error": "Sorry, I had trouble fetching a joke. Please try again later!",
+            "type": {
+                "default": "{type} joke",
+                "general": "General",
+                "programming": "Programming",
+                "dad": "Dad"
+            }
+        },
+        "help": {
+            "name": "help",
+            "description": "Show all available commands and their usage",
+            "embed": {
+                "title": "Aethel commands",
+                "description": "Here are all the available commands"
+            },
+            "nooptions": "No options"
+        },
+        "remind": {
+            "name": "remind",
+            "reminder": "Reminder!",
+            "remindyou": "You asked me to remind me about: {message}",
+            "timeelapsed": "Time elapsed",
+            "originaltime": "Original Time",
+            "errors": {
+                "base": "An error occurred while setting your reminder. Please try again later.",
+                "failedtosave": "Failed to save your reminder. Please try again later.",
+                "invalidformat": "Invalid time format! Use combinations like: 1h30m, 45m, or 2h",
+                "providevalidchars": "Please provide a valid message (1-1000 characters)",
+                "atleastoneminute": "Reminder time must be at least 1 minute!",
+                "notlongerthanaday": "Reminder time cannot be longer than 24 hours!"
+            },
+            "modal": {
+                "setreminder": "Set reminder",
+                "whento": "When to remind you? (e.g., 10m, 1h, 2h30m)"
+            },
+            "reminderset": "Reminder set",
+            "iwillremindyou": "I'll remind you about {message} in {time}",
+            "contextiwillremindyou": "I'll remind you about this message in {time}",
+            "time": "Time",
+            "willtrigger": "Will trigger",
+            "reminderid": "Reminder ID: {reminderId}"
+        },
+        "whois": {
+            "name": "whois",
+            "description": "Look up WHOIS information for a domain or IP address",
+            "error": "Sorry, I had trouble fetching WHOIS data. Please try again later!",
+            "nodata": "No WHOIS data found for the specified domain or IP.",
+            "notvalid": "Please provide a valid domain name or IP address."
+        },
+        "ai": {
+            "name": "ai",
+            "description": "Chat with an AI assistant",
+            "optioins": {
+                "prompt": {
+                    "name": "prompt",
+                    "description": "Your message to the ai"
+                },
+                "customapi": "Use your own API key?",
+                "reset": "Reset your ai chat history"
+            },
+            "request": {
+                "inprogress": "You already have a request in progress. Please wait for it to complete."
+            },
+            "reset": "Your AI chat history has been reset.",
+            "defaultapi": " Switched to default API. Your custom API key has been cleared and the default model will be used.",
+            "modal": {
+                "title": "Enter your API Credentials",
+                "apikey": "API Key",
+                "apikeyplaceholder": "To stop using your key: /ai use_custom_api false",
+                "apiurl": "API Url",
+                "apiurlplaceholder": "Your API Url",
+                "model": "Model",
+                "modelplaceholder": "Model name (eg. gpt-4)"
+            },
+            "nopendingrequest": "No pending request found. Please try the command again.",
+            "apicredssaved": "API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`",
+            "process": {
+                "dailylimit": "You've reached your daily limit of AI requests",
+                "noapikey": "Please set up your API key first"
+            },
+            "errors": {
+                "failed": "Failed to process AI response",
+                "nores": "No response from AI",
+                "toolong": "Message is too long"
+            }
+        }
+    },
+    "categories": {
+        "fun": "Fun",
+        "info": "Info",
+        "utilities": "Utilities"
     }
-  },
-  "categories": {
-    "fun": "Fun",
-    "info": "Info",
-    "utilities": "Utilities"
-  }
 }
