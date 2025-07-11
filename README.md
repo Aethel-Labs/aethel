@@ -1,6 +1,6 @@
 # Aethel Bot
 
-[![Node.js](https://img.shields.io/badge/node-%3E=16.9.0-green?logo=node.js)](https://nodejs.org/) 
+[![Node.js](https://img.shields.io/badge/node-%3E=16.9.0-green?logo=node.js)](https://nodejs.org/)
 
 A privacy-conscious, production-ready Discord user-installed bot with AI chat, reminders, and utility commands. Built with Node.js, Discord.js v14, PostgreSQL, and robust security best practices.
 
@@ -106,36 +106,38 @@ See [LICENSE](LICENSE) for details.
 Aethel supports multiple languages! You can help improve or add new translations for the bot.
 
 ### Supported Languages
+
 - English (en-US)
   <a href="http://translate.aethel.xyz/engage/aethel/en/">
-    <img src="http://translate.aethel.xyz/widgets/aethel/en/svg-badge.svg" alt="English translation status" />
+  <img src="http://translate.aethel.xyz/widgets/aethel/en/svg-badge.svg" alt="English translation status" />
   </a>
 - Spanish (es-ES)
   <a href="http://translate.aethel.xyz/engage/aethel/es/">
-    <img src="http://translate.aethel.xyz/widgets/aethel/es/svg-badge.svg" alt="Spanish translation status" />
+  <img src="http://translate.aethel.xyz/widgets/aethel/es/svg-badge.svg" alt="Spanish translation status" />
   </a>
 - Spanish (Latin America) (es-419)
   <a href="http://translate.aethel.xyz/engage/aethel/es_419/">
-    <img src="http://translate.aethel.xyz/widgets/aethel/es_419/svg-badge.svg" alt="Spanish (Latin America) translation status" />
+  <img src="http://translate.aethel.xyz/widgets/aethel/es_419/svg-badge.svg" alt="Spanish (Latin America) translation status" />
   </a>
 - German (de-DE)
   <a href="http://translate.aethel.xyz/engage/aethel/de/">
-    <img src="http://translate.aethel.xyz/widgets/aethel/de/svg-badge.svg" alt="German translation status" />
+  <img src="http://translate.aethel.xyz/widgets/aethel/de/svg-badge.svg" alt="German translation status" />
   </a>
 - French (fr-FR)
   <a href="http://translate.aethel.xyz/engage/aethel/fr/">
-    <img src="http://translate.aethel.xyz/widgets/aethel/fr/svg-badge.svg" alt="French translation status" />
+  <img src="http://translate.aethel.xyz/widgets/aethel/fr/svg-badge.svg" alt="French translation status" />
   </a>
 - Portuguese (Brazil) (pt-BR)
   <a href="http://translate.aethel.xyz/engage/aethel/pt_BR/">
-    <img src="http://translate.aethel.xyz/widgets/aethel/pt_BR/svg-badge.svg" alt="Portuguese (Brazil) translation status" />
+  <img src="http://translate.aethel.xyz/widgets/aethel/pt_BR/svg-badge.svg" alt="Portuguese (Brazil) translation status" />
   </a>
 - Japanese (ja)
   <a href="http://translate.aethel.xyz/engage/aethel/ja/">
-    <img src="http://translate.aethel.xyz/widgets/aethel/ja/svg-badge.svg" alt="Japanese translation status" />
+  <img src="http://translate.aethel.xyz/widgets/aethel/ja/svg-badge.svg" alt="Japanese translation status" />
   </a>
 
 ### Contribute a Translation
+
 We use [Weblate](https://translate.aethel.xyz/projects/aethel/) for collaborative translation. Anyone can contribute:
 
 - Visit the [Aethel Weblate project](https://translate.aethel.xyz/projects/aethel/)

@@ -29,8 +29,8 @@ export default class BotClient extends Client {
     };
 
     public async init() {
+        await this.setupLocalization(); 
         await initialzeCommands(this);
-        await this.setupLocalization();
         await this.setupEvents();
         this.login(config.TOKEN);
     }
