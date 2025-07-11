@@ -20,7 +20,22 @@ interface ReminderData {
   };
 }
 
+async function ensureUserRegistered(userId: string, userTag: string, language: string = 'en'): Promise<void> {
+  const query = `
+    SELECT ensure_user_registered($1, $2, $3)
+  `;
+
+  try {
+    await pool.query(query, [userId, userTag, language]);
+  } catch (error) {
+    logger.error('Error ensuring user registration:', error);
+    throw error;
+  }
+}
+
 async function saveReminder(reminderData: ReminderData): Promise<ReminderData> {
+  await ensureUserRegistered(reminderData.user_id, reminderData.user_tag, reminderData.locale || 'en');
+
   const query = `
     INSERT INTO reminders (
       reminder_id, user_id, user_tag, channel_id, guild_id, 
@@ -136,4 +151,5 @@ export {
   getReminder,
   getUserReminders,
   cleanupReminders,
+  ensureUserRegistered,
 };

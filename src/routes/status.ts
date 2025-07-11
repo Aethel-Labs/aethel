@@ -1,6 +1,6 @@
 import express from 'express';
 import getGitCommitHash from '@/utils/getGitCommitHash';
-import BotClient from '@/services/Client.js';
+import BotClient from '@/services/Client';
 
 export default (client: BotClient) => {
   const status = express.Router();
