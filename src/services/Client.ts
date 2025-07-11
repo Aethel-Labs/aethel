@@ -52,7 +52,7 @@ export default class BotClient extends Client {
         for (const locale of readdirSync(path.join(localesDir)).filter(f => f.endsWith('.json'))) {
             const localeFile = path.join(localesDir, locale);
             const data = await promises.readFile(localeFile, { encoding: "utf8" });
-            this.t.set(locale.split('.')[0], JSON.parse(data))
+            this.t.set(locale.split('.')[0], JSON.parse(data));
         }
     }
     public async getLocaleText(key: string, locale: string, replaces = {}): Promise<string> {
@@ -84,6 +84,10 @@ export default class BotClient extends Client {
             text = getValueFromMap(langMap, key);
         }
 
+        if (text === undefined) {
+            text = `Missing translation for key: ${key}`;
+        }
+        
         for (const [varName, value] of Object.entries(replaces)) {
             const regex = new RegExp(`{${varName}}`, "g");
             text = text.replace(regex, value);
