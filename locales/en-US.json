@@ -170,6 +170,54 @@
         "nores": "No response from AI",
         "toolong": "Message is too long"
       }
+    },
+    "todo": {
+      "name": "todo",
+      "description": "Manage your to-do list",
+      "add": {
+        "name": "add",
+        "description": "Add a new to-do item"
+      },
+      "done": {
+        "name": "done",
+        "description": "Mark a to-do as done"
+      },
+      "list": {
+        "name": "list",
+        "description": "View your to-do list"
+      },
+      "added": "✅ Added to-do: **{item}**",
+      "empty": "Your to-do list is empty! 🎉",
+      "list_title": "📝 Your To-Do List",
+      "checked": "✅ Marked to-do as done: **{item}**",
+      "notfound": "That to-do was not found: **{item}**",
+      "todo_title": "To-Do",
+      "done_title": "Done",
+      "none": "—"
+    },
+    "time": {
+      "name": "time",
+      "description": "Get the current time for a timezone",
+      "option_timezone": {
+        "name": "timezone",
+        "description": "The timezone to check (e.g., Europe/Madrid)"
+      },
+      "embed": {
+        "title_single": "Time for {city}, {country}",
+        "title_multi": "Time for {city}",
+        "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+        "notfound": "City not found.",
+        "day_of_week": "Day of week: {day}",
+        "time": "Time: {time}",
+        "date": "Date: {date}",
+        "bullet": "• {city}, {country}:\n{day_of_week}\n{time}\n{date}",
+        "footer": "Timezone: {timezone}",
+        "author": "Current Time",
+        "multi_city_description": "Multiple cities found for '{city}':",
+        "field_day_of_week": "**Day of Week**",
+        "field_time": "**Time**",
+        "field_date": "**Date**"
+      }
     }
   },
   "categories": {

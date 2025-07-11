@@ -1,5 +1,6 @@
 import { SlashCommandProps } from '@/types/command';
 import { SlashCommandBuilder, EmbedBuilder, InteractionContextType, ApplicationIntegrationType } from 'discord.js';
+import BotClient from '@/services/Client';
 
 export default {
   data: new SlashCommandBuilder()
@@ -39,14 +40,26 @@ export default {
         if (!commandCategories.has(category)) {
           commandCategories.set(category, []);
         }
-        const localizedDescription = await client.getLocaleText(`commands.${cmd.data.name}.description`, interaction.locale)
-        commandCategories.get(category)!.push(`</${ClientApplicationCommandCache?.name}:${ClientApplicationCommandCache?.id}> - ${localizedDescription}`);
+        const options = (typeof cmd.data.toJSON === 'function' ? cmd.data.toJSON().options : undefined) as unknown[] | undefined;
+        function hasTypeProperty(opt: unknown): opt is { type: number } {
+          return typeof opt === 'object' && opt !== null && 'type' in opt;
+        }
+        const subcommands = options?.filter((opt: unknown) => hasTypeProperty(opt) && opt.type === 1);
+        if (subcommands && subcommands.length > 0) {
+          for (const sub of subcommands) {
+            const formatted = await formatSubcommand(client, cmd, sub, interaction.locale);
+            commandCategories.get(category)!.push(formatted);
+          }
+        } else {
+          const localizedDescription = await client.getLocaleText(`commands.${cmd.data.name}.description`, interaction.locale)
+          commandCategories.get(category)!.push(`</${ClientApplicationCommandCache?.name}:${ClientApplicationCommandCache?.id}> - ${localizedDescription}`);
+        }
       };
       for (const [category, cmds] of commandCategories.entries()) {
         const localizedCategory = await client.getLocaleText(`categories.${category}`, interaction.locale);
         embed.addFields({
           name: `📂 ${localizedCategory}`,
-          value: cmds.join("\n"),
+          value: cmds.map(line => line.replace(/\u007F/g, "")).join("\n"),
           inline: false,
         });
       }
@@ -68,3 +81,12 @@ export default {
     }
   },
 } as SlashCommandProps;
+
+async function formatSubcommand(client: BotClient, cmd: SlashCommandProps, sub: any, locale: string) {
+  const { name: subName, description: subDescription } = sub as { name: string; description: string };
+  const subNameKey = `commands.${cmd.data.name}.${subName}.name`;
+  const subDescKey = `commands.${cmd.data.name}.${subName}.description`;
+  const localizedSubName = await client.getLocaleText(subNameKey, locale) || subName;
+  const localizedSubDesc = await client.getLocaleText(subDescKey, locale) || subDescription;
+  return ` /${cmd.data.name} ${localizedSubName} - ${localizedSubDesc}`;
+}

@@ -16,6 +16,13 @@ export default class InteractionCreateEvent {
     }
 
     private handleInteraction: InteractionHandler = async (i) => {
+        if (i.isAutocomplete()) {
+            const command = this.client.commands.get(i.commandName);
+            if (command && typeof command.autocomplete === 'function') {
+                await command.autocomplete(this.client, i);
+                return;
+            }
+        }
         if (i.isChatInputCommand()) {
             const command = this.client.commands.get(i.commandName);
             if (!command) {
@@ -26,8 +33,8 @@ export default class InteractionCreateEvent {
             };
             try {
                 command.execute(this.client, i);
-            } catch (e) {
-                console.error(`[COMMAND ERROR] ${i.commandName}:`, e);
+            } catch (error) {
+                console.error(`[COMMAND ERROR] ${i.commandName}:`, error);
                 await i.reply({
                     content: 'There was an error executing this command!',
                     ephemeral: true,
@@ -43,14 +50,14 @@ export default class InteractionCreateEvent {
             } else if (i.customId === 'apiCredentials') {
                 const ai = this.client.commands.get('ai');
                 if (ai && 'handleModal' in ai) {
-                    await (ai as any).handleModal(this.client, i);
+                    await (ai as unknown as RemindCommandProps).handleModal(this.client, i);
                 }
             }
             return;
         };
         if (i.isMessageContextMenuCommand()) {
             let targetCommand = null;
-            for (const [name, command] of this.client.commands) {
+            for (const [, command] of this.client.commands) {
                 if ('contextMenuExecute' in command) {
                     const remindCommand = command as RemindCommandProps;
                     if (remindCommand.contextMenu.name === i.commandName) {
@@ -139,7 +146,7 @@ export default class InteractionCreateEvent {
                         let url = null;
                         try {
                             data = await response.json() as RandomReddit;
-                        } catch (e) {
+                        } catch {
                             isJson = false;
                         }
                         if (isJson && data!.url) {
@@ -181,6 +188,7 @@ export default class InteractionCreateEvent {
                             });
                         }
                     } catch (error) {
+                        logger.error('Error refreshing dog image:', error);
                         await i.update({
                             content: await this.client.getLocaleText("commands.dog.error", i.locale),
                             components: [],
@@ -188,6 +196,7 @@ export default class InteractionCreateEvent {
                     }
                 }
             } catch (error) {
+                logger.error('Unexpected error in button interaction:', error);
                 await i.update({
                     content: await this.client.getLocaleText("unexpectederror", i.locale),
                     components: [],
