@@ -4,6 +4,11 @@ import { SlashCommandProps } from "@/types/command";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
 import { promises, readdirSync } from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export const srcDir = path.join(__dirname, '..');
 
@@ -30,18 +35,19 @@ export default class BotClient extends Client {
         this.login(config.TOKEN);
     }
 
-    private async setupEvents() {
-        console.log("Initilizing events")
+    private     async setupEvents() {
+        console.log("Initializing events...");
         const eventsDir = path.join(srcDir, 'events');
         for (const event of readdirSync(path.join(eventsDir))) {
             const filepath = path.join(eventsDir, event);
-            const EventClass = await (await import(filepath)).default;
+            const fileUrl = `file://${filepath.replace(/\\/g, '/')}`;
+            const EventClass = await (await import(fileUrl)).default;
             new EventClass(this);
         }
     };
 
-    private async setupLocalization() {
-        console.log("Initilizing localization languages..")
+    private     async setupLocalization() {
+        console.log("Loading localization files...");
         const localesDir = path.join(srcDir, '..', 'locales');
         for (const locale of readdirSync(path.join(localesDir)).filter(f => f.endsWith('.json'))) {
             const localeFile = path.join(localesDir, locale);
@@ -61,7 +67,6 @@ export default class BotClient extends Client {
 
         let text = getValueFromMap(langMap, key);
 
-        // If value is undefined, try fallback
         if (text === undefined && locale !== fallbackLocale) {
             langMap = this.t.get(fallbackLocale);
             text = getValueFromMap(langMap, key);

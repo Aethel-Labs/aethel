@@ -311,6 +311,9 @@ export default {
                     ephemeral: true,
                 });
 
+                if (!originalInteraction.deferred && !originalInteraction.replied) {
+                    await originalInteraction.deferReply();
+                }
                 await this.processAIRequest(client, originalInteraction);
             }
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -325,6 +328,10 @@ export default {
 
     async processAIRequest(client, interaction): Promise<void> {
         try {
+            if (!interaction.deferred && !interaction.replied) {
+                await interaction.deferReply();
+            }
+            
             const prompt = interaction.options.getString('prompt');
             const { apiKey, model, apiUrl } = await getUserCredentials(interaction.user.id);
 
@@ -403,7 +410,7 @@ export default {
                 'Content-Type': 'application/json',
             };
             if (finalApiUrl === 'https://openrouter.ai/api/v1/chat/completions') {
-                headers['HTTP-Referer'] = 'https://github.com/scanash00';
+                headers['HTTP-Referer'] = 'https://github.com/aethel-labs/aethel';
             }
 
             const response = await fetch(finalApiUrl, {

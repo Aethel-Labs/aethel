@@ -4,7 +4,7 @@ import BotClient from "@/services/Client";
 import { RandomReddit } from "@/types/base";
 import { RemindCommandProps } from "@/types/command";
 import logger from "@/utils/logger";
-import { sanitizeInput } from "@/utils/validation.js";
+import { sanitizeInput } from "@/utils/validation";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ClientEvents, EmbedBuilder, MessageFlags } from "discord.js";
 
 type InteractionHandler = (...args: ClientEvents['interactionCreate']) => void;
@@ -41,15 +41,32 @@ export default class InteractionCreateEvent {
                 if (remind && remind.handleModal) {
                     await remind.handleModal(this.client, i);
                 }
+            } else if (i.customId === 'apiCredentials') {
+                const ai = this.client.commands.get('ai');
+                if (ai && 'handleModal' in ai) {
+                    await (ai as any).handleModal(this.client, i);
+                }
             }
             return;
         };
         if (i.isMessageContextMenuCommand()) {
-            const command = this.client.commands.get(i.commandName) as RemindCommandProps;
-            if (!command) {
+            let targetCommand = null;
+            for (const [name, command] of this.client.commands) {
+                if ('contextMenuExecute' in command) {
+                    const remindCommand = command as RemindCommandProps;
+                    if (remindCommand.contextMenu.name === i.commandName) {
+                        targetCommand = command;
+                        break;
+                    }
+                }
+            }
+            
+            if (!targetCommand) {
                 await i.reply({ content: "Error Occured, Please try again later" })
+                return;
             };
-            command.contextMenuExecute(this.client, i);
+            
+            (targetCommand as RemindCommandProps).contextMenuExecute(this.client, i);
         };
         if (i.isButton()) {
             try {

@@ -1,8 +1,8 @@
 # Aethel Bot
 
-[![Node.js](https://img.shields.io/badge/node-%3E=16.9.0-green?logo=node.js)](https://nodejs.org/) [![CC BY-NC 4.0](https://licensebuttons.net/l/by-nc/4.0/80x15.png)](https://creativecommons.org/licenses/by-nc/4.0/)
+[![Node.js](https://img.shields.io/badge/node-%3E=16.9.0-green?logo=node.js)](https://nodejs.org/) 
 
-A privacy-conscious, production-ready Discord user bot with AI chat, reminders, and utility commands. Built with Node.js, Discord.js v14, PostgreSQL, and robust security best practices.
+A privacy-conscious, production-ready Discord user-installed bot with AI chat, reminders, and utility commands. Built with Node.js, Discord.js v14, PostgreSQL, and robust security best practices.
 
 ---
 
@@ -23,7 +23,7 @@ A privacy-conscious, production-ready Discord user bot with AI chat, reminders, 
 ### 1. Clone & Install
 
 ```sh
-git clone https://github.com/scanash00/bot.git
+git clone https://github.com/aethel-labs/aethel.git
 cd bot
 pnpm i
 ```
@@ -63,7 +63,7 @@ pnpm run scripts/run-migration.js # or node scripts/run-migration.js
 - **No plaintext API keys stored or logged**
 - **User data is encrypted and can be deleted by user command**
 - **No data sold or shared with third parties**
-- **See https://bot.pur.cat/legal/privacy for full policy**
+- **See https://aethel.xyz/legal/privacy for full policy**
 
 ---
 
@@ -77,16 +77,9 @@ pnpm run scripts/run-migration.js # or node scripts/run-migration.js
 
 ## License
 
-[![CC BY-NC 4.0][cc-by-nc-shield]][cc-by-nc-link]
+This project is licensed under the MIT License.
 
-This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.
-
-You are free to share and adapt the code for non-commercial purposes, provided you give appropriate credit.
-
-See [LICENSE](LICENSE) and [Creative Commons CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) for details.
-
-[cc-by-nc-shield]: https://licensebuttons.net/l/by-nc/4.0/80x15.png
-[cc-by-nc-link]: https://creativecommons.org/licenses/by-nc/4.0/
+See [LICENSE](LICENSE) for details.
 
 7. Start the bot:
    ```bash

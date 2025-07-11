@@ -6,7 +6,7 @@ import {
   parseTimeString,
   formatTimeString,
 } from '@/utils/validation';
-import { saveReminder, completeReminder, cleanupReminders } from '@/utils/reminderDb';
+import { saveReminder, completeReminder, cleanupReminders, ensureUserRegistered } from '@/utils/reminderDb';
 import { RemindCommandProps } from '@/types/command';
 import BotClient from '@/services/Client';
 
@@ -213,6 +213,8 @@ export default {
     const guildId = interaction.guildId;
 
     try {
+      await ensureUserRegistered(userId, userTag, interaction.locale || 'en');
+      
       await interaction.deferReply({ flags: 1 << 6 });
 
       const timeStr = interaction.options.getString('time')!;
@@ -378,6 +380,8 @@ export default {
     const { user, targetMessage: message } = interaction;
 
     try {
+      await ensureUserRegistered(user.id, user.tag, interaction.locale || 'en');
+      
       const modalId = `remind_${message.id}`;
 
       global._reminders.set(modalId, {
@@ -448,6 +452,8 @@ export default {
     await modalInteraction.deferReply({ flags: 1 << 6 });
 
     try {
+      await ensureUserRegistered(user.id, user.tag, interaction.locale || 'en');
+      
       const messageInfo = global._reminders.get(modalId);
 
       if (!messageInfo) {

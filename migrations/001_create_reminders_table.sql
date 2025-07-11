@@ -1,17 +1,16 @@
--- Create reminders table
+-- Create reminders table (only if not exists from initial migration)
 CREATE TABLE IF NOT EXISTS reminders (
-    id SERIAL PRIMARY KEY,
-    reminder_id VARCHAR(100) NOT NULL UNIQUE,
-    user_id VARCHAR(100) NOT NULL,
-    user_tag VARCHAR(200) NOT NULL,
-    channel_id VARCHAR(100),
-    guild_id VARCHAR(100),
+    reminder_id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    user_tag TEXT NOT NULL,
+    channel_id TEXT,
+    guild_id TEXT,
     message TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
     is_completed BOOLEAN DEFAULT FALSE,
-    completed_at TIMESTAMP WITH TIME ZONE,
-    metadata JSONB
+    completed_at TIMESTAMPTZ,
+    metadata JSONB DEFAULT '{}',
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Index for faster lookups
