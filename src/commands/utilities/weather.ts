@@ -124,16 +124,18 @@ export default {
       const data = metricData as WeatherResponse
       const useFahrenheit = FAHRENHEIT_COUNTRIES.has(data.sys.country);
 
+      let displayData = data;
       if (useFahrenheit) {
-        metricData = await fetchWeatherData(location, 'imperial');
+        const imperialData = await fetchWeatherData(location, 'imperial');
+        displayData = imperialData as WeatherResponse;
       }
 
       const tempUnit = useFahrenheit ? '°F' : '°C';
       const windUnit = useFahrenheit ? 'mph' : 'km/h';
-      const windSpeed = useFahrenheit ? Math.round(data.wind.speed) : Math.round(data.wind.speed * 3.6);
+      const windSpeed = useFahrenheit ? Math.round(displayData.wind.speed) : Math.round(displayData.wind.speed * 3.6);
 
-      const weatherEmoji = getWeatherEmoji(data.weather[0].main);
-      const description = data.weather[0].description.split(' ').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      const weatherEmoji = getWeatherEmoji(displayData.weather[0].main);
+      const description = displayData.weather[0].description.split(' ').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
       const [tempText, feelsLikeText, weatherText, humidityText, windText, pressureText, title, footer] = await Promise.all([
         await client.getLocaleText("commands.weather.temperature", interaction.locale),
@@ -143,7 +145,7 @@ export default {
         await client.getLocaleText("commands.weather.windspeed", interaction.locale),
         await client.getLocaleText("commands.weather.pressure", interaction.locale),
         await client.getLocaleText("commands.weather.weatherin", interaction.locale, {
-          location: `${sanitizeInput(data.name)}, ${data.sys.country} ${weatherEmoji}`
+          location: `${sanitizeInput(displayData.name)}, ${displayData.sys.country} ${weatherEmoji}`
         }),
         await client.getLocaleText("poweredby", interaction.locale),
       ]);
@@ -152,12 +154,12 @@ export default {
         .setColor(0x4285f4)
         .setTitle(title)
         .addFields(
-          { name: tempText, value: `${Math.round(data.main.temp)}${tempUnit}`, inline: true },
-          { name: feelsLikeText, value: `${Math.round(data.main.feels_like)}${tempUnit}`, inline: true },
+          { name: tempText, value: `${Math.round(displayData.main.temp)}${tempUnit}`, inline: true },
+          { name: feelsLikeText, value: `${Math.round(displayData.main.feels_like)}${tempUnit}`, inline: true },
           { name: weatherText, value: description, inline: true },
-          { name: humidityText, value: `${data.main.humidity}%`, inline: true },
+          { name: humidityText, value: `${displayData.main.humidity}%`, inline: true },
           { name: windText, value: `${windSpeed} ${windUnit}`, inline: true },
-          { name: pressureText, value: `${data.main.pressure} hPa`, inline: true }
+          { name: pressureText, value: `${displayData.main.pressure} hPa`, inline: true }
         )
         .setFooter({ text: footer + " Open Weather" })
         .setTimestamp();
