@@ -179,7 +179,7 @@
                 "description": "Añade una nueva tarea"
             },
             "done": {
-                "name": "done",
+                "name": "hecho",
                 "description": "Marca una tarea como hecha"
             },
             "list": {
