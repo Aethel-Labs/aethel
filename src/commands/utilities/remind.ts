@@ -6,7 +6,7 @@ import {
   parseTimeString,
   formatTimeString,
 } from '@/utils/validation';
-import { saveReminder, completeReminder, cleanupReminders, ensureUserRegistered } from '@/utils/reminderDb';
+import { saveReminder, completeReminder, cleanupReminders, ensureUserRegistered, DatabaseError } from '@/utils/reminderDb';
 import { RemindCommandProps } from '@/types/command';
 import BotClient from '@/services/Client';
 
@@ -125,7 +125,21 @@ function createReminderHandler(client: BotClient, reminder: Reminder) {
         }
       );
     } finally {
-      await completeReminder(reminder.reminder_id);
+      try {
+        await completeReminder(reminder.reminder_id);
+      } catch (error) {
+        if (error instanceof DatabaseError) {
+          logger.error(`Database error completing reminder: ${error.message}`, {
+            error,
+            reminderId: reminder.reminder_id,
+          });
+        } else {
+          logger.error(`Error completing reminder: ${(error as Error).message}`, {
+            error,
+            reminderId: reminder.reminder_id,
+          });
+        }
+      }
       activeReminders.delete(reminder.reminder_id);
     }
   };
@@ -139,7 +153,11 @@ setInterval(
         logger.info(`Cleaned up ${deletedCount} old completed reminders`);
       }
     } catch (error) {
-      logger.error('Error during reminder cleanup:', error);
+      if (error instanceof DatabaseError) {
+        logger.error(`Database error during reminder cleanup: ${error.message}`, { error });
+      } else {
+        logger.error('Error during reminder cleanup:', error);
+      }
     }
   },
   60 * 60 * 1000
@@ -341,14 +359,22 @@ export default {
         );
         return;
       } catch (error) {
-        logger.error(`Error saving reminder to database: ${(error as Error).message}`, {
-          error,
-          userId,
-          userTag,
-        });
-
-        const errorMessage = await client.getLocaleText("commands.remind.errors.failedtosave", interaction.locale);
-        throw new Error(errorMessage);
+        if (error instanceof DatabaseError) {
+          logger.error(`Database error saving reminder: ${error.message}`, {
+            error,
+            userId,
+            userTag,
+          });
+          throw error;
+        } else {
+          logger.error(`Error saving reminder to database: ${(error as Error).message}`, {
+            error,
+            userId,
+            userTag,
+          });
+          const errorMessage = await client.getLocaleText("commands.remind.errors.failedtosave", interaction.locale);
+          throw new Error(errorMessage);
+        }
       }
     } catch (error) {
       logger.error(`Error in remind command: ${(error as Error).message}`, {
@@ -356,22 +382,32 @@ export default {
         userId: interaction.user.id,
         userTag: interaction.user.tag,
       });
-      const errorMessage = await client.getLocaleText("commands.remind.errors.base", interaction.locale);
+
+      let errorMessage: string;
+      let errorTitle: string;
+
+      if (error instanceof DatabaseError) {
+        errorMessage = error.userMessage;
+        errorTitle = error.isUserFriendly ? "⚠️ Database Error" : "❌ Database Error";
+      } else {
+        errorMessage = await client.getLocaleText("commands.remind.errors.base", interaction.locale);
+        errorTitle = "❌ " + await client.getLocaleText("error", interaction.locale);
+      }
+
       const errorEmbed = new EmbedBuilder()
         .setColor(0xff0000)
-        .setTitle("❌" + await client.getLocaleText("error", interaction.locale))
+        .setTitle(errorTitle)
         .setDescription(errorMessage)
         .setTimestamp();
 
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({
-          content: `${errorMessage}`,
+          content: errorMessage,
           embeds: [errorEmbed],
-          // flags: 1 << 6,
         });
       } else {
         await interaction.reply({
-          content: `${errorMessage}`,
+          content: errorMessage,
           embeds: [errorEmbed],
           flags: MessageFlags.Ephemeral,
         });
@@ -435,12 +471,21 @@ export default {
         messageId: message?.id,
       });
 
-      const errorTitle = await client.getLocaleText("error", interaction.locale);
-      const errorDescription = await client.getLocaleText("commands.remind.errors.modalfailed", interaction.locale);
+      let errorMessage: string;
+      let errorTitle: string;
+
+      if (error instanceof DatabaseError) {
+        errorMessage = error.userMessage;
+        errorTitle = error.isUserFriendly ? "⚠️ Database Error" : "❌ Database Error";
+      } else {
+        errorMessage = await client.getLocaleText("commands.remind.errors.modalfailed", interaction.locale);
+        errorTitle = "❌ " + await client.getLocaleText("error", interaction.locale);
+      }
+
       const errorEmbed = new EmbedBuilder()
         .setColor(0xff0000)
-        .setTitle(`❌ ${errorTitle}`)
-        .setDescription(errorDescription)
+        .setTitle(errorTitle)
+        .setDescription(errorMessage)
         .setTimestamp();
 
       if (interaction.replied || interaction.deferred) {
@@ -528,12 +573,20 @@ export default {
 
         await saveReminder(reminderData);
       } catch (error) {
-        logger.error(`Error saving reminder to database: ${(error as Error).message}`, { error });
-        const errorMsg = await client.getLocaleText("commands.remind.errors.failedtosave", interaction.locale);
-        return await modalInteraction.editReply({
-          content: errorMsg,
-          flags: 1 << 6,
-        });
+        if (error instanceof DatabaseError) {
+          logger.error(`Database error saving reminder: ${error.message}`, { error });
+          return await modalInteraction.editReply({
+            content: error.userMessage,
+            flags: 1 << 6,
+          });
+        } else {
+          logger.error(`Error saving reminder to database: ${(error as Error).message}`, { error });
+          const errorMsg = await client.getLocaleText("commands.remind.errors.failedtosave", interaction.locale);
+          return await modalInteraction.editReply({
+            content: errorMsg,
+            flags: 1 << 6,
+          });
+        }
       }
 
       const timeoutId = setTimeout(

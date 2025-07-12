@@ -10,11 +10,5 @@ BEGIN
     VALUES (p_user_id, p_language, CURRENT_TIMESTAMP)
     ON CONFLICT (user_id) DO NOTHING;
     
-    -- Update user_tag if provided and different from current
-    IF p_user_tag IS NOT NULL THEN
-        UPDATE users 
-        SET user_tag = p_user_tag 
-        WHERE user_id = p_user_id AND (user_tag IS NULL OR user_tag != p_user_tag);
-    END IF;
 END;
 $$ LANGUAGE plpgsql; 

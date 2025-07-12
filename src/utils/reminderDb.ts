@@ -20,6 +20,66 @@ interface ReminderData {
   };
 }
 
+class DatabaseError extends Error {
+  public readonly isDatabaseError = true;
+  public readonly isUserFriendly: boolean;
+  public readonly userMessage: string;
+
+  constructor(message: string, userMessage?: string, isUserFriendly = false) {
+    super(message);
+    this.name = 'DatabaseError';
+    this.userMessage = userMessage || 'A database error occurred. Please try again later.';
+    this.isUserFriendly = isUserFriendly;
+  }
+}
+
+function createDatabaseError(error: any, operation: string): DatabaseError {
+  const errorCode = error?.code;
+  const errorMessage = error?.message || 'Unknown database error';
+
+  logger.error(`Database error during ${operation}:`, error);
+
+  switch (errorCode) {
+    case 'ECONNREFUSED':
+    case 'ENOTFOUND':
+      return new DatabaseError(
+        errorMessage,
+        'Unable to connect to the database. Please try again later.',
+        true
+      );
+    case '42703':
+      return new DatabaseError(
+        errorMessage,
+        'Database schema error. Please contact support.',
+        true
+      );
+    case '23505':
+      return new DatabaseError(
+        errorMessage,
+        'This reminder already exists.',
+        true
+      );
+    case '23502':
+      return new DatabaseError(
+        errorMessage,
+        'Missing required information. Please try again.',
+        true
+      );
+    case '23503':
+      return new DatabaseError(
+        errorMessage,
+        'Invalid reference. Please try again.',
+        true
+      );
+    default:
+      return new DatabaseError(
+        errorMessage,
+        'A database error occurred. Please try again later.',
+        false
+      );
+  }
+}
+
 async function ensureUserRegistered(userId: string, userTag: string, language: string = 'en'): Promise<void> {
   const query = `
     SELECT ensure_user_registered($1, $2, $3)
@@ -28,8 +88,7 @@ async function ensureUserRegistered(userId: string, userTag: string, language: s
   try {
     await pool.query(query, [userId, userTag, language]);
   } catch (error) {
-    logger.error('Error ensuring user registration:', error);
-    throw error;
+    throw createDatabaseError(error, 'user registration');
   }
 }
 
@@ -59,8 +118,7 @@ async function saveReminder(reminderData: ReminderData): Promise<ReminderData> {
     const result = await pool.query<ReminderData>(query, values);
     return result.rows[0];
   } catch (error) {
-    logger.error('Error saving reminder to database:', error);
-    throw error;
+    throw createDatabaseError(error, 'saving reminder');
   }
 }
 
@@ -76,8 +134,7 @@ async function completeReminder(reminderId: string) {
     const result = await pool.query(query, [reminderId]);
     return result.rows[0];
   } catch (error) {
-    logger.error('Error completing reminder:', error);
-    throw error;
+    throw createDatabaseError(error, 'completing reminder');
   }
 }
 
@@ -93,8 +150,7 @@ async function getActiveReminders() {
     const result = await pool.query(query);
     return result.rows;
   } catch (error) {
-    logger.error('Error fetching active reminders:', error);
-    throw error;
+    throw createDatabaseError(error, 'fetching active reminders');
   }
 }
 
@@ -105,8 +161,7 @@ async function getReminder(reminderId: string) {
     const result = await pool.query(query, [reminderId]);
     return result.rows[0] || null;
   } catch (error) {
-    logger.error('Error fetching reminder:', error);
-    throw error;
+    throw createDatabaseError(error, 'fetching reminder');
   }
 }
 
@@ -122,8 +177,7 @@ async function getUserReminders(userId: string) {
     const result = await pool.query(query, [userId]);
     return result.rows;
   } catch (error) {
-    logger.error('Error fetching user reminders:', error);
-    throw error;
+    throw createDatabaseError(error, 'fetching user reminders');
   }
 }
 
@@ -139,8 +193,7 @@ async function cleanupReminders(days = 30) {
     const result = await pool.query(query, [days]);
     return result.rowCount;
   } catch (error) {
-    logger.error('Error cleaning up old reminders:', error);
-    throw error;
+    throw createDatabaseError(error, 'cleaning up reminders');
   }
 }
 
@@ -152,4 +205,5 @@ export {
   getUserReminders,
   cleanupReminders,
   ensureUserRegistered,
+  DatabaseError,
 };
