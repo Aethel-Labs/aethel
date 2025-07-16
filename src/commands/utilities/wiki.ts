@@ -143,7 +143,7 @@ export default {
         const errorMsg = await client.getLocaleText("commands.wiki.error", interaction.locale);
         await interaction.editReply({
           content: errorMsg,
-          // flags: 1 << 6,
+          // flags: MessageFlags.Ephemeral
         });
       }
     } catch (error) {
@@ -156,9 +156,8 @@ export default {
       } else if (interaction.deferred) {
         const errorMsg = await client.getLocaleText("unexpectederror", interaction.locale);
         await interaction.editReply({
-          content: errorMsg,
-          flags: 1 << 6,
-        });
+          content: errorMsg
+       });
       }
     }
   },

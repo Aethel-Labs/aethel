@@ -88,7 +88,7 @@ export default {
       if (!validation.isValid) {
         return interaction.reply({
           content: validation.message,
-          flags: 1 << 6,
+          flags: MessageFlags.Ephemeral
         });
       }
 
@@ -120,12 +120,12 @@ export default {
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp({
           content: errorMessage,
-          flags: 1 << 6,
+          flags: MessageFlags.Ephemeral
         });
       } else {
         await interaction.reply({
           content: errorMessage,
-          flags: 1 << 6,
+          flags: MessageFlags.Ephemeral
         });
       }
     }

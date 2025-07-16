@@ -35,7 +35,7 @@ export default class BotClient extends Client {
         this.login(config.TOKEN);
     }
 
-    private     async setupEvents() {
+    private async setupEvents() {
         console.log("Initializing events...");
         const eventsDir = path.join(srcDir, 'events');
         for (const event of readdirSync(path.join(eventsDir))) {
@@ -46,7 +46,7 @@ export default class BotClient extends Client {
         }
     };
 
-    private     async setupLocalization() {
+    private async setupLocalization() {
         console.log("Loading localization files...");
         const localesDir = path.join(srcDir, '..', 'locales');
         for (const locale of readdirSync(path.join(localesDir)).filter(f => f.endsWith('.json'))) {
@@ -61,8 +61,7 @@ export default class BotClient extends Client {
         if (!langMap) {
             const langOnly = locale.split('-')[0];
             langMap = this.t.get(langOnly);
-            if (langMap) {
-            } else {
+            if (!langMap) {
                 const fuzzyLocale = Array.from(this.t.keys()).find(k => k.startsWith(langOnly + '-'));
                 if (fuzzyLocale) {
                     langMap = this.t.get(fuzzyLocale);

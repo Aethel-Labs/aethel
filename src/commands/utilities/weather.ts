@@ -118,7 +118,6 @@ export default {
         }
         return await interaction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       }
       const data = metricData as WeatherResponse
@@ -175,7 +174,6 @@ export default {
         const errorMsg = await client.getLocaleText("unexpectederror", interaction.locale);
         await interaction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       }
     }

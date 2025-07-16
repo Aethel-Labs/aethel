@@ -4,6 +4,7 @@ import {
   EmbedBuilder,
   InteractionContextType,
   ApplicationIntegrationType,
+  MessageFlags,
 } from 'discord.js';
 import whois from 'whois-json';
 import { isIP } from 'net';
@@ -336,7 +337,7 @@ export default {
       const timeLeft = Math.ceil((COOLDOWN_TIME - (now - cooldown)) / 1000);
       return interaction.reply({
         content: `⏳ Please wait ${timeLeft} seconds before using this command again.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral
       });
     }
 
@@ -348,7 +349,7 @@ export default {
     if (!isValidDomain(query) && !isIP(query)) {
       return interaction.reply({
         content: '❌ Please provide a valid domain name or IP address.',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral
       });
     }
 
@@ -371,8 +372,7 @@ export default {
 
       const errorMsg = await client.getLocaleText("unexpectederror", interaction.locale);
       await interaction.editReply({
-        content: errorMsg,
-        flags: 1 << 6,
+        content: errorMsg
       });
     }
   },

@@ -33,9 +33,9 @@ class DatabaseError extends Error {
   }
 }
 
-function createDatabaseError(error: any, operation: string): DatabaseError {
-  const errorCode = error?.code;
-  const errorMessage = error?.message || 'Unknown database error';
+function createDatabaseError(error: unknown, operation: string): DatabaseError {
+  const errorCode = (error as { code?: string }).code;
+  const errorMessage = (error as { message?: string }).message || 'Unknown database error';
 
   logger.error(`Database error during ${operation}:`, error);
 

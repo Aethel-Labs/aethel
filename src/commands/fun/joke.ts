@@ -130,7 +130,6 @@ export default {
         const errorMsg = await client.getLocaleText("commands.joke.error", interaction.locale)
         await interaction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       }
     } catch (error) {
@@ -139,12 +138,12 @@ export default {
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp({
           content: errorMsg,
-          flags: 1 << 6,
+          flags: MessageFlags.Ephemeral
         });
       } else {
         await interaction.reply({
           content: errorMsg,
-          flags: 1 << 6,
+          flags: MessageFlags.Ephemeral
         });
       }
     }

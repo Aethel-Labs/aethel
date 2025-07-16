@@ -1,5 +1,5 @@
 import { SlashCommandProps } from '@/types/command';
-import { SlashCommandBuilder, EmbedBuilder, InteractionContextType, ApplicationIntegrationType } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, InteractionContextType, ApplicationIntegrationType, MessageFlags } from 'discord.js';
 import BotClient from '@/services/Client';
 
 export default {
@@ -20,7 +20,7 @@ export default {
     .setIntegrationTypes(ApplicationIntegrationType.UserInstall),
   async execute(client, interaction) {
     try {
-      await interaction.deferReply();
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
       const [title, description] = await Promise.all([
         await client.getLocaleText("commands.help.embed.title", interaction.locale),
@@ -47,7 +47,7 @@ export default {
         const subcommands = options?.filter((opt: unknown) => hasTypeProperty(opt) && opt.type === 1);
         if (subcommands && subcommands.length > 0) {
           for (const sub of subcommands) {
-            const formatted = await formatSubcommand(client, cmd, sub, interaction.locale);
+            const formatted = await formatSubcommand(client, cmd, sub as Record<string, unknown>, interaction.locale);
             commandCategories.get(category)!.push(formatted);
           }
         } else {
@@ -70,19 +70,19 @@ export default {
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp({
           content: errorMsg,
-          flags: 1 << 6,
+          flags: MessageFlags.Ephemeral,
         });
       } else {
         await interaction.reply({
           content: errorMsg,
-          flags: 1 << 6,
+          flags: MessageFlags.Ephemeral,
         });
       }
     }
   },
 } as SlashCommandProps;
 
-async function formatSubcommand(client: BotClient, cmd: SlashCommandProps, sub: any, locale: string) {
+async function formatSubcommand(client: BotClient, cmd: SlashCommandProps, sub: Record<string, unknown>, locale: string) {
   const { name: subName, description: subDescription } = sub as { name: string; description: string };
   const subNameKey = `commands.${cmd.data.name}.${subName}.name`;
   const subDescKey = `commands.${cmd.data.name}.${subName}.description`;

@@ -3,7 +3,8 @@ import BotClient from "@/services/Client";
 import { RandomReddit } from "@/types/base";
 import { RemindCommandProps } from "@/types/command";
 import logger from "@/utils/logger";
-import { sanitizeInput } from "@/utils/validation";
+import { sanitizeInput, getUnallowedWordCategory } from "@/utils/validation";
+import { isUserBanned, incrementUserStrike } from "@/utils/userStrikes";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ClientEvents, EmbedBuilder, MessageFlags } from "discord.js";
 
 type InteractionHandler = (...args: ClientEvents['interactionCreate']) => void;
@@ -24,22 +25,50 @@ export default class InteractionCreateEvent {
             }
         }
         if (i.isChatInputCommand()) {
+            const userId = i.user.id;
+            const bannedUntil = await isUserBanned(userId);
+            if (bannedUntil) {
+                return i.reply({
+                    content: `You are banned from using Aethel commands until ${bannedUntil.toISOString().split('T')[0]}.`,
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+            const options = i.options.data;
+            for (const opt of options) {
+                if (typeof opt.value === 'string') {
+                    const category = getUnallowedWordCategory(opt.value);
+                    if (category) {
+                        const { strike_count, banned_until } = await incrementUserStrike(userId);
+                        if (banned_until && new Date(banned_until) > new Date()) {
+                            return i.reply({
+                                content: `You have been banned from using Aethel commands for 7 days due to repeated use of unallowed language. Ban expires: ${banned_until.toISOString().split('T')[0]}.`,
+                                flags: MessageFlags.Ephemeral
+                            });
+                        } else {
+                            return i.reply({
+                                content: `Your request was flagged by Aethel for ${category}. You have ${strike_count}/5 strikes. For more information, visit https://aethel.xyz/legal/terms`,
+                                flags: MessageFlags.Ephemeral
+                            });
+                        }
+                    }
+                }
+            }
             const command = this.client.commands.get(i.commandName);
             if (!command) {
                 return i.reply({
                     content: "Command not found",
                     flags: MessageFlags.Ephemeral
                 });
-            };
+            }
             try {
                 command.execute(this.client, i);
             } catch (error) {
                 console.error(`[COMMAND ERROR] ${i.commandName}:`, error);
                 await i.reply({
                     content: 'There was an error executing this command!',
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral
                 });
-            };
+            }
         };
         if (i.isModalSubmit()) {
             if (i.customId.startsWith('remind')) {
@@ -80,7 +109,7 @@ export default class InteractionCreateEvent {
                 if (originalUser.id !== i.user.id) {
                     return await i.reply({
                         content: 'Only the person who used the command can refresh the image!',
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral
                     });
                 }
 

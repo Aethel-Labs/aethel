@@ -1,5 +1,6 @@
 import validator from 'validator';
 import { ChatInputCommandInteraction } from 'discord.js';
+import { UNALLOWED_WORDS } from '../constants/unallowedWords';
 
 interface ValidationResult {
   isValid: boolean;
@@ -72,6 +73,37 @@ function formatTimeString(minutes: number): string {
 function isValidDomain(domain: string): boolean {
   if (typeof domain !== 'string') return false;
   return validator.isFQDN(domain, { require_tld: true });
+}
+
+function normalizeInput(text: string): string {
+  let normalized = text.toLowerCase();
+  normalized = normalized.replace(/([a-z])\1{2,}/g, '$1');
+  normalized = normalized.replace(/[@4]/g, 'a')
+    .replace(/[3]/g, 'e')
+    .replace(/[1!]/g, 'i')
+    .replace(/[0]/g, 'o')
+    .replace(/[5$]/g, 's')
+    .replace(/[7]/g, 't');
+  return normalized;
+}
+
+export function getUnallowedWordCategory(text: string): string | null {
+  const normalized = normalizeInput(text);
+  for (const [category, words] of Object.entries(UNALLOWED_WORDS)) {
+    for (const word of words as string[]) {
+      if (category === 'slurs') {
+        if (normalized.includes(word)) {
+          return category;
+        }
+      } else {
+        const pattern = new RegExp(`(?:^|\\W)${word}[a-z]{0,2}(?:\\W|$)`, 'i');
+        if (pattern.test(normalized)) {
+          return category;
+        }
+      }
+    }
+  }
+  return null;
 }
 
 export {

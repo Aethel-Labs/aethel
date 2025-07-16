@@ -314,7 +314,7 @@ export default {
                 await interaction.followUp({
                     // '✅ API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`'
                     content: "✅ " + await client.getLocaleText("commands.ai.apicredssaved", interaction.locale),
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral
                 });
 
                 if (!originalInteraction.deferred && !originalInteraction.replied) {
@@ -508,7 +508,7 @@ export default {
                     const processedChunk = processUrls(chunks[i]);
                     await interaction.followUp({
                         content: processedChunk,
-                        ephemeral: true,
+                        flags: MessageFlags.Ephemeral
                     });
                 }
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars

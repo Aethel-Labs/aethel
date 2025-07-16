@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder, MessageFlags, ApplicationIntegrationType, InteractionContextType, ChatInputCommandInteraction, AutocompleteInteraction } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, ApplicationIntegrationType, InteractionContextType, ChatInputCommandInteraction, AutocompleteInteraction } from 'discord.js';
 import { SlashCommandProps } from '@/types/command';
 import cityTimezones from 'city-timezones';
 import moment from 'moment-timezone';

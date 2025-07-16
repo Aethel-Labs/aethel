@@ -258,7 +258,6 @@ export default {
         const errorMsg = await client.getLocaleText("commands.remind.errors.invalidformat", interaction.locale);
         return await interaction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       }
 
@@ -268,7 +267,6 @@ export default {
         const errorMsg = await client.getLocaleText("commands.remind.errors.providevalidchars", interaction.locale);
         return await interaction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       }
 
@@ -279,7 +277,6 @@ export default {
         const errorMsg = await client.getLocaleText("commands.remind.errors.atleastoneminute", interaction.locale);
         return await interaction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       }
 
@@ -288,7 +285,6 @@ export default {
         const errorMsg = await client.getLocaleText("commands.remind.errors.notlongerthanaday", interaction.locale);
         return await interaction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       }
 
@@ -514,7 +510,6 @@ export default {
         const errorMsg = await client.getLocaleText("commands.remind.errors.expired", interaction.locale);
         return await modalInteraction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       }
 
@@ -528,7 +523,6 @@ export default {
         const errorMsg = await client.getLocaleText("commands.remind.errors.invalidformat", interaction.locale);
         return await modalInteraction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       }
 
@@ -539,7 +533,6 @@ export default {
         const errorMsg = await client.getLocaleText("commands.remind.errors.notlongerthanaday", interaction.locale);
         return await modalInteraction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       }
 
@@ -577,14 +570,12 @@ export default {
           logger.error(`Database error saving reminder: ${error.message}`, { error });
           return await modalInteraction.editReply({
             content: error.userMessage,
-            flags: 1 << 6,
           });
         } else {
           logger.error(`Error saving reminder to database: ${(error as Error).message}`, { error });
           const errorMsg = await client.getLocaleText("commands.remind.errors.failedtosave", interaction.locale);
           return await modalInteraction.editReply({
             content: errorMsg,
-            flags: 1 << 6,
           });
         }
       }
@@ -645,7 +636,6 @@ export default {
         const errorMsg = await client.getLocaleText("commands.remind.errors.base", interaction.locale);
         await modalInteraction.editReply({
           content: errorMsg,
-          flags: 1 << 6,
         });
       } catch (replyError) {
         logger.error('Failed to send error response to user:', { error: replyError });
