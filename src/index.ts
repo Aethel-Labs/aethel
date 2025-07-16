@@ -8,6 +8,7 @@ import { ALLOWED_ORIGINS, PORT } from "./config";
 import rateLimit from "express-rate-limit";
 import authenticateApiKey from "./middlewares/verifyApiKey";
 import status from "./routes/status";
+import { resetOldStrikes } from './utils/userStrikes';
 
 config();
 
@@ -55,7 +56,11 @@ bot.init()
 app.use(authenticateApiKey);
 app.use('/status', status(bot));
 
+setInterval(() => {
+  resetOldStrikes().catch(console.error);
+}, 60 * 60 * 1000);
+
 app.listen(PORT, () => {
-    console.log("Nice try, App is live on", `http://localhost:${PORT}`);
+    console.log("Aethel is live on", `http://localhost:${PORT}`);
 });
 

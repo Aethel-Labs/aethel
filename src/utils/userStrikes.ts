@@ -37,4 +37,12 @@ export async function isUserBanned(userId: string) {
     return new Date(res.rows[0].banned_until);
   }
   return null;
+}
+
+export async function resetOldStrikes() {
+  await pgClient.query(
+    `UPDATE user_strikes
+     SET strike_count = 0, banned_until = NULL
+     WHERE last_strike_at < NOW() - INTERVAL '3 days'`
+  );
 } 
