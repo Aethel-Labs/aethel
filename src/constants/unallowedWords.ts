@@ -51,7 +51,7 @@
 
 export const UNALLOWED_WORDS = {
     profanity: [
-      'fuck','fucking','motherfucker','shit','bullshit','cunt','asshole',
+      'cunt','asshole',
       'twat','prick','whore','slut','cocksucker','ballsack','dipshit',
       'dumbass','clusterfuck','shithead','shitface','asswipe','dickhead',
       'cockface','bastardly','buttfuck'
@@ -60,8 +60,8 @@ export const UNALLOWED_WORDS = {
       'nigger','nigga','chink','gook','spic','wetback','kike','faggot',
       'fag','dyke','tranny','retard','cripple','coon','towelhead',
       'sandnigger','beaner','gyppo','jap','paki','porchmonkey','raghead',
-      'cameljockey','heeb','yid','mongoloid','savage','inbred','invalid',
-      'lunatic','schizoid','halfbreed','breeder','uncle tom','house nigger'
+      'cameljockey','heeb','yid','mongoloid','savage','inbred',
+      'lunatic','schizoid','halfbreed','breeder','house nigger'
     ],
     nsfw: [
       'cum','semen','blowjob','deepthroat','anal','dildo','pussylick',
