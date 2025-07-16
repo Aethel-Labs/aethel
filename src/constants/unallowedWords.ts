@@ -51,34 +51,33 @@
 
 export const UNALLOWED_WORDS = {
     profanity: [
-      'cunt','asshole',
-      'twat','prick','whore','slut','cocksucker','ballsack','dipshit',
-      'dumbass','clusterfuck','shithead','shitface','asswipe','dickhead',
-      'cockface','bastardly','buttfuck'
+        "cunt", "twat", "prick", "whore", "slut", "cocksucker", "dipshit",
+        "shithead", "shitface", "asswipe", "dickhead", "cockface",
+        "bitch", "douche", "jackass", "jerk", "idiot"
     ],
     slurs: [
-      'nigger','nigga','chink','gook','spic','wetback','kike','faggot',
-      'fag','dyke','tranny','retard','cripple','coon','towelhead',
-      'sandnigger','beaner','gyppo','jap','paki','porchmonkey','raghead',
-      'cameljockey','heeb','yid','mongoloid','savage','inbred',
-      'lunatic','schizoid','halfbreed','breeder','house nigger'
+        "nigger", "nigga", "chink", "gook", "spic", "wetback", "kike", "faggot",
+        "fag", "dyke", "tranny", "retard", "cripple", "coon", "towelhead",
+        "sandnigger", "beaner", "gyppo", "jap", "paki", "porchmonkey", "raghead",
+        "cameljockey", "heeb", "yid", "mongoloid", "savage", "halfbreed",
+        "house nigger", "queer", "cholo", "redneck", "whitey", "trannies", "spook",
+        "slants", "wop"
     ],
     nsfw: [
-      'cum','semen','blowjob','deepthroat','anal','dildo','pussylick',
-      'handjob','assfuck','rimjob','cuntlick','titfuck','bukkake',
-      'gangbang','orgy','hentai','porn','porno','fuckfest','cumshot',
-      'facials','clit','masturbate','masturbation','vibrator','creampie',
-      'pussyjuice','pegging','scissoring','felching','squirting',
-      'fisting','rimming','buttplug','bondage','bdsm','cockring',
-      'doggystyle','gloryhole','gaping','snowballing','footjob',
-      'cuckold','pegged','choking','slutty','boykisser'
+        "semen", "blowjob", "deepthroat", "anal", "dildo", "pussylick", "handjob",
+        "assfuck", "rimjob", "cuntlick", "titfuck", "bukkake", "gangbang", "orgy",
+        "fuckfest", "cumshot", "facials", "creampie", "pussyjuice", "pegging",
+        "scissoring", "felching", "squirting", "fisting", "rimming", "buttplug",
+        "bondage", "bdsm", "cockring", "doggystyle", "gloryhole", "gaping",
+        "snowballing", "footjob", "cuckold", "pegged", "choking", "slutty",
+        "pervert", "creep"
     ],
     sexualViolence: [
-      'rape','rapist','raping','molest','molester','molestation',
-      'sexualassault','sexualharassment','incest','pedo','pedophile',
-      'pedophilia','childporn','cp','bestiality','zoophilia','necrophilia',
-      'snuff','forcedsex','nonconsensual','abduction','grooming',
-      'traffick','humantrafficking','childabuse','statutoryrape'
+        "rape", "rapist", "raping", "molest", "molester", "molestation",
+        "sexualassault", "sexualharassment", "incest", "pedo", "pedophile",
+        "pedophilia", "childporn", "cp", "bestiality", "zoophilia", "necrophilia",
+        "snuff", "forcedsex", "nonconsensual", "abduction", "grooming",
+        "traffick", "humantrafficking", "childabuse", "statutoryrape",
+        "stalker", "stalking"
     ]
-  };
-  
+};
