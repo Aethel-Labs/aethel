@@ -29,7 +29,7 @@ export default class InteractionCreateEvent {
             const bannedUntil = await isUserBanned(userId);
             if (bannedUntil) {
                 return i.reply({
-                    content: `You are banned from using Aethel commands until ${bannedUntil.toISOString().split('T')[0]}.`,
+                    content: `You are banned from using Aethel commands until <t:${Math.floor(bannedUntil.getTime() / 1000)}:F>.`,
                     flags: MessageFlags.Ephemeral
                 });
             }
@@ -41,7 +41,7 @@ export default class InteractionCreateEvent {
                         const { strike_count, banned_until } = await incrementUserStrike(userId);
                         if (banned_until && new Date(banned_until) > new Date()) {
                             return i.reply({
-                                content: `You have been banned from using Aethel commands for 7 days due to repeated use of unallowed language. Ban expires: ${banned_until.toISOString().split('T')[0]}.`,
+                                content: `You have been banned from using Aethel commands for 7 days due to repeated use of unallowed language. Ban expires: <t:${Math.floor(new Date(banned_until).getTime() / 1000)}:F>.`,
                                 flags: MessageFlags.Ephemeral
                             });
                         } else {
