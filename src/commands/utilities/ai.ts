@@ -344,12 +344,12 @@ export default {
             const usingCustomApi = !!apiKey;
             let finalApiUrl = apiUrl || 'https://openrouter.ai/api/v1/chat/completions';
             const finalApiKey = apiKey || process.env.OPENROUTER_API_KEY;
-            let finalModel = model || (usingCustomApi ? 'openai/gpt-4.1-mini' : 'x-ai/grok-3-mini-beta');
+            let finalModel = model || (usingCustomApi ? 'openai/gpt-4.1-mini' : 'moonshotai/kimi-k2');
 
             const usingDefaultKey = !usingCustomApi && process.env.OPENROUTER_API_KEY;
             if (usingDefaultKey) {
                 finalApiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-                finalModel = 'x-ai/grok-3-mini-beta';
+                finalModel = 'moonshotai/kimi-k2';
             }
 
             if (usingDefaultKey) {
