@@ -1,6 +1,6 @@
 import { CommandInteraction } from 'discord.js';
-import logger from '@/utils/logger';
 import BotClient from '@/services/Client';
+import logger from './logger';
 
 export interface ErrorHandlerOptions {
   interaction: CommandInteraction;

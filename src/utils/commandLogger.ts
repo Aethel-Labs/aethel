@@ -1,4 +1,4 @@
-import logger from '@/utils/logger';
+import logger from './logger';
 import { CommandInteraction } from 'discord.js';
 
 export interface CommandLogOptions {
