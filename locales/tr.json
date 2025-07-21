@@ -1,0 +1,180 @@
+{
+  "cooldown": "Bu komutu tekrar kullanmadan önce lütfen {cooldown} saniye bekleyin.",
+  "failedrequest": "İsteğiniz işlenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+  "unexpectederror": "Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+  "poweredby": "Destekleyen",
+  "providedby": "Veri sağlayıcı",
+  "reddit": {
+    "from": "r/{subreddit} tarafından"
+  },
+  "error": "Hata!",
+  "common": {
+    "ogmessage": "Orijinal Mesaj",
+    "jumptomessage": "Mesaja git",
+    "messagelink": "Mesaj bağlantısı"
+  },
+  "commands": {
+    "8ball": {
+      "name": "8ball",
+      "description": "Sihirli 8 topuna bir soru sor",
+      "says": "Sihirli 8 Topu diyor ki…",
+      "question": "Soru",
+      "answer": "Cevap",
+      "anotherfortune": "Başka bir kehanet için tekrar sor!",
+      "spoken": "Sihirli 8 topu konuştu!",
+      "responces": {
+        "itiscertain": "Bu kesin",
+        "itisdecidedlyso": "Kesinlikle öyle",
+        "withoutadoubt": "Şüphesiz",
+        "yesdefinitely": "Evet, kesinlikle",
+        "youmayrelyonit": "Ona güvenebilirsin",
+        "asiseeityes": "Gördüğüm kadarıyla evet",
+        "mostlikely": "Büyük olasılıkla",
+        "outlookgood": "Görünüm iyi",
+        "yes": "Evet",
+        "signspointtoyes": "İşaretler eveti gösteriyor",
+        "replyhazytryagain": "Cevap belirsiz, tekrar dene",
+        "askagainlater": "Daha sonra tekrar sor",
+        "betternottellyounow": "Şimdi söylemesem daha iyi",
+        "cannotpredictnow": "Şu anda tahmin edemem",
+        "concentrateandaskagain": "Odaklan ve tekrar sor",
+        "dontcountonit": "Buna güvenme",
+        "myreplyisno": "Cevabım hayır",
+        "mysourcessayno": "Kaynaklarım hayır diyor",
+        "outlooknotsogood": "Görünüm pek iyi değil",
+        "verydoubtful": "Çok şüpheli"
+      }
+    },
+    "cat": {
+      "name": "kedi",
+      "description": "Rastgele bir kedi resmi al!",
+      "randomcat": "Rastgele kedi",
+      "newcat": "Yeni kedi",
+      "error": "Üzgünüm, bir kedi resmi getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!"
+    },
+    "dog": {
+      "name": "köpek",
+      "description": "Rastgele bir köpek resmi al!",
+      "randomdog": "Rastgele köpek",
+      "newdog": "Yeni köpek",
+      "error": "Üzgünüm, bir köpek resmi getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!"
+    },
+    "wiki": {
+      "name": "wiki",
+      "description": "Bir konu için Vikipedi'de ara",
+      "pedia": "Vikipedi: {article}",
+      "error": "Üzgünüm, Vikipedi makalesi getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
+      "nosummary": "Özet mevcut değil",
+      "readmoreonwiki": "Daha fazlası"
+    },
+    "weather": {
+      "name": "hava",
+      "description": "Bir konumun güncel hava durumunu al",
+      "temperature": "Sıcaklık",
+      "feelslike": "Hissedilen",
+      "default": "Hava",
+      "humidity": "Nem",
+      "windspeed": "Rüzgar hızı",
+      "pressure": "Basınç",
+      "weatherin": "{location} için hava durumu",
+      "error": "Üzgünüm, hava durumu alınırken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
+      "nolocation": "Konum bulunamadı. Lütfen şehir adını kontrol edip tekrar deneyin.",
+      "apikeymissing": "OpenWeather API anahtarı eksik veya geçersiz."
+    },
+    "joke": {
+      "name": "fıkra",
+      "description": "Rastgele bir fıkra al!",
+      "waitingpunchline": "Espri {seconds} saniye içinde görünecek…",
+      "error": "Üzgünüm, bir fıkra getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
+      "type": {
+        "default": "{type} fıkrası",
+        "general": "Genel",
+        "programming": "Programlama",
+        "dad": "Baba"
+      }
+    },
+    "help": {
+      "name": "yardım",
+      "description": "Tüm mevcut komutları ve kullanımlarını göster",
+      "embed": {
+        "title": "Aethel komutları",
+        "description": "İşte tüm mevcut komutlar"
+      },
+      "nooptions": "Seçenek yok"
+    },
+    "remind": {
+      "name": "hatırlat",
+      "reminder": "Hatırlatma!",
+      "remindyou": "Bana şunu hatırlatmamı istedin: {message}",
+      "timeelapsed": "Geçen süre",
+      "originaltime": "Orijinal Zaman",
+      "errors": {
+        "base": "Hatırlatıcı ayarlanırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+        "failedtosave": "Hatırlatıcı kaydedilemedi. Lütfen daha sonra tekrar deneyin.",
+        "invalidformat": "Geçersiz zaman formatı! Şu kombinasyonları kullanın: 1s30d, 45d veya 2s",
+        "providevalidchars": "Lütfen geçerli bir mesaj girin (1-1000 karakter)",
+        "atleastoneminute": "Hatırlatıcı süresi en az 1 dakika olmalı!",
+        "notlongerthanaday": "Hatırlatıcı süresi 24 saatten uzun olamaz!"
+      },
+      "modal": {
+        "setreminder": "Hatırlatıcı ayarla",
+        "whento": "Ne zaman hatırlatayım? (örn. 10d, 1s, 2s30d)"
+      },
+      "reminderset": "Hatırlatıcı ayarlandı",
+      "iwillremindyou": "{message} hakkında {time} sonra hatırlatacağım",
+      "contextiwillremindyou": "Bu mesajı {time} sonra hatırlatacağım",
+      "time": "Zaman",
+      "willtrigger": "Tetiklenecek",
+      "reminderid": "Hatırlatıcı ID: {reminderId}"
+    },
+    "whois": {
+      "name": "whois",
+      "description": "Bir alan adı veya IP adresi için WHOIS bilgisi sorgula",
+      "error": "Üzgünüm, WHOIS verisi alınırken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
+      "nodata": "Belirtilen alan adı veya IP için WHOIS verisi bulunamadı.",
+      "notvalid": "Lütfen geçerli bir alan adı veya IP adresi girin."
+    },
+    "ai": {
+      "name": "ai",
+      "description": "Bir yapay zeka asistanı ile sohbet et",
+      "optioins": {
+        "prompt": {
+          "name": "istem",
+          "description": "Yapay zekaya mesajınız"
+        },
+        "customapi": "Kendi API anahtarınızı kullanmak ister misiniz?",
+        "reset": "AI sohbet geçmişinizi sıfırlayın"
+      },
+      "request": {
+        "inprogress": "Zaten devam eden bir isteğiniz var. Lütfen tamamlanmasını bekleyin."
+      },
+      "reset": "AI sohbet geçmişiniz sıfırlandı.",
+      "defaultapi": " Varsayılan API'ya geçildi. Özel API anahtarınız temizlendi ve varsayılan model kullanılacak.",
+      "modal": {
+        "title": "API Kimlik Bilgilerinizi Girin",
+        "apikey": "API Anahtarı",
+        "apikeyplaceholder": "Kendi anahtarınızı kullanmayı bırakmak için: /ai use_custom_api false",
+        "apiurl": "API Adresi",
+        "apiurlplaceholder": "API Adresiniz",
+        "model": "Model",
+        "modelplaceholder": "Model adı (örn. gpt-4)"
+      },
+      "nopendingrequest": "Bekleyen bir istek bulunamadı. Lütfen komutu tekrar deneyin.",
+      "apicredssaved": "API kimlik bilgileri kaydedildi. Artık `/ai` komutunu anahtarınızı tekrar girmeden kullanabilirsiniz. Kendi anahtarınızı kullanmayı bırakmak için /ai use_custom_api false yazın",
+      "process": {
+        "dailylimit": "Günlük AI istek limitinize ulaştınız",
+        "noapikey": "Lütfen önce API anahtarınızı ayarlayın"
+      },
+      "errors": {
+        "failed": "AI yanıtı işlenemedi",
+        "nores": "AI'dan yanıt yok",
+        "toolong": "Mesaj çok uzun"
+      }
+    }
+  },
+  "categories": {
+    "fun": "Eğlence",
+    "info": "Bilgi",
+    "utilities": "Araçlar"
+  }
+}
