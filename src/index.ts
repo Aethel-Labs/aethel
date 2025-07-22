@@ -56,7 +56,7 @@ app.use(e.urlencoded({ extended: true, limit: '10mb' }));
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
-  if (req.path.startsWith('/api/') || req.path.startsWith('/api/status')) {
+  if (req.path.startsWith('/api/')) {
     res.setHeader('Content-Security-Policy', "default-src 'none'");
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
@@ -84,7 +84,7 @@ app.use('/api/status', authenticateApiKey, status(bot));
 app.use(e.static('web/dist'));
 
 app.get('*', (req, res) => {
-  if (req.path.startsWith('/api/') || req.path.startsWith('/status')) {
+  if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'Not found' });
   }
   res.sendFile('index.html', { root: 'web/dist' });

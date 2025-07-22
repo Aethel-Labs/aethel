@@ -35,7 +35,7 @@ const StatusPage = () => {
   const fetchStatus = async () => {
     try {
       setError(null)
-      const response = await fetch(`${import.meta.env.VITE_FRONTEND_URL}/status`, {
+      const response = await fetch(`${import.meta.env.VITE_FRONTEND_URL}/api/status`, {
         headers: {
           'X-API-Key': import.meta.env.VITE_STATUS_API_KEY || ''
         }
