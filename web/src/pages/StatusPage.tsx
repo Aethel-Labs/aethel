@@ -37,7 +37,7 @@ const StatusPage = () => {
       setError(null)
       const response = await fetch('http://localhost:2020/status', {
         headers: {
-          'X-API-Key': 'XIoypvTfaDxWLTFFcHu9ta0aJpvRPVIGADxSMNCNJ50QYtIpSIUsi1WKLglQ7TTRYX6mWgYq15i4NqPl92l0Lzepsrju2fXV1aZpNdDTtIu5mFMvcLhouhmxwb7R93'
+          'X-API-Key': 'nulled'
         }
       })
       
