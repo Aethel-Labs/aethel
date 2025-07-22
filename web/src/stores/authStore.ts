@@ -47,7 +47,7 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const response = await axios.get('/api/auth/me');
+          const response = await axios.get(`${import.meta.env.VITE_FRONTEND_URL}/api/auth/me`);
           set({
             token,
             user: response.data.user,

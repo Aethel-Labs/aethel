@@ -28,7 +28,7 @@ const LoginPage = () => {
 
   const handleDiscordLogin = async () => {
     try {
-      window.location.href = '/api/auth/discord'
+      window.location.href = `${import.meta.env.VITE_FRONTEND_URL}/api/auth/discord`
     } catch (error) {
       toast.error('Failed to initiate Discord login')
     }

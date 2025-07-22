@@ -47,7 +47,7 @@ const LandingPage = () => {
           </p>
           
           <a
-            href="https://discord.com/api/oauth2/authorize?client_id=YOUR_BOT_CLIENT_ID&permissions=8&scope=bot%20applications.commands"
+            href={`https://discord.com/api/oauth2/authorize?client_id=${import.meta.env.VITE_DISCORD_CLIENT_ID}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center space-x-3 bg-[#5865F2] text-white px-8 py-4 rounded-lg hover:bg-[#4752C4] transition-colors font-medium"

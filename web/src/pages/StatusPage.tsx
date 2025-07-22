@@ -35,9 +35,9 @@ const StatusPage = () => {
   const fetchStatus = async () => {
     try {
       setError(null)
-      const response = await fetch('http://localhost:2020/status', {
+      const response = await fetch(`${import.meta.env.VITE_FRONTEND_URL}/status`, {
         headers: {
-          'X-API-Key': 'nulled'
+          'X-API-Key': import.meta.env.VITE_STATUS_API_KEY || ''
         }
       })
       

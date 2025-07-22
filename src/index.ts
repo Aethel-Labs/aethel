@@ -56,7 +56,7 @@ app.use(e.urlencoded({ extended: true, limit: '10mb' }));
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
-  if (req.path.startsWith('/api/') || req.path.startsWith('/status')) {
+  if (req.path.startsWith('/api/') || req.path.startsWith('/api/status')) {
     res.setHeader('Content-Security-Policy', "default-src 'none'");
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
@@ -79,7 +79,7 @@ app.use('/api/todos', todosRoutes);
 app.use('/api/user/api-keys', apiKeysRoutes);
 app.use('/api/reminders', remindersRoutes);
 
-app.use('/status', authenticateApiKey, status(bot));
+app.use('/api/status', authenticateApiKey, status(bot));
 
 app.use(e.static('web/dist'));
 
