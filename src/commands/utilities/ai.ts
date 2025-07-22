@@ -482,7 +482,7 @@ export default {
       if (reset) {
         userConversations.delete(userId);
         await interaction.reply({
-          content: await client.getLocaleText('commands.reset', interaction.locale),
+          content: await client.getLocaleText('commands.ai.reset', interaction.locale),
           ephemeral: true,
         });
         pendingRequests.delete(userId);

@@ -11,7 +11,7 @@ export interface CommandLogOptions {
 }
 
 export function logUserAction(options: CommandLogOptions): void {
-  const { commandName, userId, username, guildId, channelId } = options;
+  const { commandName, userId, username, guildId, channelId, additionalInfo } = options;
 
   let logMessage = `User ${username} (${userId}) used ${commandName} command`;
 
@@ -21,6 +21,10 @@ export function logUserAction(options: CommandLogOptions): void {
 
   if (channelId) {
     logMessage += ` in channel ${channelId}`;
+  }
+
+  if (additionalInfo) {
+    logMessage += ` with ${additionalInfo}`;
   }
 
   logger.info(logMessage);
@@ -37,6 +41,7 @@ export function logUserActionFromInteraction(
     username: interaction.user.tag,
     guildId: interaction.guildId || undefined,
     channelId: interaction.channelId,
+    additionalInfo,
   });
 }
 
@@ -46,7 +51,7 @@ export function createCommandLogger(commandName: string) {
       logUserAction({ ...options, commandName });
     },
     logFromInteraction: (interaction: CommandInteraction, additionalInfo?: string) => {
-      logUserActionFromInteraction(interaction, commandName);
+      logUserActionFromInteraction(interaction, commandName, additionalInfo);
     },
   };
 }

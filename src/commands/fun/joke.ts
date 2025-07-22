@@ -140,7 +140,9 @@ export default {
           );
           embed.setFooter({ text: 'Ba dum tss! 🥁' });
           await interaction.editReply({ embeds: [embed] });
-        } catch {}
+        } catch (error) {
+          console.error('Error showing punchline:', error);
+        }
       }, 3000);
     } catch (error) {
       await errorHandler({

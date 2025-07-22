@@ -1,4 +1,6 @@
-# Aethel Bot
+# Aethel Monorepo
+
+This monorepo includes both the frontend and backend of the Aethel Discord bot.
 
 [![Node.js](https://img.shields.io/badge/node-%3E=16.9.0-green?logo=node.js)](https://nodejs.org/)
 

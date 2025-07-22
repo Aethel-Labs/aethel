@@ -13,9 +13,11 @@ const __dirname = dirname(__filename);
 export const srcDir = path.join(__dirname, '..');
 
 export default class BotClient extends Client {
+  private static instance: BotClient | null = null;
   public commands = new Collection<string, SlashCommandProps>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public t = new Collection<string, any>();
+
   constructor() {
     super({
       intents: [GatewayIntentBits.MessageContent],
@@ -28,6 +30,11 @@ export default class BotClient extends Client {
         ],
       },
     });
+    BotClient.instance = this;
+  }
+
+  public static getInstance(): BotClient | null {
+    return BotClient.instance;
   }
 
   public async init() {
@@ -76,6 +83,11 @@ export default class BotClient extends Client {
   }
   public async getLocaleText(key: string, locale: string, replaces = {}): Promise<string> {
     const fallbackLocale = 'en-US';
+
+    if (!locale) {
+      locale = fallbackLocale;
+    }
+
     let langMap = this.t.get(locale);
     if (!langMap) {
       const langOnly = locale.split('-')[0];

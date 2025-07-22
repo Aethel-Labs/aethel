@@ -24,6 +24,7 @@ import {
   completeReminder,
   cleanupReminders,
   ensureUserRegistered,
+  getActiveReminders,
   DatabaseError,
 } from '@/utils/reminderDb';
 import { RemindCommandProps } from '@/types/command';
@@ -69,6 +70,84 @@ interface MessageInfo {
 const activeReminders = new Map<string, ActiveReminder>();
 const commandLogger = createCommandLogger('remind');
 const errorHandler = createErrorHandler('remind');
+
+export async function loadActiveReminders(client: BotClient) {
+  try {
+    const reminders = await getActiveReminders();
+    logger.info(`Loading ${reminders.length} active reminders from database`);
+
+    for (const reminder of reminders) {
+      const now = Date.now();
+      const expiresAt = new Date(reminder.expires_at).getTime();
+      const timeUntilExpiry = expiresAt - now;
+
+      if (timeUntilExpiry <= 0) {
+        logger.warn(`Skipping expired reminder ${reminder.reminder_id}`);
+        continue;
+      }
+
+      const timeoutId = setTimeout(
+        createReminderHandler(client, {
+          ...reminder,
+          created_at: reminder.created_at || new Date(reminder.expires_at),
+        }),
+        timeUntilExpiry
+      );
+
+      activeReminders.set(reminder.reminder_id, {
+        timeoutId,
+        expiresAt,
+      });
+
+      logger.debug(
+        `Scheduled reminder ${reminder.reminder_id} for ${new Date(expiresAt).toISOString()}`
+      );
+    }
+
+    logger.info(`Successfully loaded ${activeReminders.size} active reminders`);
+  } catch (error) {
+    logger.error('Error loading active reminders:', error);
+  }
+}
+
+export function scheduleReminder(client: BotClient, reminder: Reminder) {
+  try {
+    const now = Date.now();
+    const expiresAt = new Date(reminder.expires_at).getTime();
+    const timeUntilExpiry = expiresAt - now;
+
+    if (timeUntilExpiry <= 0) {
+      logger.warn(`Cannot schedule expired reminder ${reminder.reminder_id}`);
+      return false;
+    }
+
+    const existingReminder = activeReminders.get(reminder.reminder_id);
+    if (existingReminder) {
+      clearTimeout(existingReminder.timeoutId);
+    }
+
+    const timeoutId = setTimeout(
+      createReminderHandler(client, {
+        ...reminder,
+        created_at: reminder.created_at || new Date(),
+      }),
+      timeUntilExpiry
+    );
+
+    activeReminders.set(reminder.reminder_id, {
+      timeoutId,
+      expiresAt,
+    });
+
+    logger.info(
+      `Scheduled reminder ${reminder.reminder_id} for ${new Date(expiresAt).toISOString()}`
+    );
+    return true;
+  } catch (error) {
+    logger.error(`Error scheduling reminder ${reminder.reminder_id}:`, error);
+    return false;
+  }
+}
 
 declare global {
   var _reminders: Map<string, MessageInfo>;

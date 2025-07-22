@@ -197,6 +197,22 @@ async function cleanupReminders(days = 30) {
   }
 }
 
+async function clearCompletedReminders(userId: string) {
+  const query = `
+    DELETE FROM reminders
+    WHERE user_id = $1
+    AND is_completed = TRUE
+    RETURNING *
+  `;
+
+  try {
+    const result = await pool.query(query, [userId]);
+    return result.rowCount;
+  } catch (error) {
+    throw createDatabaseError(error, 'clearing completed reminders');
+  }
+}
+
 export {
   saveReminder,
   completeReminder,
@@ -204,6 +220,7 @@ export {
   getReminder,
   getUserReminders,
   cleanupReminders,
+  clearCompletedReminders,
   ensureUserRegistered,
   DatabaseError,
 };

@@ -197,6 +197,48 @@
       "done_title": "Done",
       "none": "—"
     },
+    "cobalt": {
+      "name": "cobalt",
+      "description": "Download a video or audio from a given URL",
+      "options": {
+        "url": {
+          "name": "url",
+          "description": "The URL of the video to download"
+        },
+        "video_quality": {
+          "name": "video-quality",
+          "description": "The video quality to download"
+        },
+        "audio_only": {
+          "name": "audio-only",
+          "description": "Download audio only"
+        },
+        "mute_audio": {
+          "name": "mute-audio",
+          "description": "Mute audio"
+        },
+        "twitter_gif": {
+          "name": "twitter-gif",
+          "description": "Download as Twitter GIF"
+        },
+        "tiktok_original_audio": {
+          "name": "tiktok-original-audio",
+          "description": "Include TikTok original audio"
+        },
+        "audio_format": {
+          "name": "audio-format",
+          "description": "Format for audio (requires audio-only to be true)"
+        }
+      },
+      "button_label": "Download",
+      "success": "✅ **Download ready!**\n\n🔗 {url}\n📥 **Click the button below to download your file.**",
+      "error": "❌ **Error:** {error}",
+      "unknown_error": "An unknown error occurred.",
+      "rate_limit": "⏳ **Rate limit exceeded.** Please try again later.",
+      "unknown_response": "❓ **Unknown response from the API.** Please try again.",
+      "multiple_items": "📋 **Multiple items found for this URL.** Please provide a more specific URL.",
+      "local_processing_not_supported": "⚠️ **Local processing is not supported.** Please try a different URL or option."
+    },
     "time": {
       "name": "time",
       "description": "Get the current time for a timezone",
