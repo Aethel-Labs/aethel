@@ -127,29 +127,22 @@ export default {
 
       const container = new ContainerBuilder()
         .setAccentColor(0x8b5cf6)
-        .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(`# 🔮 ${title}`)
-        )
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# 🔮 ${title}`))
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(`**${questionLabel}**\n> ${question}\n\n`)
         )
-        .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(`## ✨ ${answerLabel}`)
-        )
-        .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(translatedResponse)
-        )
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ✨ ${answerLabel}`))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(translatedResponse))
         .addActionRowComponents(
-          new ActionRowBuilder<MessageActionRowComponentBuilder>()
-            .addComponents(
-              new ButtonBuilder()
-                .setStyle(ButtonStyle.Primary)
-                .setLabel(askAgainLabel)
-                .setEmoji({ name: '🎱' })
-                .setCustomId(
-                  `8ball_reroll_${interaction.user.id}_${Date.now()}_${encodeURIComponent(question)}`
-                )
-            )
+          new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+            new ButtonBuilder()
+              .setStyle(ButtonStyle.Primary)
+              .setLabel(askAgainLabel)
+              .setEmoji({ name: '🎱' })
+              .setCustomId(
+                `8ball_reroll_${interaction.user.id}_${Date.now()}_${encodeURIComponent(question)}`
+              )
+          )
         );
 
       await interaction.reply({

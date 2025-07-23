@@ -1,12 +1,18 @@
 import { SlashCommandProps } from '@/types/command';
 import {
   SlashCommandBuilder,
-  EmbedBuilder,
   InteractionContextType,
   ApplicationIntegrationType,
   MessageFlags,
+  ContainerBuilder,
+  TextDisplayBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  type MessageActionRowComponentBuilder,
 } from 'discord.js';
-import BotClient from '@/services/Client';
 
 export default {
   data: new SlashCommandBuilder()
@@ -30,102 +36,86 @@ export default {
     .setIntegrationTypes(ApplicationIntegrationType.UserInstall),
   async execute(client, interaction) {
     try {
-      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
-      const [title, description] = await Promise.all([
-        await client.getLocaleText('commands.help.embed.title', interaction.locale),
-        await client.getLocaleText('commands.help.embed.description', interaction.locale),
+      const [
+        title,
+        description,
+        viewCommandsText,
+        supportServerText,
+        linksSocialText,
+        featuresText,
+        featuresContent,
+        dashboardText,
+      ] = await Promise.all([
+        client.getLocaleText('commands.help.title', interaction.locale),
+        client.getLocaleText('commands.help.about', interaction.locale),
+        client.getLocaleText('commands.help.viewcommands', interaction.locale),
+        client.getLocaleText('commands.help.supportserver', interaction.locale),
+        client.getLocaleText('commands.help.links_social', interaction.locale),
+        client.getLocaleText('commands.help.features', interaction.locale),
+        client.getLocaleText('commands.help.features_content', interaction.locale),
+        client.getLocaleText('commands.help.dashboard', interaction.locale),
       ]);
 
-      const embed = new EmbedBuilder()
-        .setColor('#0099ff')
-        .setTitle(`🤖 ${title}`)
-        .setDescription(description);
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865f2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${title || 'Aethel Bot'}`))
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(description || 'Get information about Aethel')
+        )
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            `\n## **${linksSocialText || 'Links & Social Media'}**`
+          )
+        )
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            '[Website](https://aethel.xyz) • [GitHub](https://github.com/aethel-labs/aethel) • [Bluesky](https://bsky.app/profile/aethel.xyz)'
+          )
+        )
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`\n## **${featuresText || 'Features'}**`)
+        )
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            featuresContent ||
+              '**Fun Commands** - 8ball, cat/dog images, and more\n' +
+                '**AI Integration** - Powered by OpenAI and other providers\n' +
+                '**Reminders** - Never forget important tasks\n' +
+                '**Utilities** - Weather, help, and productivity tools\n' +
+                '**Multi-language** - Supports multiple languages'
+          )
+        )
+        .addSeparatorComponents(
+          new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true)
+        )
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            `-# ${dashboardText || 'Dashboard available at https://aethel.xyz/dashboard for To-Dos, Reminders and custom AI API key management'}`
+          )
+        )
+        .addActionRowComponents(
+          new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+            new ButtonBuilder()
+              .setStyle(ButtonStyle.Primary)
+              .setLabel(viewCommandsText || 'Commands')
+              .setCustomId(`help_commands_${interaction.user.id}`),
+            new ButtonBuilder()
+              .setStyle(ButtonStyle.Link)
+              .setLabel(supportServerText || 'Support')
+              .setURL('https://discord.gg/labs')
+          )
+        );
 
-      const commandCategories: Map<string, string[]> = new Map();
-      // Group commands by category
-      for (const cmd of client.commands.values()) {
-        const ClientApplicationCommandCache = client.application?.commands.cache.find(
-          (command) => command.name == cmd.data.name
-        );
-        const category = cmd.category || 'Uncategorized';
-        if (!commandCategories.has(category)) {
-          commandCategories.set(category, []);
-        }
-        const options = (
-          typeof cmd.data.toJSON === 'function' ? cmd.data.toJSON().options : undefined
-        ) as unknown[] | undefined;
-        function hasTypeProperty(opt: unknown): opt is { type: number } {
-          return typeof opt === 'object' && opt !== null && 'type' in opt;
-        }
-        const subcommands = options?.filter(
-          (opt: unknown) => hasTypeProperty(opt) && opt.type === 1
-        );
-        if (subcommands && subcommands.length > 0) {
-          for (const sub of subcommands) {
-            const formatted = await formatSubcommand(
-              client,
-              cmd,
-              sub as Record<string, unknown>,
-              interaction.locale
-            );
-            commandCategories.get(category)!.push(formatted);
-          }
-        } else {
-          const localizedDescription = await client.getLocaleText(
-            `commands.${cmd.data.name}.description`,
-            interaction.locale
-          );
-          commandCategories
-            .get(category)!
-            .push(
-              `</${ClientApplicationCommandCache?.name}:${ClientApplicationCommandCache?.id}> - ${localizedDescription}`
-            );
-        }
-      }
-      for (const [category, cmds] of commandCategories.entries()) {
-        const localizedCategory = await client.getLocaleText(
-          `categories.${category}`,
-          interaction.locale
-        );
-        embed.addFields({
-          name: `📂 ${localizedCategory}`,
-          value: cmds.map((line) => line.replace(/\u007F/g, '')).join('\n'),
-          inline: false,
-        });
-      }
-      await interaction.editReply({ embeds: [embed] });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+      await interaction.reply({
+        components: [container],
+        flags: MessageFlags.IsComponentsV2,
+      });
+    } catch {
       const errorMsg = await client.getLocaleText('unexpectederror', interaction.locale);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: errorMsg,
-          flags: MessageFlags.Ephemeral,
-        });
-      } else {
-        await interaction.reply({
-          content: errorMsg,
-          flags: MessageFlags.Ephemeral,
-        });
-      }
+      await interaction.reply({
+        content: errorMsg,
+        flags: MessageFlags.Ephemeral,
+      });
     }
   },
 } as SlashCommandProps;
-
-async function formatSubcommand(
-  client: BotClient,
-  cmd: SlashCommandProps,
-  sub: Record<string, unknown>,
-  locale: string
-) {
-  const { name: subName, description: subDescription } = sub as {
-    name: string;
-    description: string;
-  };
-  const subNameKey = `commands.${cmd.data.name}.${subName}.name`;
-  const subDescKey = `commands.${cmd.data.name}.${subName}.description`;
-  const localizedSubName = (await client.getLocaleText(subNameKey, locale)) || subName;
-  const localizedSubDesc = (await client.getLocaleText(subDescKey, locale)) || subDescription;
-  return ` /${cmd.data.name} ${localizedSubName} - ${localizedSubDesc}`;
-}

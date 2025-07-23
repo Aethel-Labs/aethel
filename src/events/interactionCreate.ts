@@ -15,6 +15,8 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   TextDisplayBuilder,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
 } from 'discord.js';
 
 type InteractionHandler = (...args: ClientEvents['interactionCreate']) => void;
@@ -140,30 +142,29 @@ export default class InteractionCreateEvent {
 
               const refreshLabel = await this.client.getLocaleText('commands.cat.newcat', i.locale);
 
-
-
               const container = new ContainerBuilder()
                 .setAccentColor(0xfaa0a0)
+                .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${title}`))
                 .addTextDisplayComponents(
-                  new TextDisplayBuilder().setContent(`# ${title}`)
-                )
-                .addTextDisplayComponents(
-                  new TextDisplayBuilder().setContent(data.subreddit ? await this.client.getLocaleText('reddit.from', i.locale, { subreddit: data.subreddit }) : '')
-                )
-                .addMediaGalleryComponents(
-                  new MediaGalleryBuilder().addItems(
-                    new MediaGalleryItemBuilder().setURL(data.url)
+                  new TextDisplayBuilder().setContent(
+                    data.subreddit
+                      ? await this.client.getLocaleText('reddit.from', i.locale, {
+                          subreddit: data.subreddit,
+                        })
+                      : ''
                   )
                 )
+                .addMediaGalleryComponents(
+                  new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL(data.url))
+                )
                 .addActionRowComponents(
-                  new ActionRowBuilder<ButtonBuilder>()
-                    .addComponents(
-                      new ButtonBuilder()
-                        .setStyle(ButtonStyle.Danger)
-                        .setLabel(refreshLabel)
-                        .setEmoji({ name: '🐱' })
-                        .setCustomId('refresh_cat')
-                    )
+                  new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    new ButtonBuilder()
+                      .setStyle(ButtonStyle.Danger)
+                      .setLabel(refreshLabel)
+                      .setEmoji({ name: '🐱' })
+                      .setCustomId('refresh_cat')
+                  )
                 );
 
               await i.update({
@@ -171,12 +172,11 @@ export default class InteractionCreateEvent {
                 flags: MessageFlags.IsComponentsV2,
               });
             } else {
-              const container = new ContainerBuilder()
-                .addTextDisplayComponents(
-                  new TextDisplayBuilder().setContent(
-                    await this.client.getLocaleText('commands.cat.error', i.locale)
-                  )
-                );
+              const container = new ContainerBuilder().addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(
+                  await this.client.getLocaleText('commands.cat.error', i.locale)
+                )
+              );
 
               await i.update({
                 components: [container],
@@ -185,12 +185,11 @@ export default class InteractionCreateEvent {
             }
           } catch (error) {
             logger.error('Error refreshing cat image:', error);
-            const container = new ContainerBuilder()
-              .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(
-                  await this.client.getLocaleText('commands.cat.error', i.locale)
-                )
-              );
+            const container = new ContainerBuilder().addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(
+                await this.client.getLocaleText('commands.cat.error', i.locale)
+              )
+            );
 
             await i.update({
               components: [container],
@@ -263,29 +262,184 @@ export default class InteractionCreateEvent {
 
           const container = new ContainerBuilder()
             .setAccentColor(0x8b5cf6)
-            .addTextDisplayComponents(
-              new TextDisplayBuilder().setContent(`# 🔮 ${title}`)
-            )
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# 🔮 ${title}`))
             .addTextDisplayComponents(
               new TextDisplayBuilder().setContent(`**${questionLabel}**\n> ${question}\n\n`)
             )
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ✨ ${answerLabel}`))
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(translatedResponse))
+            .addActionRowComponents(
+              new ActionRowBuilder<ButtonBuilder>().addComponents(
+                new ButtonBuilder()
+                  .setStyle(ButtonStyle.Primary)
+                  .setLabel(askAgainLabel)
+                  .setEmoji({ name: '🎱' })
+                  .setCustomId(
+                    `8ball_reroll_${i.user.id}_${Date.now()}_${encodeURIComponent(question)}`
+                  )
+              )
+            );
+
+          await i.update({
+            components: [container],
+            flags: MessageFlags.IsComponentsV2,
+          });
+        } else if (i.customId.startsWith('help_commands_')) {
+          const customIdParts = i.customId.split('_');
+          const originalUserId = customIdParts[2];
+
+          if (originalUserId !== i.user.id) {
+            return await i.reply({
+              content: 'Only the person who used the command can view commands!',
+              flags: MessageFlags.Ephemeral,
+            });
+          }
+
+          const commandCategories: Map<string, string[]> = new Map();
+
+          for (const cmd of this.client.commands.values()) {
+            const ClientApplicationCommandCache = this.client.application?.commands.cache.find(
+              (command) => command.name == cmd.data.name
+            );
+            const category = cmd.category || 'Uncategorized';
+            if (!commandCategories.has(category)) {
+              commandCategories.set(category, []);
+            }
+
+            const localizedDescription = await this.client.getLocaleText(
+              `commands.${cmd.data.name}.description`,
+              i.locale
+            );
+            commandCategories
+              .get(category)!
+              .push(
+                `</${ClientApplicationCommandCache?.name}:${ClientApplicationCommandCache?.id}> - ${localizedDescription}`
+              );
+          }
+
+          const container = new ContainerBuilder()
+            .setAccentColor(0x5865f2)
             .addTextDisplayComponents(
-              new TextDisplayBuilder().setContent(`## ✨ ${answerLabel}`)
+              new TextDisplayBuilder().setContent('# 📋 **Available Commands**')
+            );
+
+          for (const [category, cmds] of commandCategories.entries()) {
+            const localizedCategory = await this.client.getLocaleText(
+              `categories.${category}`,
+              i.locale
+            );
+
+            container.addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(`\n## 📂 ${localizedCategory}`)
+            );
+
+            container.addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(
+                cmds.map((line) => line.replace(/\u007F/g, '')).join('\n')
+              )
+            );
+          }
+
+          const backLabel =
+            (await this.client.getLocaleText('commands.help.back', i.locale)) || 'Back';
+          container.addActionRowComponents(
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+              new ButtonBuilder()
+                .setStyle(ButtonStyle.Secondary)
+                .setLabel(backLabel)
+                .setEmoji({ name: '⬅️' })
+                .setCustomId(`help_back_${i.user.id}`)
+            )
+          );
+
+          await i.update({
+            components: [container],
+            flags: MessageFlags.IsComponentsV2,
+          });
+        } else if (i.customId.startsWith('help_back_')) {
+          const customIdParts = i.customId.split('_');
+          const originalUserId = customIdParts[2];
+
+          if (originalUserId !== i.user.id) {
+            return await i.reply({
+              content: 'Only the person who used the command can go back!',
+              flags: MessageFlags.Ephemeral,
+            });
+          }
+
+          const [
+            title,
+            description,
+            viewCommandsText,
+            supportServerText,
+            linksSocialText,
+            featuresText,
+            featuresContent,
+            dashboardText,
+          ] = await Promise.all([
+            this.client.getLocaleText('commands.help.title', i.locale),
+            this.client.getLocaleText('commands.help.about', i.locale),
+            this.client.getLocaleText('commands.help.viewcommands', i.locale),
+            this.client.getLocaleText('commands.help.supportserver', i.locale),
+            this.client.getLocaleText('commands.help.links_social', i.locale),
+            this.client.getLocaleText('commands.help.features', i.locale),
+            this.client.getLocaleText('commands.help.features_content', i.locale),
+            this.client.getLocaleText('commands.help.dashboard', i.locale),
+          ]);
+
+          const container = new ContainerBuilder()
+            .setAccentColor(0x5865f2)
+            .addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(`# ${title || 'Aethel Bot'}`)
             )
             .addTextDisplayComponents(
-              new TextDisplayBuilder().setContent(translatedResponse)
+              new TextDisplayBuilder().setContent(
+                description ||
+                  'Enhance your server with fun commands, utilities, and AI-powered features.'
+              )
+            )
+            .addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(
+                `\n## **${linksSocialText || 'Links & Social Media'}**`
+              )
+            )
+            .addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(
+                '[Website](https://aethel.xyz) • [GitHub](https://github.com/aethel-labs/aethel) • [Bluesky](https://bsky.app/profile/aethel.xyz)'
+              )
+            )
+            .addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(`\n## **${featuresText || 'Features'}**`)
+            )
+            .addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(
+                featuresContent ||
+                  '**Fun Commands** - 8ball, cat/dog images, and more\n' +
+                    '**AI Integration** - Powered by OpenAI and other providers\n' +
+                    '**Reminders** - Never forget important tasks\n' +
+                    '**Utilities** - Weather, help, and productivity tools\n' +
+                    '**Multi-language** - Supports multiple languages'
+              )
+            )
+            .addSeparatorComponents(
+              new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true)
+            )
+            .addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(
+                `-# ${dashboardText || 'Dashboard available at https://aethel.xyz/dashboard for To-Dos, Reminders and custom AI API key management'}`
+              )
             )
             .addActionRowComponents(
-              new ActionRowBuilder<ButtonBuilder>()
-                .addComponents(
-                  new ButtonBuilder()
-                    .setStyle(ButtonStyle.Primary)
-                    .setLabel(askAgainLabel)
-                    .setEmoji({ name: '🎱' })
-                    .setCustomId(
-                      `8ball_reroll_${i.user.id}_${Date.now()}_${encodeURIComponent(question)}`
-                    )
-                )
+              new ActionRowBuilder<ButtonBuilder>().addComponents(
+                new ButtonBuilder()
+                  .setStyle(ButtonStyle.Primary)
+                  .setLabel(viewCommandsText || 'Commands')
+                  .setCustomId(`help_commands_${i.user.id}`),
+                new ButtonBuilder()
+                  .setStyle(ButtonStyle.Link)
+                  .setLabel(supportServerText || 'Support')
+                  .setURL('https://discord.gg/labs')
+              )
             );
 
           await i.update({
@@ -298,12 +452,11 @@ export default class InteractionCreateEvent {
               headers: browserHeaders,
             });
             if (!response.ok) {
-              const container = new ContainerBuilder()
-                .addTextDisplayComponents(
-                  new TextDisplayBuilder().setContent(
-                    await this.client.getLocaleText('commands.dog.error', i.locale)
-                  )
-                );
+              const container = new ContainerBuilder().addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(
+                  await this.client.getLocaleText('commands.dog.error', i.locale)
+                )
+              );
 
               return await i.update({
                 components: [container],
@@ -334,15 +487,17 @@ export default class InteractionCreateEvent {
 
               const refreshLabel = await this.client.getLocaleText('commands.dog.newdog', i.locale);
 
-
-
               const container = new ContainerBuilder()
                 .setAccentColor(0x8a2be2)
+                .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${title}`))
                 .addTextDisplayComponents(
-                  new TextDisplayBuilder().setContent(`# ${title}`)
-                )
-                .addTextDisplayComponents(
-                  new TextDisplayBuilder().setContent(data!.subreddit ? await this.client.getLocaleText('reddit.from', i.locale, { subreddit: data!.subreddit }) : '')
+                  new TextDisplayBuilder().setContent(
+                    data!.subreddit
+                      ? await this.client.getLocaleText('reddit.from', i.locale, {
+                          subreddit: data!.subreddit,
+                        })
+                      : ''
+                  )
                 )
                 .addMediaGalleryComponents(
                   new MediaGalleryBuilder().addItems(
@@ -350,14 +505,13 @@ export default class InteractionCreateEvent {
                   )
                 )
                 .addActionRowComponents(
-                  new ActionRowBuilder<ButtonBuilder>()
-                    .addComponents(
-                      new ButtonBuilder()
-                        .setStyle(ButtonStyle.Secondary)
-                        .setLabel(refreshLabel)
-                        .setEmoji({ name: '🐶' })
-                        .setCustomId('refresh_dog')
-                    )
+                  new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    new ButtonBuilder()
+                      .setStyle(ButtonStyle.Secondary)
+                      .setLabel(refreshLabel)
+                      .setEmoji({ name: '🐶' })
+                      .setCustomId('refresh_dog')
+                  )
                 );
 
               await i.update({
@@ -365,12 +519,11 @@ export default class InteractionCreateEvent {
                 flags: MessageFlags.IsComponentsV2,
               });
             } else {
-              const container = new ContainerBuilder()
-                .addTextDisplayComponents(
-                  new TextDisplayBuilder().setContent(
-                    await this.client.getLocaleText('commands.dog.error', i.locale)
-                  )
-                );
+              const container = new ContainerBuilder().addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(
+                  await this.client.getLocaleText('commands.dog.error', i.locale)
+                )
+              );
 
               await i.update({
                 components: [container],
@@ -379,12 +532,11 @@ export default class InteractionCreateEvent {
             }
           } catch (error) {
             logger.error('Error refreshing dog image:', error);
-            const container = new ContainerBuilder()
-              .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(
-                  await this.client.getLocaleText('commands.dog.error', i.locale)
-                )
-              );
+            const container = new ContainerBuilder().addTextDisplayComponents(
+              new TextDisplayBuilder().setContent(
+                await this.client.getLocaleText('commands.dog.error', i.locale)
+              )
+            );
 
             await i.update({
               components: [container],

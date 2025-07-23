@@ -87,26 +87,27 @@ export default {
 
         const container = new ContainerBuilder()
           .setAccentColor(0x8a2be2)
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${title}`))
           .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`# ${title}`)
-          )
-          .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(dogData.subreddit ? await client.getLocaleText('reddit.from', interaction.locale, { subreddit: dogData.subreddit }) : '')
-          )
-          .addMediaGalleryComponents(
-            new MediaGalleryBuilder().addItems(
-              new MediaGalleryItemBuilder().setURL(dogData.url)
+            new TextDisplayBuilder().setContent(
+              dogData.subreddit
+                ? await client.getLocaleText('reddit.from', interaction.locale, {
+                    subreddit: dogData.subreddit,
+                  })
+                : ''
             )
           )
+          .addMediaGalleryComponents(
+            new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL(dogData.url))
+          )
           .addActionRowComponents(
-            new ActionRowBuilder<MessageActionRowComponentBuilder>()
-              .addComponents(
-                new ButtonBuilder()
-                  .setStyle(ButtonStyle.Secondary)
-                  .setLabel(refreshLabel)
-                  .setEmoji({ name: '🐶' })
-                  .setCustomId('refresh_dog')
-              )
+            new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+              new ButtonBuilder()
+                .setStyle(ButtonStyle.Secondary)
+                .setLabel(refreshLabel)
+                .setEmoji({ name: '🐶' })
+                .setCustomId('refresh_dog')
+            )
           );
 
         await interaction.editReply({
@@ -125,12 +126,11 @@ export default {
     } catch (error) {
       logger.error('Unexpected error in dog command:', error);
       const errorMsg = await client.getLocaleText('unexpectederror', interaction.locale);
-      
-      const errorContainer = new ContainerBuilder()
-        .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(errorMsg)
-        );
-      
+
+      const errorContainer = new ContainerBuilder().addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(errorMsg)
+      );
+
       if (!interaction.replied && !interaction.deferred) {
         await interaction.reply({
           components: [errorContainer],
