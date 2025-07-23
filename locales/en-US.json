@@ -1,269 +1,269 @@
 {
-  "cooldown": "Please wait {cooldown} second(s) before using this command again.",
-  "failedrequest": "An error occurred while processing your request. Please try again later.",
-  "unexpectederror": "An unexpected error occurred. Please try again later.",
-  "poweredby": "Powered by",
-  "providedby": "Data provided by",
-  "reddit": {
-    "from": "From r/{subreddit}"
-  },
-  "error": "Error!",
-  "common": {
-    "ogmessage": "Original Message",
-    "jumptomessage": "Jump to message",
-    "messagelink": "Message link"
-  },
-  "commands": {
-    "8ball": {
-      "name": "8ball",
-      "description": "Ask the magic 8-ball a question",
-      "says": "The Magic 8-Ball says…",
-      "question": "Question",
-      "answer": "Answer",
-      "anotherfortune": "Ask again for another fortune!",
-      "spoken": "The magic 8-ball has spoken!",
-      "responces": {
-        "itiscertain": "It is certain",
-        "itisdecidedlyso": "It is decidedly so",
-        "withoutadoubt": "Without a doubt",
-        "yesdefinitely": "Yes definitely",
-        "youmayrelyonit": "You may rely on it",
-        "asiseeityes": "As I see it, yes",
-        "mostlikely": "Most likely",
-        "outlookgood": "Outlook good",
-        "yes": "Yes",
-        "signspointtoyes": "Signs point to yes",
-        "replyhazytryagain": "Reply hazy, try again",
-        "askagainlater": "Ask again later",
-        "betternottellyounow": "Better not tell you now",
-        "cannotpredictnow": "Cannot predict now",
-        "concentrateandaskagain": "Concentrate and ask again",
-        "dontcountonit": "Don't count on it",
-        "myreplyisno": "My reply is no",
-        "mysourcessayno": "My sources say no",
-        "outlooknotsogood": "Outlook not so good",
-        "verydoubtful": "Very doubtful"
-      }
+    "cooldown": "Please wait {cooldown} second(s) before using this command again.",
+    "failedrequest": "An error occurred while processing your request. Please try again later.",
+    "unexpectederror": "An unexpected error occurred. Please try again later.",
+    "poweredby": "Powered by",
+    "providedby": "Data provided by",
+    "reddit": {
+        "from": "From r/{subreddit}"
     },
-    "cat": {
-      "name": "cat",
-      "description": "Get a random cat image!",
-      "randomcat": "Random cat",
-      "newcat": "New cat",
-      "error": "Sorry, I had trouble fetching a cat image. Please try again later!"
+    "error": "Error!",
+    "common": {
+        "ogmessage": "Original Message",
+        "jumptomessage": "Jump to message",
+        "messagelink": "Message link"
     },
-    "dog": {
-      "name": "dog",
-      "description": "Get a random dog image!",
-      "randomdog": "Random dog",
-      "newdog": "New dog",
-      "error": "Sorry, I had trouble fetching a dog image. Please try again later!"
-    },
-    "wiki": {
-      "name": "wiki",
-      "description": "Search Wikipedia for a topic",
-      "pedia": "Wikipedia: {article}",
-      "error": "Sorry, I had trouble fetching the Wikipedia article. Please try again later!",
-      "nosummary": "No summary available",
-      "readmoreonwiki": "Read more"
-    },
-    "weather": {
-      "name": "weather",
-      "description": "Get the current weather for a location",
-      "temperature": "Temperature",
-      "feelslike": "Feels like",
-      "default": "Weather",
-      "humidity": "Humidity",
-      "windspeed": "Wind speed",
-      "pressure": "Pressure",
-      "weatherin": "Weather in {location}",
-      "error": "Sorry, I had trouble fetching the weather. Please try again later!",
-      "nolocation": "Location not found. Please check the city name and try again.",
-      "apikeymissing": "OpenWeather API key is missing or invalid."
-    },
-    "joke": {
-      "name": "joke",
-      "description": "Get a random joke!",
-      "waitingpunchline": "The punchline will appear in {seconds} seconds…",
-      "error": "Sorry, I had trouble fetching a joke. Please try again later!",
-      "type": {
-        "default": "{type} joke",
-        "general": "General",
-        "programming": "Programming",
-        "dad": "Dad"
-      }
-    },
-    "help": {
-      "name": "help",
-      "description": "Show all available commands and their usage",
-      "embed": {
-        "title": "Aethel commands",
-        "description": "Here are all the available commands"
-      },
-      "nooptions": "No options"
-    },
-    "remind": {
-      "name": "remind",
-      "reminder": "Reminder!",
-      "remindyou": "You asked me to remind me about: {message}",
-      "timeelapsed": "Time elapsed",
-      "originaltime": "Original Time",
-      "errors": {
-        "base": "An error occurred while setting your reminder. Please try again later.",
-        "failedtosave": "Failed to save your reminder. Please try again later.",
-        "invalidformat": "Invalid time format! Use combinations like: 1h30m, 45m, or 2h",
-        "providevalidchars": "Please provide a valid message (1-1000 characters)",
-        "atleastoneminute": "Reminder time must be at least 1 minute!",
-        "notlongerthanaday": "Reminder time cannot be longer than 24 hours!"
-      },
-      "modal": {
-        "setreminder": "Set reminder",
-        "whento": "When to remind you? (e.g., 10m, 1h, 2h30m)"
-      },
-      "reminderset": "Reminder set",
-      "iwillremindyou": "I'll remind you about {message} in {time}",
-      "contextiwillremindyou": "I'll remind you about this message in {time}",
-      "time": "Time",
-      "willtrigger": "Will trigger",
-      "reminderid": "Reminder ID: {reminderId}"
-    },
-    "whois": {
-      "name": "whois",
-      "description": "Look up WHOIS information for a domain or IP address",
-      "error": "Sorry, I had trouble fetching WHOIS data. Please try again later!",
-      "nodata": "No WHOIS data found for the specified domain or IP.",
-      "notvalid": "Please provide a valid domain name or IP address."
-    },
-    "ai": {
-      "name": "ai",
-      "description": "Chat with an AI assistant",
-      "optioins": {
-        "prompt": {
-          "name": "prompt",
-          "description": "Your message to the ai"
+    "commands": {
+        "8ball": {
+            "name": "8ball",
+            "description": "Ask the magic 8-ball a question",
+            "says": "The Magic 8-Ball says…",
+            "question": "Question",
+            "answer": "Answer",
+            "anotherfortune": "Ask again for another fortune!",
+            "spoken": "The magic 8-ball has spoken!",
+            "responces": {
+                "itiscertain": "It is certain",
+                "itisdecidedlyso": "It is decidedly so",
+                "withoutadoubt": "Without a doubt",
+                "yesdefinitely": "Yes definitely",
+                "youmayrelyonit": "You may rely on it",
+                "asiseeityes": "As I see it, yes",
+                "mostlikely": "Most likely",
+                "outlookgood": "Outlook good",
+                "yes": "Yes",
+                "signspointtoyes": "Signs point to yes",
+                "replyhazytryagain": "Reply hazy, try again",
+                "askagainlater": "Ask again later",
+                "betternottellyounow": "Better not tell you now",
+                "cannotpredictnow": "Cannot predict now",
+                "concentrateandaskagain": "Concentrate and ask again",
+                "dontcountonit": "Don't count on it",
+                "myreplyisno": "My reply is no",
+                "mysourcessayno": "My sources say no",
+                "outlooknotsogood": "Outlook not so good",
+                "verydoubtful": "Very doubtful"
+            }
         },
-        "customapi": "Use your own API key?",
-        "reset": "Reset your ai chat history"
-      },
-      "request": {
-        "inprogress": "You already have a request in progress. Please wait for it to complete."
-      },
-      "reset": "Your AI chat history has been reset.",
-      "defaultapi": " Switched to default API. Your custom API key has been cleared and the default model will be used.",
-      "modal": {
-        "title": "Enter your API Credentials",
-        "apikey": "API Key",
-        "apikeyplaceholder": "To stop using your key: /ai use_custom_api false",
-        "apiurl": "API Url",
-        "apiurlplaceholder": "Your API Url",
-        "model": "Model",
-        "modelplaceholder": "Model name (eg. gpt-4)"
-      },
-      "nopendingrequest": "No pending request found. Please try the command again.",
-      "apicredssaved": "API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`",
-      "process": {
-        "dailylimit": "You've reached your daily limit of AI requests",
-        "noapikey": "Please set up your API key first"
-      },
-      "errors": {
-        "failed": "Failed to process AI response",
-        "nores": "No response from AI",
-        "toolong": "Message is too long"
-      }
-    },
-    "todo": {
-      "name": "todo",
-      "description": "Manage your to-do list",
-      "add": {
-        "name": "add",
-        "description": "Add a new to-do item"
-      },
-      "done": {
-        "name": "done",
-        "description": "Mark a to-do as done"
-      },
-      "list": {
-        "name": "list",
-        "description": "View your to-do list"
-      },
-      "added": "✅ Added to-do: **{item}**",
-      "add_error": "❌ Failed to add your todo. Please try again later.",
-      "empty": "Your to-do list is empty! 🎉",
-      "list_title": "📝 Your To-Do List",
-      "checked": "✅ Marked to-do as done: **{item}**",
-      "notfound": "❌ That to-do was not found: **{item}**",
-      "done_error": "❌ Failed to mark your todo as done. Please try again later.",
-      "todo_title": "To-Do",
-      "done_title": "Done",
-      "none": "—"
-    },
-    "cobalt": {
-      "name": "cobalt",
-      "description": "Download a video or audio from a given URL",
-      "options": {
-        "url": {
-          "name": "url",
-          "description": "The URL of the video to download"
+        "cat": {
+            "name": "cat",
+            "description": "Get a random cat image!",
+            "randomcat": "Random cat",
+            "newcat": "New cat",
+            "error": "Sorry, I had trouble fetching a cat image. Please try again later!"
         },
-        "video_quality": {
-          "name": "video-quality",
-          "description": "The video quality to download"
+        "dog": {
+            "name": "dog",
+            "description": "Get a random dog image!",
+            "randomdog": "Random dog",
+            "newdog": "New dog",
+            "error": "Sorry, I had trouble fetching a dog image. Please try again later!"
         },
-        "audio_only": {
-          "name": "audio-only",
-          "description": "Download audio only"
+        "wiki": {
+            "name": "wiki",
+            "description": "Search Wikipedia for a topic",
+            "pedia": "Wikipedia: {article}",
+            "error": "Sorry, I had trouble fetching the Wikipedia article. Please try again later!",
+            "nosummary": "No summary available",
+            "readmoreonwiki": "Read more"
         },
-        "mute_audio": {
-          "name": "mute-audio",
-          "description": "Mute audio"
+        "weather": {
+            "name": "weather",
+            "description": "Get the current weather for a location",
+            "temperature": "Temperature",
+            "feelslike": "Feels like",
+            "default": "Weather",
+            "humidity": "Humidity",
+            "windspeed": "Wind speed",
+            "pressure": "Pressure",
+            "weatherin": "Weather in {location}",
+            "error": "Sorry, I had trouble fetching the weather. Please try again later!",
+            "nolocation": "Location not found. Please check the city name and try again.",
+            "apikeymissing": "OpenWeather API key is missing or invalid."
         },
-        "twitter_gif": {
-          "name": "twitter-gif",
-          "description": "Download as Twitter GIF"
+        "joke": {
+            "name": "joke",
+            "description": "Get a random joke!",
+            "waitingpunchline": "The punchline will appear in {seconds} seconds…",
+            "error": "Sorry, I had trouble fetching a joke. Please try again later!",
+            "type": {
+                "default": "{type} joke",
+                "general": "General",
+                "programming": "Programming",
+                "dad": "Dad"
+            }
         },
-        "tiktok_original_audio": {
-          "name": "tiktok-original-audio",
-          "description": "Include TikTok original audio"
+        "help": {
+            "name": "help",
+            "description": "Show all available commands and their usage",
+            "embed": {
+                "title": "Aethel commands",
+                "description": "Here are all the available commands"
+            },
+            "nooptions": "No options"
         },
-        "audio_format": {
-          "name": "audio-format",
-          "description": "Format for audio (requires audio-only to be true)"
+        "remind": {
+            "name": "remind",
+            "reminder": "Reminder!",
+            "remindyou": "You asked me to remind me about: {message}",
+            "timeelapsed": "Time elapsed",
+            "originaltime": "Original Time",
+            "errors": {
+                "base": "An error occurred while setting your reminder. Please try again later.",
+                "failedtosave": "Failed to save your reminder. Please try again later.",
+                "invalidformat": "Invalid time format! Use combinations like: 1h30m, 45m, or 2h",
+                "providevalidchars": "Please provide a valid message (1-1000 characters)",
+                "atleastoneminute": "Reminder time must be at least 1 minute!",
+                "notlongerthanaday": "Reminder time cannot be longer than 24 hours!"
+            },
+            "modal": {
+                "setreminder": "Set reminder",
+                "whento": "When to remind you? (e.g., 10m, 1h, 2h30m)"
+            },
+            "reminderset": "Reminder set",
+            "iwillremindyou": "I'll remind you about {message} in {time}",
+            "contextiwillremindyou": "I'll remind you about this message in {time}",
+            "time": "Time",
+            "willtrigger": "Will trigger",
+            "reminderid": "Reminder ID: {reminderId}"
+        },
+        "whois": {
+            "name": "whois",
+            "description": "Look up WHOIS information for a domain or IP address",
+            "error": "Sorry, I had trouble fetching WHOIS data. Please try again later!",
+            "nodata": "No WHOIS data found for the specified domain or IP.",
+            "notvalid": "Please provide a valid domain name or IP address."
+        },
+        "ai": {
+            "name": "ai",
+            "description": "Chat with an AI assistant",
+            "optioins": {
+                "prompt": {
+                    "name": "prompt",
+                    "description": "Your message to the ai"
+                },
+                "customapi": "Use your own API key?",
+                "reset": "Reset your ai chat history"
+            },
+            "request": {
+                "inprogress": "You already have a request in progress. Please wait for it to complete."
+            },
+            "reset": "Your AI chat history has been reset.",
+            "defaultapi": " Switched to default API. Your custom API key has been cleared and the default model will be used.",
+            "modal": {
+                "title": "Enter your API Credentials",
+                "apikey": "API Key",
+                "apikeyplaceholder": "To stop using your key: /ai use_custom_api false",
+                "apiurl": "API Url",
+                "apiurlplaceholder": "Your API Url",
+                "model": "Model",
+                "modelplaceholder": "Model name (eg. gpt-4)"
+            },
+            "nopendingrequest": "No pending request found. Please try the command again.",
+            "apicredssaved": "API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`",
+            "process": {
+                "dailylimit": "You've reached your daily limit of AI requests",
+                "noapikey": "Please set up your API key first"
+            },
+            "errors": {
+                "failed": "Failed to process AI response",
+                "nores": "No response from AI",
+                "toolong": "Message is too long"
+            }
+        },
+        "todo": {
+            "name": "todo",
+            "description": "Manage your to-do list",
+            "add": {
+                "name": "add",
+                "description": "Add a new to-do item"
+            },
+            "done": {
+                "name": "done",
+                "description": "Mark a to-do as done"
+            },
+            "list": {
+                "name": "list",
+                "description": "View your to-do list"
+            },
+            "added": "✅ Added to-do: **{item}**",
+            "add_error": "❌ Failed to add your todo. Please try again later.",
+            "empty": "Your to-do list is empty! 🎉",
+            "list_title": "📝 Your To-Do List",
+            "checked": "✅ Marked to-do as done: **{item}**",
+            "notfound": "❌ That to-do was not found: **{item}**",
+            "done_error": "❌ Failed to mark your todo as done. Please try again later.",
+            "todo_title": "To-Do",
+            "done_title": "Done",
+            "none": "—"
+        },
+        "cobalt": {
+            "name": "cobalt",
+            "description": "Download a video or audio from a given URL",
+            "options": {
+                "url": {
+                    "name": "url",
+                    "description": "The URL of the video to download"
+                },
+                "video_quality": {
+                    "name": "video-quality",
+                    "description": "The video quality to download"
+                },
+                "audio_only": {
+                    "name": "audio-only",
+                    "description": "Download audio only"
+                },
+                "mute_audio": {
+                    "name": "mute-audio",
+                    "description": "Mute audio"
+                },
+                "twitter_gif": {
+                    "name": "twitter-gif",
+                    "description": "Download as Twitter GIF"
+                },
+                "tiktok_original_audio": {
+                    "name": "tiktok-original-audio",
+                    "description": "Include TikTok original audio"
+                },
+                "audio_format": {
+                    "name": "audio-format",
+                    "description": "Format for audio (requires audio-only to be true)"
+                }
+            },
+            "button_label": "Download",
+            "success": "✅ **Download ready!**\n\n🔗 {url}\n📥 **Click the button below to download your file.**",
+            "error": "❌ **Error:** {error}",
+            "unknown_error": "An unknown error occurred.",
+            "rate_limit": "⏳ **Rate limit exceeded.** Please try again later.",
+            "unknown_response": "❓ **Unknown response from the API.** Please try again.",
+            "multiple_items": "📋 **Multiple items found for this URL.** Please provide a more specific URL.",
+            "local_processing_not_supported": "⚠️ **Local processing is not supported.** Please try a different URL or option."
+        },
+        "time": {
+            "name": "time",
+            "description": "Get the current time for a timezone",
+            "option_timezone": {
+                "name": "timezone",
+                "description": "The timezone to check (e.g., Europe/Madrid)"
+            },
+            "embed": {
+                "title_single": "Time in {city}, {country}",
+                "title_multi": "Time for {city}",
+                "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+                "notfound": "City not found.",
+                "field_day_of_week": "Day of Week",
+                "field_time": "Time",
+                "field_date": "Date",
+                "footer": "Timezone: {timezone}",
+                "footer_multi": "Multiple cities found with similar names",
+                "author": "Current Time",
+                "multi_city_description": "Multiple cities found for '{city}':"
+            }
         }
-      },
-      "button_label": "Download",
-      "success": "✅ **Download ready!**\n\n🔗 {url}\n📥 **Click the button below to download your file.**",
-      "error": "❌ **Error:** {error}",
-      "unknown_error": "An unknown error occurred.",
-      "rate_limit": "⏳ **Rate limit exceeded.** Please try again later.",
-      "unknown_response": "❓ **Unknown response from the API.** Please try again.",
-      "multiple_items": "📋 **Multiple items found for this URL.** Please provide a more specific URL.",
-      "local_processing_not_supported": "⚠️ **Local processing is not supported.** Please try a different URL or option."
     },
-    "time": {
-      "name": "time",
-      "description": "Get the current time for a timezone",
-      "option_timezone": {
-        "name": "timezone",
-        "description": "The timezone to check (e.g., Europe/Madrid)"
-      },
-      "embed": {
-        "title_single": "Time in {city}, {country}",
-        "title_multi": "Time for {city}",
-        "time_format": "dddd, MMMM D, YYYY, h:mm A z",
-        "notfound": "City not found.",
-        "field_day_of_week": "Day of Week",
-        "field_time": "Time",
-        "field_date": "Date",
-        "footer": "Timezone: {timezone}",
-        "footer_multi": "Multiple cities found with similar names",
-        "author": "Current Time",
-        "multi_city_description": "Multiple cities found for '{city}':"
-      }
+    "categories": {
+        "fun": "Fun",
+        "info": "Info",
+        "utilities": "Utilities"
     }
-  },
-  "categories": {
-    "fun": "Fun",
-    "info": "Info",
-    "utilities": "Utilities"
-  }
 }
