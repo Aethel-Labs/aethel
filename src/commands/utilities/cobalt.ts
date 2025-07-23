@@ -1,11 +1,14 @@
 import {
   SlashCommandBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
   ButtonStyle,
   ChatInputCommandInteraction,
   ApplicationIntegrationType,
   InteractionContextType,
+  MessageFlags,
+  ContainerBuilder,
+  SectionBuilder,
+  MediaGalleryBuilder,
+  MediaGalleryItemBuilder,
 } from 'discord.js';
 import axios from 'axios';
 import { SlashCommandProps } from '../../types/command';
@@ -18,6 +21,7 @@ interface CobaltResponse {
   url?: string;
   filename?: string;
   text?: string;
+  service?: string;
   error?: {
     code: string;
     message: string;
@@ -185,6 +189,8 @@ export default {
 
       await interaction.deferReply();
 
+      const startTime = Date.now();
+
       const requestBody = {
         url: url,
         videoQuality: videoQuality || 'max',
@@ -202,6 +208,9 @@ export default {
         },
       });
 
+      const endTime = Date.now();
+      const processingTime = ((endTime - startTime) / 1000).toFixed(2);
+
       const data: CobaltResponse = response.data;
 
       if (data.status === 'tunnel' || data.status === 'redirect') {
@@ -214,22 +223,30 @@ export default {
           'commands.cobalt.button_label',
           interaction.locale
         );
-        const successMessage = await client.getLocaleText(
-          'commands.cobalt.success',
-          interaction.locale,
-          {
-            url,
-            filename: data.filename || 'download',
-          }
-        );
 
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder().setLabel(buttonLabel).setStyle(ButtonStyle.Link).setURL(downloadUrl)
-        );
+        const container = new ContainerBuilder()
+          .setAccentColor(0xc29df1)
+          .addMediaGalleryComponents(
+            new MediaGalleryBuilder().addItems(
+              new MediaGalleryItemBuilder()
+                .setDescription(data.filename || 'Downloaded media')
+                .setURL(downloadUrl)
+            )
+          )
+
+          .addSectionComponents(
+            new SectionBuilder()
+              .addTextDisplayComponents((textDisplay) =>
+                textDisplay.setContent(`-# Took: ${processingTime}s`)
+              )
+              .setButtonAccessory((button) =>
+                button.setLabel(buttonLabel).setStyle(ButtonStyle.Link).setURL(downloadUrl)
+              )
+          );
 
         await interaction.editReply({
-          content: successMessage,
-          components: [row],
+          components: [container],
+          flags: MessageFlags.IsComponentsV2,
         });
       } else if (data.status === 'error') {
         const unknownError = await client.getLocaleText(
@@ -252,8 +269,17 @@ export default {
           }
         );
 
+        const errorContainer = new ContainerBuilder()
+          .setAccentColor(0xff4757)
+          .addSectionComponents(
+            new SectionBuilder().addTextDisplayComponents((textDisplay) =>
+              textDisplay.setContent(`❌ ${errorMessage}`)
+            )
+          );
+
         await interaction.editReply({
-          content: errorMessage,
+          components: [errorContainer],
+          flags: MessageFlags.IsComponentsV2,
         });
       } else if (data.status === 'picker') {
         const multipleItemsMessage = await client.getLocaleText(
@@ -262,9 +288,19 @@ export default {
           { url }
         );
 
+        const pickerContainer = new ContainerBuilder()
+          .setAccentColor(0xffa502)
+          .addSectionComponents(
+            new SectionBuilder().addTextDisplayComponents((textDisplay) =>
+              textDisplay.setContent(
+                `⚠️ ${multipleItemsMessage || 'Multiple items found. Please provide a more specific URL.'}`
+              )
+            )
+          );
+
         await interaction.editReply({
-          content:
-            multipleItemsMessage || 'Multiple items found. Please provide a more specific URL.',
+          components: [pickerContainer],
+          flags: MessageFlags.IsComponentsV2,
         });
       } else if (data.status === 'local-processing') {
         const notSupportedMessage = await client.getLocaleText(
@@ -272,10 +308,19 @@ export default {
           interaction.locale
         );
 
+        const processingContainer = new ContainerBuilder()
+          .setAccentColor(0xffa502)
+          .addSectionComponents(
+            new SectionBuilder().addTextDisplayComponents((textDisplay) =>
+              textDisplay.setContent(
+                `⚠️ ${notSupportedMessage || 'Local processing is not supported. Please try a different URL or option.'}`
+              )
+            )
+          );
+
         await interaction.editReply({
-          content:
-            notSupportedMessage ||
-            'Local processing is not supported. Please try a different URL or option.',
+          components: [processingContainer],
+          flags: MessageFlags.IsComponentsV2,
         });
       } else {
         const unknownResponseMessage = await client.getLocaleText(
@@ -283,8 +328,17 @@ export default {
           interaction.locale
         );
 
+        const unknownContainer = new ContainerBuilder()
+          .setAccentColor(0xff4757)
+          .addSectionComponents(
+            new SectionBuilder().addTextDisplayComponents((textDisplay) =>
+              textDisplay.setContent(`❓ ${unknownResponseMessage}`)
+            )
+          );
+
         await interaction.editReply({
-          content: unknownResponseMessage,
+          components: [unknownContainer],
+          flags: MessageFlags.IsComponentsV2,
         });
       }
     } catch (error) {
