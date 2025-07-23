@@ -6,11 +6,13 @@ import logger from '@/utils/logger';
 import { sanitizeInput, getUnallowedWordCategory } from '@/utils/validation';
 import { isUserBanned, incrementUserStrike } from '@/utils/userStrikes';
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
   ButtonStyle,
   ClientEvents,
-  EmbedBuilder,
+  ContainerBuilder,
+  SectionBuilder,
+  MessageFlags,
+  MediaGalleryBuilder,
+  MediaGalleryItemBuilder,
 } from 'discord.js';
 
 type InteractionHandler = (...args: ClientEvents['interactionCreate']) => void;
@@ -134,31 +136,36 @@ export default class InteractionCreateEvent {
                 ? sanitizeInput(data.title).slice(0, 245) + '...'
                 : await this.client.getLocaleText('random.cat', i.locale);
 
-              const embed = new EmbedBuilder()
-                .setColor(0xfaa0a0)
-                .setTitle(title)
-                .setImage(data.url);
+              const refreshLabel = await this.client.getLocaleText('commands.cat.newcat', i.locale);
 
-              const footerText =
-                (await this.client.getLocaleText('poweredby', i.locale)) + ' pur.cat';
-              embed.setFooter({ text: footerText });
-
+              let content = `# ${title}\n\n`;
               if (data.subreddit) {
                 const fromText = await this.client.getLocaleText('reddit.from', i.locale, {
                   subreddit: data.subreddit,
                 });
-                embed.setDescription(fromText);
+                content += `${fromText}`;
               }
-              const refreshLabel = await this.client.getLocaleText('commands.cat.newcat', i.locale);
-              const refreshButton = new ButtonBuilder()
-                .setCustomId('refresh_cat')
-                .setLabel(refreshLabel)
-                .setStyle(ButtonStyle.Danger)
-                .setEmoji('🐱');
-              const row = new ActionRowBuilder<ButtonBuilder>().addComponents(refreshButton);
+
+              const container = new ContainerBuilder()
+                .setAccentColor(0xfaa0a0)
+                .addMediaGalleryComponents(
+                  new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL(data.url))
+                )
+                .addSectionComponents(
+                  new SectionBuilder()
+                    .addTextDisplayComponents((textDisplay) => textDisplay.setContent(content))
+                    .setButtonAccessory((button) =>
+                      button
+                        .setLabel(refreshLabel)
+                        .setStyle(ButtonStyle.Danger)
+                        .setEmoji({ name: '🐱' })
+                        .setCustomId('refresh_cat')
+                    )
+                );
+
               await i.update({
-                embeds: [embed],
-                components: [row],
+                components: [container],
+                flags: MessageFlags.IsComponentsV2,
               });
             } else {
               await i.update({
@@ -173,6 +180,91 @@ export default class InteractionCreateEvent {
               components: [],
             });
           }
+        } else if (i.customId.startsWith('8ball_reroll_')) {
+          const customIdParts = i.customId.split('_');
+          const originalUserId = customIdParts[2];
+
+          if (originalUserId !== i.user.id) {
+            return await i.reply({
+              content: 'Only the person who used the command can reroll the 8ball!',
+              flags: MessageFlags.Ephemeral,
+            });
+          }
+
+          let question = 'What will happen?';
+
+          try {
+            const customIdParts = i.customId.split('_');
+            if (customIdParts.length >= 5) {
+              const encodedQuestion = customIdParts.slice(4).join('_');
+              question = decodeURIComponent(encodedQuestion);
+            }
+          } catch (error) {
+            console.log('Error extracting question:', error);
+          }
+
+          const responses = [
+            'itiscertain',
+            'itisdecidedlyso',
+            'withoutadoubt',
+            'yesdefinitely',
+            'youmayrelyonit',
+            'asiseeityes',
+            'mostlikely',
+            'outlookgood',
+            'yes',
+            'signspointtoyes',
+            'replyhazytryagain',
+            'askagainlater',
+            'betternottellyounow',
+            'cannotpredictnow',
+            'concentrateandaskagain',
+            'dontcountonit',
+            'myreplyisno',
+            'mysourcessayno',
+            'outlooknotsogood',
+            'verydoubtful',
+          ];
+
+          const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+
+          const title = await this.client.getLocaleText('commands.8ball.says', i.locale);
+          const questionLabel = await this.client.getLocaleText(
+            'commands.8ball.question',
+            i.locale
+          );
+          const answerLabel = await this.client.getLocaleText('commands.8ball.answer', i.locale);
+          const askAgainLabel = await this.client.getLocaleText(
+            'commands.8ball.askagain',
+            i.locale
+          );
+
+          const translatedResponse = await this.client.getLocaleText(
+            `commands.8ball.responces.${randomResponse}`,
+            i.locale
+          );
+
+          const container = new ContainerBuilder().setAccentColor(0x8b5cf6).addSectionComponents(
+            new SectionBuilder()
+              .addTextDisplayComponents((textDisplay) =>
+                textDisplay.setContent(
+                  `# 🔮 ${title}\n\n> **${questionLabel}**\n> ${question}\n\n## ✨ ${answerLabel}\n### ${translatedResponse}`
+                )
+              )
+              .setButtonAccessory((button) =>
+                button
+                  .setLabel(`🎱 ${askAgainLabel}`)
+                  .setStyle(ButtonStyle.Primary)
+                  .setCustomId(
+                    `8ball_reroll_${i.user.id}_${Date.now()}_${encodeURIComponent(question)}`
+                  )
+              )
+          );
+
+          await i.update({
+            components: [container],
+            flags: MessageFlags.IsComponentsV2,
+          });
         } else if (i.customId === 'refresh_dog') {
           try {
             const response = await fetch('https://api.erm.dog/random-dog', {
@@ -206,31 +298,38 @@ export default class InteractionCreateEvent {
                 ? sanitizeInput(data!.title).slice(0, 245) + '...'
                 : await this.client.getLocaleText('commands.dog.randomdog', i.locale);
 
-              const embed = new EmbedBuilder()
-                .setColor(0x8a2be2)
-                .setTitle(title)
-                .setImage(data!.url);
+              const refreshLabel = await this.client.getLocaleText('commands.dog.newdog', i.locale);
 
-              const footerText =
-                (await this.client.getLocaleText('poweredby', i.locale)) + ' erm.dog';
-              embed.setFooter({ text: footerText });
-
+              let content = `# ${title}\n\n`;
               if (data!.subreddit) {
                 const fromText = await this.client.getLocaleText('reddit.from', i.locale, {
                   subreddit: data!.subreddit,
                 });
-                embed.setDescription(fromText);
+                content += `${fromText}`;
               }
-              const refreshLabel = await this.client.getLocaleText('commands.dog.newdog', i.locale);
-              const refreshButton = new ButtonBuilder()
-                .setCustomId('refresh_dog')
-                .setLabel(refreshLabel)
-                .setStyle(ButtonStyle.Secondary)
-                .setEmoji('🐶');
-              const row = new ActionRowBuilder<ButtonBuilder>().addComponents(refreshButton);
+
+              const container = new ContainerBuilder()
+                .setAccentColor(0x8a2be2)
+                .addMediaGalleryComponents(
+                  new MediaGalleryBuilder().addItems(
+                    new MediaGalleryItemBuilder().setURL(data!.url)
+                  )
+                )
+                .addSectionComponents(
+                  new SectionBuilder()
+                    .addTextDisplayComponents((textDisplay) => textDisplay.setContent(content))
+                    .setButtonAccessory((button) =>
+                      button
+                        .setLabel(refreshLabel)
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji({ name: '🐶' })
+                        .setCustomId('refresh_dog')
+                    )
+                );
+
               await i.update({
-                embeds: [embed],
-                components: [row],
+                components: [container],
+                flags: MessageFlags.IsComponentsV2,
               });
             } else {
               await i.update({

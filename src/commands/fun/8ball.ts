@@ -1,8 +1,11 @@
 import {
   SlashCommandBuilder,
-  EmbedBuilder,
   ApplicationIntegrationType,
   InteractionContextType,
+  ContainerBuilder,
+  SectionBuilder,
+  ButtonStyle,
+  MessageFlags,
 } from 'discord.js';
 import { validateCommandOptions, sanitizeInput } from '@/utils/validation';
 import { SlashCommandProps } from '@/types/command';
@@ -99,7 +102,7 @@ export default {
       if (!validation.isValid) {
         return interaction.reply({
           content: validation.message,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
 
@@ -112,24 +115,34 @@ export default {
         interaction,
         `question: "${question?.substring(0, 50)}${question && question.length > 50 ? '...' : ''}"`
       );
-      const [title, questionLabel, answerLabel, footer] = await Promise.all([
+      const [title, questionLabel, answerLabel, askAgainLabel] = await Promise.all([
         await client.getLocaleText('commands.8ball.says', interaction.locale),
         await client.getLocaleText('commands.8ball.question', interaction.locale),
         await client.getLocaleText('commands.8ball.answer', interaction.locale),
-        await client.getLocaleText('commands.8ball.anotherfortune', interaction.locale),
+        await client.getLocaleText('commands.8ball.askagain', interaction.locale),
       ]);
 
-      const embed = new EmbedBuilder()
-        .setColor(0x3498db)
-        .setTitle(title)
-        .addFields(
-          { name: `🎱 ${questionLabel}`, value: question },
-          { name: answerLabel, value: `**${translatedResponse}**` }
-        )
-        .setFooter({ text: footer })
-        .setTimestamp();
+      const container = new ContainerBuilder().setAccentColor(0x8b5cf6).addSectionComponents(
+        new SectionBuilder()
+          .addTextDisplayComponents((textDisplay) =>
+            textDisplay.setContent(
+              `# 🔮 ${title}\n\n> **${questionLabel}**\n> ${question}\n\n## ✨ ${answerLabel}\n### ${translatedResponse}`
+            )
+          )
+          .setButtonAccessory((button) =>
+            button
+              .setLabel(`🎲 ${askAgainLabel}`)
+              .setStyle(ButtonStyle.Primary)
+              .setCustomId(
+                `8ball_reroll_${interaction.user.id}_${Date.now()}_${encodeURIComponent(question)}`
+              )
+          )
+      );
 
-      await interaction.reply({ embeds: [embed] });
+      await interaction.reply({
+        components: [container],
+        flags: MessageFlags.IsComponentsV2,
+      });
     } catch (error) {
       await errorHandler({
         interaction,

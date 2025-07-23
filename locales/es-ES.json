@@ -1,292 +1,292 @@
 {
-    "cooldown": "Por favor, espera {cooldown} segundo(s) antes de usar este comando de nuevo.",
-    "failedrequest": "Se produjo un error al procesar tu solicitud. Por favor, inténtalo de nuevo más tarde.",
-    "unexpectederror": "Se produjo un error inesperado. Por favor, inténtalo de nuevo más tarde.",
-    "poweredby": "Tecnología de",
-    "providedby": "Datos proporcionados por",
-    "reddit": {
-        "from": "De r/{subreddit}"
+  "cooldown": "Por favor, espera {cooldown} segundo(s) antes de usar este comando de nuevo.",
+  "failedrequest": "Se produjo un error al procesar tu solicitud. Por favor, inténtalo de nuevo más tarde.",
+  "unexpectederror": "Se produjo un error inesperado. Por favor, inténtalo de nuevo más tarde.",
+  "poweredby": "Tecnología de",
+  "providedby": "Datos proporcionados por",
+  "reddit": {
+    "from": "De r/{subreddit}"
+  },
+  "error": "¡Error!",
+  "common": {
+    "ogmessage": "Mensaje original",
+    "jumptomessage": "Ir al mensaje",
+    "messagelink": "Enlace al mensaje"
+  },
+  "commands": {
+    "8ball": {
+      "name": "8ball",
+      "description": "Haz una pregunta a la bola mágica 8",
+      "says": "La bola mágica 8 dice…",
+      "question": "Pregunta",
+      "answer": "Respuesta",
+      "anotherfortune": "¡Pregunta de nuevo para otra predicción!",
+      "spoken": "¡La bola mágica 8 ha hablado!",
+      "responces": {
+        "itiscertain": "Es seguro",
+        "itisdecidedlyso": "Definitivamente sí",
+        "withoutadoubt": "Sin duda",
+        "yesdefinitely": "Sí, definitivamente",
+        "youmayrelyonit": "Puedes confiar en ello",
+        "asiseeityes": "Por lo que veo, sí",
+        "mostlikely": "Lo más probable",
+        "outlookgood": "Pinta bien",
+        "yes": "Sí",
+        "signspointtoyes": "Las señales apuntan a que sí",
+        "replyhazytryagain": "Respuesta confusa, inténtalo de nuevo",
+        "askagainlater": "Pregunta de nuevo más tarde",
+        "betternottellyounow": "Mejor no decírtelo ahora",
+        "cannotpredictnow": "No puedo predecirlo ahora",
+        "concentrateandaskagain": "Concéntrate y pregunta de nuevo",
+        "dontcountonit": "No cuentes con ello",
+        "myreplyisno": "Mi respuesta es no",
+        "mysourcessayno": "Mis fuentes dicen que no",
+        "outlooknotsogood": "No pinta bien",
+        "verydoubtful": "Muy dudoso"
+      }
     },
-    "error": "¡Error!",
-    "common": {
-        "ogmessage": "Mensaje original",
-        "jumptomessage": "Ir al mensaje",
-        "messagelink": "Enlace al mensaje"
+    "cat": {
+      "name": "gato",
+      "description": "¡Obtén una imagen aleatoria de un gato!",
+      "randomcat": "Gato aleatorio",
+      "newcat": "Nuevo gato",
+      "error": "Lo siento, tuve problemas para obtener una imagen de gato. ¡Por favor, inténtalo de nuevo más tarde!"
     },
-    "commands": {
-        "8ball": {
-            "name": "8ball",
-            "description": "Haz una pregunta a la bola mágica 8",
-            "says": "La bola mágica 8 dice…",
-            "question": "Pregunta",
-            "answer": "Respuesta",
-            "anotherfortune": "¡Pregunta de nuevo para otra predicción!",
-            "spoken": "¡La bola mágica 8 ha hablado!",
-            "responces": {
-                "itiscertain": "Es seguro",
-                "itisdecidedlyso": "Definitivamente sí",
-                "withoutadoubt": "Sin duda",
-                "yesdefinitely": "Sí, definitivamente",
-                "youmayrelyonit": "Puedes confiar en ello",
-                "asiseeityes": "Por lo que veo, sí",
-                "mostlikely": "Lo más probable",
-                "outlookgood": "Pinta bien",
-                "yes": "Sí",
-                "signspointtoyes": "Las señales apuntan a que sí",
-                "replyhazytryagain": "Respuesta confusa, inténtalo de nuevo",
-                "askagainlater": "Pregunta de nuevo más tarde",
-                "betternottellyounow": "Mejor no decírtelo ahora",
-                "cannotpredictnow": "No puedo predecirlo ahora",
-                "concentrateandaskagain": "Concéntrate y pregunta de nuevo",
-                "dontcountonit": "No cuentes con ello",
-                "myreplyisno": "Mi respuesta es no",
-                "mysourcessayno": "Mis fuentes dicen que no",
-                "outlooknotsogood": "No pinta bien",
-                "verydoubtful": "Muy dudoso"
-            }
+    "dog": {
+      "name": "perro",
+      "description": "¡Obtén una imagen aleatoria de un perro!",
+      "randomdog": "Perro aleatorio",
+      "newdog": "Nuevo perro",
+      "error": "Lo siento, tuve problemas para obtener una imagen de perro. ¡Por favor, inténtalo de nuevo más tarde!"
+    },
+    "wiki": {
+      "name": "wiki",
+      "description": "Busca un tema en Wikipedia",
+      "pedia": "Wikipedia: {article}",
+      "error": "Lo siento, tuve problemas para obtener el artículo de Wikipedia. Por favor, inténtalo de nuevo más tarde!",
+      "nosummary": "No hay resumen disponible",
+      "readmoreonwiki": "Leer más"
+    },
+    "weather": {
+      "name": "clima",
+      "description": "Obtén el clima actual de una ubicación",
+      "temperature": "Temperatura",
+      "feelslike": "Sensación térmica",
+      "default": "Clima",
+      "humidity": "Humedad",
+      "windspeed": "Velocidad del viento",
+      "pressure": "Presión",
+      "weatherin": "Clima en {location}",
+      "error": "Lo siento, tuve problemas para obtener el clima. ¡Por favor, inténtalo de nuevo más tarde!",
+      "nolocation": "Ubicación no encontrada. Por favor, revisa el nombre de la ciudad e inténtalo de nuevo.",
+      "apikeymissing": "La clave de API de OpenWeather falta o no es válida."
+    },
+    "joke": {
+      "name": "chiste",
+      "description": "¡Obtén un chiste aleatorio!",
+      "waitingpunchline": "El remate aparecerá en {seconds} segundos…",
+      "error": "Lo siento, tuve problemas para obtener un chiste. ¡Por favor, inténtalo de nuevo más tarde!",
+      "type": {
+        "default": "Chiste de {type}",
+        "general": "General",
+        "programming": "Programación",
+        "dad": "Padre"
+      }
+    },
+    "help": {
+      "name": "ayuda",
+      "description": "Muestra todos los comandos disponibles y su uso",
+      "embed": {
+        "title": "Comandos de Aethel",
+        "description": "Aquí están todos los comandos disponibles"
+      },
+      "nooptions": "Sin opciones"
+    },
+    "remind": {
+      "name": "recordar",
+      "reminder": "¡Recordatorio!",
+      "remindyou": "Me pediste que te recordara sobre: {message}",
+      "timeelapsed": "Tiempo transcurrido",
+      "originaltime": "Hora original",
+      "errors": {
+        "base": "Se produjo un error al configurar tu recordatorio. Por favor, inténtalo de nuevo más tarde.",
+        "failedtosave": "No se pudo guardar tu recordatorio. Por favor, inténtalo de nuevo más tarde.",
+        "invalidformat": "¡Formato de tiempo no válido! Usa combinaciones como: 1h30m, 45m o 2h",
+        "providevalidchars": "Por favor, proporciona un mensaje válido (1-1000 caracteres)",
+        "atleastoneminute": "¡El recordatorio debe ser de al menos 1 minuto!",
+        "notlongerthanaday": "¡El recordatorio no puede ser mayor a 24 horas!"
+      },
+      "modal": {
+        "setreminder": "Configurar recordatorio",
+        "whento": "¿Cuándo recordarte? (ej: 10m, 1h, 2h30m)"
+      },
+      "reminderset": "Recordatorio configurado",
+      "iwillremindyou": "Te recordaré sobre {message} en {time}",
+      "contextiwillremindyou": "Te recordaré sobre este mensaje en {time}",
+      "time": "Tiempo",
+      "willtrigger": "Se activará",
+      "reminderid": "ID del recordatorio: {reminderId}"
+    },
+    "whois": {
+      "name": "whois",
+      "description": "Busca información WHOIS de un dominio o dirección IP",
+      "error": "Lo siento, tuve problemas para obtener los datos WHOIS. ¡Por favor, inténtalo de nuevo más tarde!",
+      "nodata": "No se encontraron datos WHOIS para el dominio o IP especificado.",
+      "notvalid": "Por favor, proporciona un nombre de dominio o dirección IP válido."
+    },
+    "ai": {
+      "name": "ai",
+      "description": "Chatea con un asistente de IA",
+      "optioins": {
+        "prompt": {
+          "name": "mensaje",
+          "description": "Tu mensaje para la IA"
         },
-        "cat": {
-            "name": "gato",
-            "description": "¡Obtén una imagen aleatoria de un gato!",
-            "randomcat": "Gato aleatorio",
-            "newcat": "Nuevo gato",
-            "error": "Lo siento, tuve problemas para obtener una imagen de gato. ¡Por favor, inténtalo de nuevo más tarde!"
-        },
-        "dog": {
-            "name": "perro",
-            "description": "¡Obtén una imagen aleatoria de un perro!",
-            "randomdog": "Perro aleatorio",
-            "newdog": "Nuevo perro",
-            "error": "Lo siento, tuve problemas para obtener una imagen de perro. ¡Por favor, inténtalo de nuevo más tarde!"
-        },
-        "wiki": {
-            "name": "wiki",
-            "description": "Busca un tema en Wikipedia",
-            "pedia": "Wikipedia: {article}",
-            "error": "Lo siento, tuve problemas para obtener el artículo de Wikipedia. Por favor, inténtalo de nuevo más tarde!",
-            "nosummary": "No hay resumen disponible",
-            "readmoreonwiki": "Leer más"
-        },
-        "weather": {
-            "name": "clima",
-            "description": "Obtén el clima actual de una ubicación",
-            "temperature": "Temperatura",
-            "feelslike": "Sensación térmica",
-            "default": "Clima",
-            "humidity": "Humedad",
-            "windspeed": "Velocidad del viento",
-            "pressure": "Presión",
-            "weatherin": "Clima en {location}",
-            "error": "Lo siento, tuve problemas para obtener el clima. ¡Por favor, inténtalo de nuevo más tarde!",
-            "nolocation": "Ubicación no encontrada. Por favor, revisa el nombre de la ciudad e inténtalo de nuevo.",
-            "apikeymissing": "La clave de API de OpenWeather falta o no es válida."
-        },
-        "joke": {
-            "name": "chiste",
-            "description": "¡Obtén un chiste aleatorio!",
-            "waitingpunchline": "El remate aparecerá en {seconds} segundos…",
-            "error": "Lo siento, tuve problemas para obtener un chiste. ¡Por favor, inténtalo de nuevo más tarde!",
-            "type": {
-                "default": "Chiste de {type}",
-                "general": "General",
-                "programming": "Programación",
-                "dad": "Padre"
-            }
-        },
-        "help": {
-            "name": "ayuda",
-            "description": "Muestra todos los comandos disponibles y su uso",
-            "embed": {
-                "title": "Comandos de Aethel",
-                "description": "Aquí están todos los comandos disponibles"
-            },
-            "nooptions": "Sin opciones"
-        },
-        "remind": {
-            "name": "recordar",
-            "reminder": "¡Recordatorio!",
-            "remindyou": "Me pediste que te recordara sobre: {message}",
-            "timeelapsed": "Tiempo transcurrido",
-            "originaltime": "Hora original",
-            "errors": {
-                "base": "Se produjo un error al configurar tu recordatorio. Por favor, inténtalo de nuevo más tarde.",
-                "failedtosave": "No se pudo guardar tu recordatorio. Por favor, inténtalo de nuevo más tarde.",
-                "invalidformat": "¡Formato de tiempo no válido! Usa combinaciones como: 1h30m, 45m o 2h",
-                "providevalidchars": "Por favor, proporciona un mensaje válido (1-1000 caracteres)",
-                "atleastoneminute": "¡El recordatorio debe ser de al menos 1 minuto!",
-                "notlongerthanaday": "¡El recordatorio no puede ser mayor a 24 horas!"
-            },
-            "modal": {
-                "setreminder": "Configurar recordatorio",
-                "whento": "¿Cuándo recordarte? (ej: 10m, 1h, 2h30m)"
-            },
-            "reminderset": "Recordatorio configurado",
-            "iwillremindyou": "Te recordaré sobre {message} en {time}",
-            "contextiwillremindyou": "Te recordaré sobre este mensaje en {time}",
-            "time": "Tiempo",
-            "willtrigger": "Se activará",
-            "reminderid": "ID del recordatorio: {reminderId}"
-        },
-        "whois": {
-            "name": "whois",
-            "description": "Busca información WHOIS de un dominio o dirección IP",
-            "error": "Lo siento, tuve problemas para obtener los datos WHOIS. ¡Por favor, inténtalo de nuevo más tarde!",
-            "nodata": "No se encontraron datos WHOIS para el dominio o IP especificado.",
-            "notvalid": "Por favor, proporciona un nombre de dominio o dirección IP válido."
-        },
-        "ai": {
-            "name": "ai",
-            "description": "Chatea con un asistente de IA",
-            "optioins": {
-                "prompt": {
-                    "name": "mensaje",
-                    "description": "Tu mensaje para la IA"
-                },
-                "customapi": "¿Usar tu propia clave API?",
-                "reset": "Restablecer tu historial de chat de IA"
-            },
-            "request": {
-                "inprogress": "Ya tienes una solicitud en curso. Por favor, espera a que termine."
-            },
-            "reset": "Tu historial de chat de IA ha sido restablecido.",
-            "defaultapi": " Cambiado a la API predeterminada. Tu clave API personalizada ha sido eliminada y se usará el modelo predeterminado.",
-            "modal": {
-                "title": "Introduce tus credenciales de API",
-                "apikey": "Clave API",
-                "apikeyplaceholder": "Para dejar de usar tu clave: /ai use_custom_api false",
-                "apiurl": "URL de la API",
-                "apiurlplaceholder": "Tu URL de API",
-                "model": "Modelo",
-                "modelplaceholder": "Nombre del modelo (ej. gpt-4)"
-            },
-            "nopendingrequest": "No se encontró ninguna solicitud pendiente. Por favor, intenta el comando de nuevo.",
-            "apicredssaved": "Credenciales de API guardadas. Ahora puedes usar el comando `/ai` sin volver a ingresar tus credenciales. Para dejar de usar tu clave, usa `/ai use_custom_api false`",
-            "process": {
-                "dailylimit": "Has alcanzado tu límite diario de solicitudes de IA",
-                "noapikey": "Por favor, configura primero tu clave API"
-            },
-            "errors": {
-                "failed": "No se pudo procesar la respuesta de la IA",
-                "nores": "Sin respuesta de la IA",
-                "toolong": "El mensaje es demasiado largo"
-            }
-        },
-        "todo": {
-            "name": "todo",
-            "description": "Gestiona tu lista de tareas",
-            "add": {
-                "name": "add",
-                "description": "Añade una nueva tarea"
-            },
-            "done": {
-                "name": "hecho",
-                "description": "Marca una tarea como hecha"
-            },
-            "list": {
-                "name": "list",
-                "description": "Ver tu lista de tareas"
-            },
-            "added": "✅ Tarea añadida: **{item}**",
-            "empty": "¡Tu lista de tareas está vacía! 🎉",
-            "list_title": "📝 Tu Lista de Tareas",
-            "checked": "✅ Tarea marcada como hecha: **{item}**",
-            "notfound": "No se encontró esa tarea: **{item}**",
-            "todo_title": "Tareas",
-            "done_title": "Hechas",
-            "none": "—",
-            "add_error": "❌ No se ha podido añadir su tarea. Inténtalo de nuevo más tarde.",
-            "done_error": "❌ No se ha podido marcar la tarea como realizada. Inténtalo de nuevo más tarde."
-        },
-        "time": {
-            "embed": {
-                "footer_multi": "Se han encontrado varias ciudades con nombres similares",
-                "title_single": "Tiempo en {city}, {country}",
-                "title_multi": "Hora en {ciudad}",
-                "time_format": "dddd, MMMM D, YYYY, h:mm A z",
-                "notfound": "Ciudad no encontrada.",
-                "field_day_of_week": "Día de la semana",
-                "field_time": "Tiempo",
-                "field_date": "Fecha",
-                "footer": "Zona horaria: {timezone}",
-                "author": "Hora actual",
-                "multi_city_description": "Múltiples ciudades encontradas para “{city}”:"
-            },
-            "name": "tiempo",
-            "description": "Obtener la hora actual de una zona horaria",
-            "option_timezone": {
-                "name": "zona horaria",
-                "description": "La zona horaria a comprobar (por ejemplo, Europa/Madrid)"
-            }
-        },
-        "cobalt": {
-            "description": "Descarga un vídeo o audio de una URL determinada",
-            "options": {
-                "url": {
-                    "name": "url",
-                    "description": "La URL del vídeo que desea descargar"
-                },
-                "video_quality": {
-                    "name": "calidad de vídeo",
-                    "description": "La calidad de vídeo para descargar"
-                },
-                "audio_only": {
-                    "name": "sólo-audio",
-                    "description": "Descargar sólo sonido"
-                },
-                "mute_audio": {
-                    "name": "silencia-sonido",
-                    "description": "Silenciar sonido"
-                },
-                "twitter_gif": {
-                    "name": "gif-twitter",
-                    "description": "Descargar como GIF de Twitter"
-                },
-                "tiktok_original_audio": {
-                    "description": "Incluye el sonido original de TikTok",
-                    "name": "tiktok-sonido-original"
-                },
-                "audio_format": {
-                    "name": "formato-audio",
-                    "description": "Formato para audio (requiere que only-audio sea verdadero)"
-                }
-            },
-            "button_label": "Descargar",
-            "error": "❌ **Error:** {error}",
-            "unknown_error": "Se ha producido un error desconocido.",
-            "rate_limit": "⏳ **Límite de tarifa excedido.** Por favor, inténtelo de nuevo más tarde.",
-            "unknown_response": "❓ **Respuesta desconocida de la API.** Por favor, inténtelo de nuevo.",
-            "local_processing_not_supported": "⚠️ **El procesamiento local no está soportado.** Por favor, intente una URL u opción diferente.",
-            "name": "cobalt",
-            "multiple_items": "📋 **Múltiples elementos encontrados para esta URL.** Por favor, proporcione una URL más específica.",
-            "success": "✅ **¡Descarga lista!**\n\n🔗 {url}\n📥 **Haz clic en el botón de abajo para descargar tu archivo.**"
-        }
+        "customapi": "¿Usar tu propia clave API?",
+        "reset": "Restablecer tu historial de chat de IA"
+      },
+      "request": {
+        "inprogress": "Ya tienes una solicitud en curso. Por favor, espera a que termine."
+      },
+      "reset": "Tu historial de chat de IA ha sido restablecido.",
+      "defaultapi": " Cambiado a la API predeterminada. Tu clave API personalizada ha sido eliminada y se usará el modelo predeterminado.",
+      "modal": {
+        "title": "Introduce tus credenciales de API",
+        "apikey": "Clave API",
+        "apikeyplaceholder": "Para dejar de usar tu clave: /ai use_custom_api false",
+        "apiurl": "URL de la API",
+        "apiurlplaceholder": "Tu URL de API",
+        "model": "Modelo",
+        "modelplaceholder": "Nombre del modelo (ej. gpt-4)"
+      },
+      "nopendingrequest": "No se encontró ninguna solicitud pendiente. Por favor, intenta el comando de nuevo.",
+      "apicredssaved": "Credenciales de API guardadas. Ahora puedes usar el comando `/ai` sin volver a ingresar tus credenciales. Para dejar de usar tu clave, usa `/ai use_custom_api false`",
+      "process": {
+        "dailylimit": "Has alcanzado tu límite diario de solicitudes de IA",
+        "noapikey": "Por favor, configura primero tu clave API"
+      },
+      "errors": {
+        "failed": "No se pudo procesar la respuesta de la IA",
+        "nores": "Sin respuesta de la IA",
+        "toolong": "El mensaje es demasiado largo"
+      }
+    },
+    "todo": {
+      "name": "todo",
+      "description": "Gestiona tu lista de tareas",
+      "add": {
+        "name": "add",
+        "description": "Añade una nueva tarea"
+      },
+      "done": {
+        "name": "hecho",
+        "description": "Marca una tarea como hecha"
+      },
+      "list": {
+        "name": "list",
+        "description": "Ver tu lista de tareas"
+      },
+      "added": "✅ Tarea añadida: **{item}**",
+      "empty": "¡Tu lista de tareas está vacía! 🎉",
+      "list_title": "📝 Tu Lista de Tareas",
+      "checked": "✅ Tarea marcada como hecha: **{item}**",
+      "notfound": "No se encontró esa tarea: **{item}**",
+      "todo_title": "Tareas",
+      "done_title": "Hechas",
+      "none": "—",
+      "add_error": "❌ No se ha podido añadir su tarea. Inténtalo de nuevo más tarde.",
+      "done_error": "❌ No se ha podido marcar la tarea como realizada. Inténtalo de nuevo más tarde."
     },
     "time": {
-        "name": "hora",
-        "description": "Obtén la hora actual de una ubicación",
-        "embed": {
-            "title_single": "Hora para {city}, {country}",
-            "title_multi": "Hora para {city}",
-            "time_format": "dddd, D [de] MMMM [de] YYYY, h:mm A z",
-            "notfound": "Ciudad no encontrada.",
-            "day_of_week": "Día de la semana: {day}",
-            "time": "Hora: {time}",
-            "date": "Fecha: {date}",
-            "bullet": "• {city}, {country}:\n{day_of_week}\n{time}\n{date}",
-            "footer": "Zona horaria: {timezone}",
-            "author": "Hora actual",
-            "multi_city_description": "Se encontraron varias ciudades para '{city}':",
-            "field_day_of_week": "**Día de la semana**",
-            "field_time": "**Hora**",
-            "field_date": "**Fecha**"
-        },
-        "error": "Lo siento, tuve problemas para obtener la hora. ¡Por favor, inténtalo de nuevo más tarde!",
-        "nolocation": "Ubicación no encontrada. Por favor, revisa el nombre de la ciudad e inténtalo de nuevo.",
-        "apikeymissing": "La clave de API de OpenWeather falta o no es válida."
+      "embed": {
+        "footer_multi": "Se han encontrado varias ciudades con nombres similares",
+        "title_single": "Tiempo en {city}, {country}",
+        "title_multi": "Hora en {ciudad}",
+        "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+        "notfound": "Ciudad no encontrada.",
+        "field_day_of_week": "Día de la semana",
+        "field_time": "Tiempo",
+        "field_date": "Fecha",
+        "footer": "Zona horaria: {timezone}",
+        "author": "Hora actual",
+        "multi_city_description": "Múltiples ciudades encontradas para “{city}”:"
+      },
+      "name": "tiempo",
+      "description": "Obtener la hora actual de una zona horaria",
+      "option_timezone": {
+        "name": "zona horaria",
+        "description": "La zona horaria a comprobar (por ejemplo, Europa/Madrid)"
+      }
     },
-    "categories": {
-        "fun": "Diversión",
-        "info": "Información",
-        "utilities": "Utilidades"
+    "cobalt": {
+      "description": "Descarga un vídeo o audio de una URL determinada",
+      "options": {
+        "url": {
+          "name": "url",
+          "description": "La URL del vídeo que desea descargar"
+        },
+        "video_quality": {
+          "name": "calidad de vídeo",
+          "description": "La calidad de vídeo para descargar"
+        },
+        "audio_only": {
+          "name": "sólo-audio",
+          "description": "Descargar sólo sonido"
+        },
+        "mute_audio": {
+          "name": "silencia-sonido",
+          "description": "Silenciar sonido"
+        },
+        "twitter_gif": {
+          "name": "gif-twitter",
+          "description": "Descargar como GIF de Twitter"
+        },
+        "tiktok_original_audio": {
+          "description": "Incluye el sonido original de TikTok",
+          "name": "tiktok-sonido-original"
+        },
+        "audio_format": {
+          "name": "formato-audio",
+          "description": "Formato para audio (requiere que only-audio sea verdadero)"
+        }
+      },
+      "button_label": "Descargar",
+      "error": "❌ **Error:** {error}",
+      "unknown_error": "Se ha producido un error desconocido.",
+      "rate_limit": "⏳ **Límite de tarifa excedido.** Por favor, inténtelo de nuevo más tarde.",
+      "unknown_response": "❓ **Respuesta desconocida de la API.** Por favor, inténtelo de nuevo.",
+      "local_processing_not_supported": "⚠️ **El procesamiento local no está soportado.** Por favor, intente una URL u opción diferente.",
+      "name": "cobalt",
+      "multiple_items": "📋 **Múltiples elementos encontrados para esta URL.** Por favor, proporcione una URL más específica.",
+      "success": "✅ **¡Descarga lista!**\n\n🔗 {url}\n📥 **Haz clic en el botón de abajo para descargar tu archivo.**"
     }
+  },
+  "time": {
+    "name": "hora",
+    "description": "Obtén la hora actual de una ubicación",
+    "embed": {
+      "title_single": "Hora para {city}, {country}",
+      "title_multi": "Hora para {city}",
+      "time_format": "dddd, D [de] MMMM [de] YYYY, h:mm A z",
+      "notfound": "Ciudad no encontrada.",
+      "day_of_week": "Día de la semana: {day}",
+      "time": "Hora: {time}",
+      "date": "Fecha: {date}",
+      "bullet": "• {city}, {country}:\n{day_of_week}\n{time}\n{date}",
+      "footer": "Zona horaria: {timezone}",
+      "author": "Hora actual",
+      "multi_city_description": "Se encontraron varias ciudades para '{city}':",
+      "field_day_of_week": "**Día de la semana**",
+      "field_time": "**Hora**",
+      "field_date": "**Fecha**"
+    },
+    "error": "Lo siento, tuve problemas para obtener la hora. ¡Por favor, inténtalo de nuevo más tarde!",
+    "nolocation": "Ubicación no encontrada. Por favor, revisa el nombre de la ciudad e inténtalo de nuevo.",
+    "apikeymissing": "La clave de API de OpenWeather falta o no es válida."
+  },
+  "categories": {
+    "fun": "Diversión",
+    "info": "Información",
+    "utilities": "Utilidades"
+  }
 }

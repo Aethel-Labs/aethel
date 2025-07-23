@@ -1,11 +1,13 @@
 import {
   SlashCommandBuilder,
-  ButtonBuilder,
   ButtonStyle,
-  ActionRowBuilder,
-  EmbedBuilder,
   InteractionContextType,
   ApplicationIntegrationType,
+  ContainerBuilder,
+  SectionBuilder,
+  MediaGalleryBuilder,
+  MediaGalleryItemBuilder,
+  MessageFlags,
 } from 'discord.js';
 import fetch from '@/utils/dynamicFetch';
 import { sanitizeInput } from '@/utils/validation';
@@ -78,27 +80,36 @@ export default {
           ? sanitizeInput(dogData.title).slice(0, 245) + '...'
           : await client.getLocaleText('commands.dog.randomdog', interaction.locale);
 
-        const embed = new EmbedBuilder().setColor(0x8a2be2).setTitle(title).setImage(dogData.url);
-        embed.setFooter({
-          text: (await client.getLocaleText('poweredby', interaction.locale)) + ' erm.dog',
-        });
+        const refreshLabel = await client.getLocaleText('commands.dog.newdog', interaction.locale);
 
+        let content = `# ${title}\n\n`;
         if (dogData.subreddit) {
           const fromText = await client.getLocaleText('reddit.from', interaction.locale, {
             subreddit: dogData.subreddit,
           });
-          embed.setDescription(fromText);
+          content += `${fromText}`;
         }
-        const refreshLabel = await client.getLocaleText('commands.dog.newdog', interaction.locale);
-        const refreshButton = new ButtonBuilder()
-          .setCustomId('refresh_dog')
-          .setLabel(refreshLabel)
-          .setStyle(ButtonStyle.Secondary)
-          .setEmoji('🐶');
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(refreshButton);
+
+        const container = new ContainerBuilder()
+          .setAccentColor(0x8a2be2)
+          .addMediaGalleryComponents(
+            new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL(dogData.url))
+          )
+          .addSectionComponents(
+            new SectionBuilder()
+              .addTextDisplayComponents((textDisplay) => textDisplay.setContent(content))
+              .setButtonAccessory((button) =>
+                button
+                  .setLabel(refreshLabel)
+                  .setStyle(ButtonStyle.Secondary)
+                  .setEmoji({ name: '🐶' })
+                  .setCustomId('refresh_dog')
+              )
+          );
+
         await interaction.editReply({
-          embeds: [embed],
-          components: [row],
+          components: [container],
+          flags: MessageFlags.IsComponentsV2,
         });
       } catch (error) {
         await errorHandler({
