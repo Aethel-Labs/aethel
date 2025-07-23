@@ -4,10 +4,12 @@ import {
   ApplicationIntegrationType,
   InteractionContextType,
   ContainerBuilder,
-  SectionBuilder,
   MediaGalleryBuilder,
   MediaGalleryItemBuilder,
   MessageFlags,
+  ActionRowBuilder,
+  ButtonBuilder,
+  TextDisplayBuilder,
 } from 'discord.js';
 import fetch from '@/utils/dynamicFetch';
 import { sanitizeInput } from '@/utils/validation';
@@ -30,9 +32,12 @@ const errorHandler = createErrorHandler('cat');
 async function fetchCatImage(): Promise<RandomReddit> {
   const response = await fetch('https://api.pur.cat/random-cat'); //cat
   if (!response.ok) {
+
     throw new Error(`API request failed with status ${response.status}`);
   }
-  return (await response.json()) as RandomReddit;
+  const data = (await response.json()) as RandomReddit;
+  
+  return data;
 }
 
 export default {
@@ -71,45 +76,55 @@ export default {
       await interaction.deferReply();
       try {
         commandLogger.logFromInteraction(interaction);
+        
         const catData = await fetchCatImage();
         if (!catData || !catData.url) {
+
           throw new Error('No image URL found in response');
         }
+        
+  
         const title = catData.title
           ? sanitizeInput(catData.title).slice(0, 245) + '...'
           : await client.getLocaleText('random.cat', interaction.locale);
 
         const refreshLabel = await client.getLocaleText('commands.cat.newcat', interaction.locale);
 
-        let content = `# ${title}\n\n`;
-        if (catData.subreddit) {
-          const fromText = await client.getLocaleText('reddit.from', interaction.locale, {
-            subreddit: catData.subreddit,
-          });
-          content += `${fromText}`;
-        }
+
 
         const container = new ContainerBuilder()
           .setAccentColor(0xfaa0a0)
-          .addMediaGalleryComponents(
-            new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL(catData.url))
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`# ${title}`)
           )
-          .addSectionComponents(
-            new SectionBuilder()
-              .addTextDisplayComponents((textDisplay) => textDisplay.setContent(content))
-              .setButtonAccessory((button) =>
-                button
-                  .setLabel(refreshLabel)
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(catData.subreddit ? await client.getLocaleText('reddit.from', interaction.locale, { subreddit: catData.subreddit }) : '')
+          )
+          .addMediaGalleryComponents(
+            new MediaGalleryBuilder().addItems(
+              new MediaGalleryItemBuilder().setURL(catData.url)
+            )
+          )
+          .addActionRowComponents(
+            new ActionRowBuilder<ButtonBuilder>()
+              .addComponents(
+                new ButtonBuilder()
                   .setStyle(ButtonStyle.Danger)
+                  .setLabel(refreshLabel)
                   .setEmoji({ name: '🐱' })
                   .setCustomId('refresh_cat')
               )
           );
 
-        await interaction.editReply({
-          components: [container],
-          flags: MessageFlags.IsComponentsV2,
-        });
+        try {
+          await interaction.editReply({
+            components: [container],
+            flags: MessageFlags.IsComponentsV2,
+          });
+        } catch (replyError) {
+          logger.error('Failed to send reply:', replyError);
+          throw replyError;
+        }
       } catch (error) {
         await errorHandler({
           interaction,
@@ -122,15 +137,24 @@ export default {
     } catch (error) {
       logger.error('Unexpected error in cat command:', error);
       const errorMsg = await client.getLocaleText('unexpectederror', interaction.locale);
+
+
+
+
+      const errorContainer = new ContainerBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(errorMsg)
+        );
+      
       if (!interaction.replied && !interaction.deferred) {
         await interaction.reply({
-          content: errorMsg,
-          ephemeral: true,
+          components: [errorContainer],
+          flags: MessageFlags.IsComponentsV2,
         });
       } else if (interaction.deferred) {
         await interaction.editReply({
-          content: errorMsg,
-          // flags: MessageFlags.Ephemeral,
+          components: [errorContainer],
+          flags: MessageFlags.IsComponentsV2,
         });
       }
     }

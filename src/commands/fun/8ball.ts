@@ -3,9 +3,12 @@ import {
   ApplicationIntegrationType,
   InteractionContextType,
   ContainerBuilder,
-  SectionBuilder,
   ButtonStyle,
   MessageFlags,
+  TextDisplayBuilder,
+  ButtonBuilder,
+  ActionRowBuilder,
+  type MessageActionRowComponentBuilder,
 } from 'discord.js';
 import { validateCommandOptions, sanitizeInput } from '@/utils/validation';
 import { SlashCommandProps } from '@/types/command';
@@ -122,22 +125,32 @@ export default {
         await client.getLocaleText('commands.8ball.askagain', interaction.locale),
       ]);
 
-      const container = new ContainerBuilder().setAccentColor(0x8b5cf6).addSectionComponents(
-        new SectionBuilder()
-          .addTextDisplayComponents((textDisplay) =>
-            textDisplay.setContent(
-              `# 🔮 ${title}\n\n> **${questionLabel}**\n> ${question}\n\n## ✨ ${answerLabel}\n### ${translatedResponse}`
+      const container = new ContainerBuilder()
+        .setAccentColor(0x8b5cf6)
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`# 🔮 ${title}`)
+        )
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`**${questionLabel}**\n> ${question}\n\n`)
+        )
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`## ✨ ${answerLabel}`)
+        )
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(translatedResponse)
+        )
+        .addActionRowComponents(
+          new ActionRowBuilder<MessageActionRowComponentBuilder>()
+            .addComponents(
+              new ButtonBuilder()
+                .setStyle(ButtonStyle.Primary)
+                .setLabel(askAgainLabel)
+                .setEmoji({ name: '🎱' })
+                .setCustomId(
+                  `8ball_reroll_${interaction.user.id}_${Date.now()}_${encodeURIComponent(question)}`
+                )
             )
-          )
-          .setButtonAccessory((button) =>
-            button
-              .setLabel(`🎲 ${askAgainLabel}`)
-              .setStyle(ButtonStyle.Primary)
-              .setCustomId(
-                `8ball_reroll_${interaction.user.id}_${Date.now()}_${encodeURIComponent(question)}`
-              )
-          )
-      );
+        );
 
       await interaction.reply({
         components: [container],

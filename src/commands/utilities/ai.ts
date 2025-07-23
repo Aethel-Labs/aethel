@@ -8,6 +8,7 @@ import {
   ChatInputCommandInteraction,
   InteractionContextType,
   ApplicationIntegrationType,
+  MessageFlags,
 } from 'discord.js';
 import pool from '@/utils/pgClient';
 import { encrypt, decrypt, isValidEncryptedFormat, EncryptionError } from '@/utils/encrypt';
@@ -467,7 +468,7 @@ export default {
       } else {
         return interaction.reply({
           content: await client.getLocaleText('commands.ai.request.inprogress', interaction.locale),
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     }
@@ -483,7 +484,7 @@ export default {
         userConversations.delete(userId);
         await interaction.reply({
           content: await client.getLocaleText('commands.ai.reset', interaction.locale),
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         pendingRequests.delete(userId);
         return;
@@ -494,7 +495,7 @@ export default {
         userConversations.delete(userId);
         await interaction.reply({
           content: await client.getLocaleText('commands.ai.defaultapi', interaction.locale),
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
 
         await processAIRequest(client, interaction);
@@ -553,7 +554,7 @@ export default {
       if (!interaction.replied && !interaction.deferred) {
         await interaction.reply({
           content: await client.getLocaleText('failedrequest', interaction.locale),
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       } else {
         await interaction.editReply({
@@ -566,7 +567,7 @@ export default {
   async handleModal(client: BotClient, interaction: ModalSubmitInteraction) {
     try {
       if (interaction.customId === 'apiCredentials') {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const userId = interaction.user.id;
         const pendingRequest = pendingRequests.get(userId);
@@ -589,7 +590,7 @@ export default {
           // '✅ API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`'
           content:
             '✅ ' + (await client.getLocaleText('commands.ai.apicredssaved', interaction.locale)),
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
 
         if (!originalInteraction.deferred && !originalInteraction.replied) {
@@ -735,7 +736,7 @@ async function sendAIResponse(
     for (let i = 1; i < chunks.length; i++) {
       await interaction.followUp({
         content: chunks[i],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   } catch {

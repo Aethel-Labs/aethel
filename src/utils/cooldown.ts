@@ -1,4 +1,5 @@
 import BotClient from '@/services/Client';
+import { MessageFlags, InteractionReplyOptions } from 'discord.js';
 
 interface CooldownManager {
   cooldowns: Map<string, number>;
@@ -56,9 +57,9 @@ export function setCooldown(manager: CooldownManager, userId: string): void {
   setTimeout(() => manager.cooldowns.delete(userId), manager.cooldownTime);
 }
 
-export function createCooldownResponse(message: string) {
+export function createCooldownResponse(message: string): InteractionReplyOptions {
   return {
     content: message,
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   };
 }

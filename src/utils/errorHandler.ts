@@ -1,4 +1,4 @@
-import { CommandInteraction } from 'discord.js';
+import { CommandInteraction, MessageFlags } from 'discord.js';
 import BotClient from '@/services/Client';
 import logger from './logger';
 
@@ -28,7 +28,7 @@ export async function handleCommandError(options: ErrorHandlerOptions): Promise<
     } else {
       await interaction.reply({
         content: errorMessage,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   } catch (replyError) {

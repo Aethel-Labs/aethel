@@ -4,10 +4,13 @@ import {
   InteractionContextType,
   ApplicationIntegrationType,
   ContainerBuilder,
-  SectionBuilder,
   MediaGalleryBuilder,
   MediaGalleryItemBuilder,
   MessageFlags,
+  TextDisplayBuilder,
+  ButtonBuilder,
+  ActionRowBuilder,
+  type MessageActionRowComponentBuilder,
 } from 'discord.js';
 import fetch from '@/utils/dynamicFetch';
 import { sanitizeInput } from '@/utils/validation';
@@ -82,26 +85,25 @@ export default {
 
         const refreshLabel = await client.getLocaleText('commands.dog.newdog', interaction.locale);
 
-        let content = `# ${title}\n\n`;
-        if (dogData.subreddit) {
-          const fromText = await client.getLocaleText('reddit.from', interaction.locale, {
-            subreddit: dogData.subreddit,
-          });
-          content += `${fromText}`;
-        }
-
         const container = new ContainerBuilder()
           .setAccentColor(0x8a2be2)
-          .addMediaGalleryComponents(
-            new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL(dogData.url))
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`# ${title}`)
           )
-          .addSectionComponents(
-            new SectionBuilder()
-              .addTextDisplayComponents((textDisplay) => textDisplay.setContent(content))
-              .setButtonAccessory((button) =>
-                button
-                  .setLabel(refreshLabel)
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(dogData.subreddit ? await client.getLocaleText('reddit.from', interaction.locale, { subreddit: dogData.subreddit }) : '')
+          )
+          .addMediaGalleryComponents(
+            new MediaGalleryBuilder().addItems(
+              new MediaGalleryItemBuilder().setURL(dogData.url)
+            )
+          )
+          .addActionRowComponents(
+            new ActionRowBuilder<MessageActionRowComponentBuilder>()
+              .addComponents(
+                new ButtonBuilder()
                   .setStyle(ButtonStyle.Secondary)
+                  .setLabel(refreshLabel)
                   .setEmoji({ name: '🐶' })
                   .setCustomId('refresh_dog')
               )
@@ -123,15 +125,21 @@ export default {
     } catch (error) {
       logger.error('Unexpected error in dog command:', error);
       const errorMsg = await client.getLocaleText('unexpectederror', interaction.locale);
+      
+      const errorContainer = new ContainerBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(errorMsg)
+        );
+      
       if (!interaction.replied && !interaction.deferred) {
         await interaction.reply({
-          content: errorMsg,
-          ephemeral: true,
+          components: [errorContainer],
+          flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
         });
       } else if (interaction.deferred) {
         await interaction.editReply({
-          content: errorMsg,
-          // flags: MessageFlags.Ephemeral,
+          components: [errorContainer],
+          flags: MessageFlags.IsComponentsV2,
         });
       }
     }

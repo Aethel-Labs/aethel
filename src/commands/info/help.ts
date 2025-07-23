@@ -4,6 +4,7 @@ import {
   EmbedBuilder,
   InteractionContextType,
   ApplicationIntegrationType,
+  MessageFlags,
 } from 'discord.js';
 import BotClient from '@/services/Client';
 
@@ -29,7 +30,7 @@ export default {
     .setIntegrationTypes(ApplicationIntegrationType.UserInstall),
   async execute(client, interaction) {
     try {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
       const [title, description] = await Promise.all([
         await client.getLocaleText('commands.help.embed.title', interaction.locale),
@@ -100,12 +101,12 @@ export default {
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp({
           content: errorMsg,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       } else {
         await interaction.reply({
           content: errorMsg,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     }
