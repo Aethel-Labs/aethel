@@ -34,7 +34,7 @@ app.use(
       ? ALLOWED_ORIGINS.split(',')
       : ['http://localhost:3000', 'http://localhost:8080'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization', 'Cache-Control', 'Pragma'],
     credentials: true,
     maxAge: 86400,
   })

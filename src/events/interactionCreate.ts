@@ -197,8 +197,8 @@ export default class InteractionCreateEvent {
             });
           }
         } else if (i.customId.startsWith('8ball_reroll_')) {
-          const customIdParts = i.customId.split('_');
-          const originalUserId = customIdParts[2];
+          const interactionId = i.customId.replace('8ball_reroll_', '');
+          const originalUserId = interactionId.split('_')[0];
 
           if (originalUserId !== i.user.id) {
             return await i.reply({
@@ -207,16 +207,16 @@ export default class InteractionCreateEvent {
             });
           }
 
+          const eightBallCommand = this.client.commands.get('8ball');
           let question = 'What will happen?';
 
-          try {
-            const customIdParts = i.customId.split('_');
-            if (customIdParts.length >= 5) {
-              const encodedQuestion = customIdParts.slice(4).join('_');
-              question = decodeURIComponent(encodedQuestion);
+          if (eightBallCommand && 'questionStorage' in eightBallCommand) {
+            const storedQuestion = (
+              eightBallCommand as { questionStorage: { get: (id: string) => string | undefined } }
+            ).questionStorage.get(interactionId);
+            if (storedQuestion) {
+              question = storedQuestion;
             }
-          } catch (error) {
-            console.log('Error extracting question:', error);
           }
 
           const responses = [
@@ -260,6 +260,13 @@ export default class InteractionCreateEvent {
             i.locale
           );
 
+          const newInteractionId = `${i.user.id}_${Date.now()}`;
+          if (eightBallCommand && 'questionStorage' in eightBallCommand) {
+            (
+              eightBallCommand as { questionStorage: { set: (id: string, value: string) => void } }
+            ).questionStorage.set(newInteractionId, question);
+          }
+
           const container = new ContainerBuilder()
             .setAccentColor(0x8b5cf6)
             .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# 🔮 ${title}`))
@@ -274,9 +281,7 @@ export default class InteractionCreateEvent {
                   .setStyle(ButtonStyle.Primary)
                   .setLabel(askAgainLabel)
                   .setEmoji({ name: '🎱' })
-                  .setCustomId(
-                    `8ball_reroll_${i.user.id}_${Date.now()}_${encodeURIComponent(question)}`
-                  )
+                  .setCustomId(`8ball_reroll_${newInteractionId}`)
               )
             );
 

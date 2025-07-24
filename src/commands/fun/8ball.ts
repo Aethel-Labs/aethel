@@ -11,7 +11,6 @@ import {
   type MessageActionRowComponentBuilder,
 } from 'discord.js';
 import { validateCommandOptions, sanitizeInput } from '@/utils/validation';
-import { SlashCommandProps } from '@/types/command';
 import { random } from '@/utils/misc';
 import {
   createCooldownManager,
@@ -21,6 +20,7 @@ import {
 } from '@/utils/cooldown';
 import { createCommandLogger } from '@/utils/commandLogger';
 import { createErrorHandler } from '@/utils/errorHandler';
+import { createMemoryManager } from '@/utils/memoryManager';
 
 const responses = [
   'itiscertain',
@@ -49,7 +49,13 @@ const cooldownManager = createCooldownManager('8ball', 3000);
 const commandLogger = createCommandLogger('8ball');
 const errorHandler = createErrorHandler('8ball');
 
-export default {
+const questionStorage = createMemoryManager<string, string>({
+  maxSize: 1000,
+  maxAge: 5 * 60 * 1000,
+  cleanupInterval: 60 * 1000,
+});
+
+const eightBallCommand = {
   data: new SlashCommandBuilder()
     .setName('8ball')
     .setNameLocalizations({
@@ -87,7 +93,9 @@ export default {
     ])
     .setIntegrationTypes(ApplicationIntegrationType.UserInstall),
 
-  execute: async (client, interaction) => {
+  questionStorage,
+
+  execute: async (client: any, interaction: any) => {
     try {
       const cooldownCheck = await checkCooldown(
         cooldownManager,
@@ -125,6 +133,9 @@ export default {
         await client.getLocaleText('commands.8ball.askagain', interaction.locale),
       ]);
 
+      const interactionId = `${interaction.user.id}_${Date.now()}`;
+      questionStorage.set(interactionId, question);
+
       const container = new ContainerBuilder()
         .setAccentColor(0x8b5cf6)
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# 🔮 ${title}`))
@@ -139,9 +150,7 @@ export default {
               .setStyle(ButtonStyle.Primary)
               .setLabel(askAgainLabel)
               .setEmoji({ name: '🎱' })
-              .setCustomId(
-                `8ball_reroll_${interaction.user.id}_${Date.now()}_${encodeURIComponent(question)}`
-              )
+              .setCustomId(`8ball_reroll_${interactionId}`)
           )
         );
 
@@ -159,4 +168,6 @@ export default {
       });
     }
   },
-} as SlashCommandProps;
+};
+
+export default eightBallCommand;

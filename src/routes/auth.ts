@@ -11,7 +11,7 @@ const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const DISCORD_REDIRECT_URI =
   process.env.DISCORD_REDIRECT_URI || 'http://localhost:8080/api/auth/discord/callback';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:2020';
 
 interface DiscordUser {
   id: string;
