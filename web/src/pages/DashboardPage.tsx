@@ -104,31 +104,7 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-6xl mx-auto px-6 py-12">
         
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 flex items-center justify-center rounded-lg overflow-hidden">
-              <img 
-                src="/bot_icon.png" 
-                alt="Bot Icon" 
-                className="w-full h-full object-cover"
-                width={48}
-                height={48}
-              />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-              <p className="text-gray-600 dark:text-gray-400">Welcome back!</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="text-right">
-              <p className="text-gray-900 dark:text-white font-medium">Quick Stats</p>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
-                {recentTodos.length} todos • {recentReminders.length} reminders
-              </p>
-            </div>
-          </div>
-        </div>
+
 
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
