@@ -17,7 +17,6 @@ import {
 import { createCommandLogger } from '@/utils/commandLogger';
 import { createErrorHandler } from '@/utils/errorHandler';
 
-
 const responses = [
   'itiscertain',
   'itisdecidedlyso',
@@ -44,8 +43,6 @@ const responses = [
 const cooldownManager = createCooldownManager('8ball', 3000);
 const commandLogger = createCommandLogger('8ball');
 const errorHandler = createErrorHandler('8ball');
-
-
 
 const eightBallCommand = {
   data: new SlashCommandBuilder()
@@ -85,9 +82,10 @@ const eightBallCommand = {
     ])
     .setIntegrationTypes(ApplicationIntegrationType.UserInstall),
 
-
-
-  execute: async (client: import('@/services/Client').default, interaction: import('discord.js').ChatInputCommandInteraction) => {
+  execute: async (
+    client: import('@/services/Client').default,
+    interaction: import('discord.js').ChatInputCommandInteraction
+  ) => {
     try {
       const cooldownCheck = await checkCooldown(
         cooldownManager,

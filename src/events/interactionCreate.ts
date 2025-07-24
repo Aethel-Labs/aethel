@@ -196,7 +196,6 @@ export default class InteractionCreateEvent {
               flags: MessageFlags.IsComponentsV2,
             });
           }
-
         } else if (i.customId.startsWith('help_commands_')) {
           const customIdParts = i.customId.split('_');
           const originalUserId = customIdParts[2];
