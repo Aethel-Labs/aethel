@@ -3,12 +3,8 @@ import {
   ApplicationIntegrationType,
   InteractionContextType,
   ContainerBuilder,
-  ButtonStyle,
   MessageFlags,
   TextDisplayBuilder,
-  ButtonBuilder,
-  ActionRowBuilder,
-  type MessageActionRowComponentBuilder,
 } from 'discord.js';
 import { validateCommandOptions, sanitizeInput } from '@/utils/validation';
 import { random } from '@/utils/misc';
@@ -20,7 +16,7 @@ import {
 } from '@/utils/cooldown';
 import { createCommandLogger } from '@/utils/commandLogger';
 import { createErrorHandler } from '@/utils/errorHandler';
-import { createMemoryManager } from '@/utils/memoryManager';
+
 
 const responses = [
   'itiscertain',
@@ -49,11 +45,7 @@ const cooldownManager = createCooldownManager('8ball', 3000);
 const commandLogger = createCommandLogger('8ball');
 const errorHandler = createErrorHandler('8ball');
 
-const questionStorage = createMemoryManager<string, string>({
-  maxSize: 1000,
-  maxAge: 5 * 60 * 1000,
-  cleanupInterval: 60 * 1000,
-});
+
 
 const eightBallCommand = {
   data: new SlashCommandBuilder()
@@ -93,9 +85,9 @@ const eightBallCommand = {
     ])
     .setIntegrationTypes(ApplicationIntegrationType.UserInstall),
 
-  questionStorage,
 
-  execute: async (client: any, interaction: any) => {
+
+  execute: async (client: import('@/services/Client').default, interaction: import('discord.js').ChatInputCommandInteraction) => {
     try {
       const cooldownCheck = await checkCooldown(
         cooldownManager,
@@ -126,15 +118,11 @@ const eightBallCommand = {
         interaction,
         `question: "${question?.substring(0, 50)}${question && question.length > 50 ? '...' : ''}"`
       );
-      const [title, questionLabel, answerLabel, askAgainLabel] = await Promise.all([
+      const [title, questionLabel, answerLabel] = await Promise.all([
         await client.getLocaleText('commands.8ball.says', interaction.locale),
         await client.getLocaleText('commands.8ball.question', interaction.locale),
         await client.getLocaleText('commands.8ball.answer', interaction.locale),
-        await client.getLocaleText('commands.8ball.askagain', interaction.locale),
       ]);
-
-      const interactionId = `${interaction.user.id}_${Date.now()}`;
-      questionStorage.set(interactionId, question);
 
       const container = new ContainerBuilder()
         .setAccentColor(0x8b5cf6)
@@ -143,16 +131,7 @@ const eightBallCommand = {
           new TextDisplayBuilder().setContent(`**${questionLabel}**\n> ${question}\n\n`)
         )
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ✨ ${answerLabel}`))
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(translatedResponse))
-        .addActionRowComponents(
-          new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-            new ButtonBuilder()
-              .setStyle(ButtonStyle.Primary)
-              .setLabel(askAgainLabel)
-              .setEmoji({ name: '🎱' })
-              .setCustomId(`8ball_reroll_${interactionId}`)
-          )
-        );
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(translatedResponse));
 
       await interaction.reply({
         components: [container],
