@@ -2,8 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
 body {
-  font-family: Inter, system-ui, sans-serif;
+  color: var(--foreground);
+  background: linear-gradient(135deg, #ffffff 0%, #ffcad4 100%);
+  min-height: 100vh;
+  font-family: 'Inter', Arial, sans-serif;
 }
 
 .btn {
@@ -15,7 +23,7 @@ body {
 }
 
 .btn-secondary {
-  @apply bg-gray-700 text-white hover:bg-gray-600 border border-gray-600;
+  @apply bg-gray-200 text-gray-900 hover:bg-gray-300 border border-gray-300;
 }
 
 .btn-danger {
@@ -27,9 +35,35 @@ body {
 }
 
 .card {
-  @apply bg-gray-900/50 rounded-lg border border-gray-700 shadow-sm;
+  @apply bg-white/80 rounded-lg border border-gray-200 shadow-lg;
 }
 
 .input {
-  @apply flex h-10 w-full rounded-lg border border-gray-600 bg-gray-800 text-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply flex h-10 w-full rounded-lg border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.command-card {
+  @apply bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-lg;
+}
+
+.stats-card {
+  @apply bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-white/20;
+}
+
+.status-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.pixel-art {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }

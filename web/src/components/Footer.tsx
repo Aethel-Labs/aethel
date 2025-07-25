@@ -3,7 +3,7 @@ import { FaGithub } from 'react-icons/fa';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  
+
   const navigation = {
     main: [
       { name: 'Home', href: '/' },
@@ -29,9 +29,9 @@ export default function Footer() {
           <div className="space-y-8 xl:col-span-1">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-lg overflow-hidden">
-                <img 
-                  src="/bot_icon.png" 
-                  alt="Bot Icon" 
+                <img
+                  src="/bot_icon.png"
+                  alt="Bot Icon"
                   className="w-full h-full object-cover"
                   width={40}
                   height={40}
@@ -99,9 +99,9 @@ export default function Footer() {
         <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8">
           <p className="text-base text-gray-500 dark:text-gray-400 text-center">
             &copy; {currentYear} Aethel Labs.{' '}
-            <a 
-              href="https://github.com/Aethel-Labs/aethel/blob/main/LICENSE" 
-              target="_blank" 
+            <a
+              href="https://github.com/Aethel-Labs/aethel/blob/main/LICENSE"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 transition-colors"
             >

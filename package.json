@@ -13,7 +13,7 @@
     "lint": "eslint ./src",
     "lint:fix": "eslint . --config eslint.config.cjs --fix",
     "lint:format": "eslint . --config eslint.config.cjs --format=codeframe",
-    "format": "prettier --write \"**/*.{js,json,md,ts}\" --ignore-path .prettierignore",
+    "format": "prettier --write \"**/*.{js,json,md,ts,tsx}\" --ignore-path .prettierignore",
     "format:check": "prettier --check \"**/*.{js,json,md}\" --ignore-path .prettierignore",
     "check": "pnpm run lint && pnpm run format:check"
   },
