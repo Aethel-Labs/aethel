@@ -52,6 +52,22 @@ export default function Home() {
           </div>
         </div>
 
+        <div className="text-center mb-12">
+          <p className="text-sm text-gray-500 mb-3">Powered by</p>
+          <a
+            href="https://royalehosting.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="https://royalehosting.net/_app/immutable/assets/logo-wide.DCtttkZp.svg"
+              alt="Royale Hosting"
+              className="h-8 mx-auto"
+            />
+          </a>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="command-card group">
             <ChatBubbleLeftRightIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
