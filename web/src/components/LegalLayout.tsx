@@ -9,14 +9,25 @@ interface LegalLayoutProps {
 
 export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-8">
+    <div className="min-h-screen p-8">
+      <main className="max-w-4xl mx-auto">
+        <div className="text-center mb-16 pt-8">
+          <img
+            src="/bot_icon.png"
+            alt="Aethel Bot Logo"
+            width={160}
+            height={160}
+            className="mx-auto mb-8 pixel-art rounded-2xl w-40 h-40 object-cover"
+          />
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-gray-800">{title}</h1>
+          <div className="w-24 h-1 bg-pink-500 mx-auto my-4 rounded-full"></div>
+          <p className="text-lg text-gray-600 mb-8">Last Updated: {lastUpdated}</p>
+
           <Link
             to="/"
-            className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-6"
+            className="inline-flex items-center px-6 py-3 bg-white/90 hover:bg-white text-gray-800 font-medium rounded-full shadow-md hover:shadow-lg transition-all mb-8"
           >
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -26,17 +37,12 @@ export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) 
             </svg>
             Back to Home
           </Link>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">{title}</h1>
-          <div className="w-24 h-1 bg-sky-500 mx-auto my-4 rounded-full"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Last Updated: {lastUpdated}</p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
-          <div className="p-8 sm:p-10 lg:p-12">
-            <div className="prose dark:prose-invert max-w-none">{children}</div>
-          </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-8 sm:p-10 lg:p-12">
+          <div className="prose max-w-none">{children}</div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

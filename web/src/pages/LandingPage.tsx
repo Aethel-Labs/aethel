@@ -68,7 +68,7 @@ export default function Home() {
           <div className="command-card group">
             <CloudIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="text-xl font-semibold mb-2">/weather</h3>
-            <p className="text-gray-600">Get local weather or another user&apos;s weather</p>
+            <p className="text-gray-600">Get the weather forecast for any city</p>
           </div>
 
           <div className="command-card group">
@@ -102,7 +102,9 @@ export default function Home() {
           <div className="command-card group">
             <SwatchIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="text-xl font-semibold mb-2">/cobalt</h3>
-            <p className="text-gray-600">Download videos and media from various platforms</p>
+            <p className="text-gray-600">
+              Download videos and media from various platforms using Cobalt
+            </p>
           </div>
 
           <div className="command-card group">
@@ -114,13 +116,13 @@ export default function Home() {
           <div className="command-card group">
             <UserIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="text-xl font-semibold mb-2">/whois</h3>
-            <p className="text-gray-600">Get domain and IP information for websites</p>
+            <p className="text-gray-600">Get domain and IP information</p>
           </div>
 
           <div className="command-card group">
             <ClockIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="text-xl font-semibold mb-2">/time</h3>
-            <p className="text-gray-600">Get the current time in different timezones</p>
+            <p className="text-gray-600">Get the current time for any cities</p>
           </div>
 
           <div className="command-card group">

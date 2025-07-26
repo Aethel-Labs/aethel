@@ -90,7 +90,7 @@ export default {
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
-            `-# ${dashboardText || 'Dashboard available at https://aethel.xyz/dashboard for To-Dos, Reminders and custom AI API key management'}`
+            `-# ${dashboardText || 'Dashboard available at https://aethel.xyz/login for To-Dos, Reminders and custom AI API key management'}`
           )
         )
         .addActionRowComponents(

@@ -649,7 +649,6 @@ export default {
         const apiUrl = interaction.fields.getTextInputValue('apiUrl').trim();
         const model = interaction.fields.getTextInputValue('model').trim();
 
-        // Test the API key before saving
         await interaction.editReply(
           await client.getLocaleText('commands.ai.testing', interaction.locale)
         );
@@ -667,7 +666,6 @@ export default {
           return;
         }
 
-        // Save credentials only if test passes
         await setUserApiKey(userId, apiKey, model, apiUrl);
 
         await interaction.editReply(
@@ -771,7 +769,8 @@ async function makeAIRequest(
   };
 
   if (config.finalApiUrl === 'https://openrouter.ai/api/v1/chat/completions') {
-    headers['HTTP-Referer'] = 'https://github.com/aethel-labs/aethel';
+    headers['HTTP-Referer'] = 'https://aethel.xyz';
+    headers['X-Title'] = 'Aethel Discord Bot';
   }
 
   try {
