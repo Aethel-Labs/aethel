@@ -13,6 +13,7 @@ const ApiKeysPage = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [hasPassedTest, setHasPassedTest] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: apiKeyInfo, isLoading } = useQuery({
@@ -52,11 +53,13 @@ const ApiKeysPage = () => {
       apiKeysAPI.testApiKey(data),
     onSuccess: () => {
       setTestResult({ success: true, message: 'API key is valid and working!' });
+      setHasPassedTest(true);
       toast.success('API key test successful!');
     },
     onError: (error: any) => {
       const message = error.response?.data?.error || 'API key test failed';
       setTestResult({ success: false, message });
+      setHasPassedTest(false);
       toast.error(message);
     },
   });
@@ -65,6 +68,10 @@ const ApiKeysPage = () => {
     e.preventDefault();
     if (!formData.apiKey.trim()) {
       toast.error('API key is required');
+      return;
+    }
+    if (!hasPassedTest) {
+      toast.error('Please test the API key before saving');
       return;
     }
     updateApiKeyMutation.mutate({
@@ -95,12 +102,14 @@ const ApiKeysPage = () => {
       apiUrl: apiKeyInfo?.apiUrl || '',
     });
     setTestResult(null);
+    setHasPassedTest(false);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
     setFormData({ apiKey: '', model: '', apiUrl: '' });
     setTestResult(null);
+    setHasPassedTest(false);
   };
 
   if (isLoading) {
@@ -124,7 +133,7 @@ const ApiKeysPage = () => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-medium text-gray-900">Current Configuration</h2>
           {apiKeyInfo?.hasApiKey && !isEditing && (
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2 sm:gap-0">
               <button
                 onClick={handleEdit}
                 className="btn btn-secondary active:scale-95 transition-transform"
@@ -192,12 +201,20 @@ const ApiKeysPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
+              <p className="text-sm text-gray-600 mb-4">
+                <span className="text-red-600">*</span> You must test the API key before saving to
+                ensure it works correctly.
+              </p>
               <label className="block text-sm font-medium text-gray-700 mb-2">API Key *</label>
               <div className="relative">
                 <input
                   type={showApiKey ? 'text' : 'password'}
                   value={formData.apiKey}
-                  onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, apiKey: e.target.value });
+                    setHasPassedTest(false);
+                    setTestResult(null);
+                  }}
                   placeholder="Enter your API key"
                   className="input pr-10"
                   required
@@ -223,7 +240,11 @@ const ApiKeysPage = () => {
               <input
                 type="text"
                 value={formData.model}
-                onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, model: e.target.value });
+                  setHasPassedTest(false);
+                  setTestResult(null);
+                }}
                 placeholder="e.g., gpt-4, claude-3-opus"
                 className="input"
               />
@@ -237,7 +258,11 @@ const ApiKeysPage = () => {
               <input
                 type="url"
                 value={formData.apiUrl}
-                onChange={(e) => setFormData({ ...formData, apiUrl: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, apiUrl: e.target.value });
+                  setHasPassedTest(false);
+                  setTestResult(null);
+                }}
                 placeholder="https://api.openai.com/v1/chat/completions"
                 className="input"
               />
@@ -261,18 +286,18 @@ const ApiKeysPage = () => {
               </div>
             )}
 
-            <div className="flex justify-between pt-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-3 pt-4">
               <button
                 type="button"
                 onClick={handleTest}
                 disabled={!formData.apiKey.trim() || testApiKeyMutation.isPending}
-                className="btn btn-secondary active:scale-95 transition-transform"
+                className="btn btn-secondary active:scale-95 transition-transform order-1 sm:order-none"
               >
                 <TestTube className="h-4 w-4 mr-2" />
                 {testApiKeyMutation.isPending ? 'Testing...' : 'Test API Key'}
               </button>
 
-              <div className="flex space-x-3">
+              <div className="flex flex-col sm:flex-row gap-3 sm:space-x-3 sm:gap-0">
                 <button
                   type="button"
                   onClick={handleCancel}
@@ -283,11 +308,19 @@ const ApiKeysPage = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={!formData.apiKey.trim() || updateApiKeyMutation.isPending}
-                  className="btn btn-primary active:scale-95 transition-transform"
+                  disabled={
+                    !formData.apiKey.trim() || updateApiKeyMutation.isPending || !hasPassedTest
+                  }
+                  className={`btn active:scale-95 transition-transform ${
+                    hasPassedTest ? 'btn-primary' : 'btn-secondary opacity-50 cursor-not-allowed'
+                  }`}
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {updateApiKeyMutation.isPending ? 'Saving...' : 'Save'}
+                  {updateApiKeyMutation.isPending
+                    ? 'Saving...'
+                    : hasPassedTest
+                      ? 'Save'
+                      : 'Test Required'}
                 </button>
               </div>
             </div>

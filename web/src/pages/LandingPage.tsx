@@ -6,6 +6,11 @@ import {
   BellAlertIcon,
   PhotoIcon,
   SparklesIcon,
+  SwatchIcon,
+  CheckCircleIcon,
+  UserIcon,
+  ClockIcon,
+  QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 
@@ -93,6 +98,36 @@ export default function Home() {
               Ask the magic 8ball a question and get a mysterious answer
             </p>
           </div>
+
+          <div className="command-card group">
+            <SwatchIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="text-xl font-semibold mb-2">/cobalt</h3>
+            <p className="text-gray-600">Download videos and media from various platforms</p>
+          </div>
+
+          <div className="command-card group">
+            <CheckCircleIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="text-xl font-semibold mb-2">/todo</h3>
+            <p className="text-gray-600">Create and manage your todo list and tasks</p>
+          </div>
+
+          <div className="command-card group">
+            <UserIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="text-xl font-semibold mb-2">/whois</h3>
+            <p className="text-gray-600">Get domain and IP information for websites</p>
+          </div>
+
+          <div className="command-card group">
+            <ClockIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="text-xl font-semibold mb-2">/time</h3>
+            <p className="text-gray-600">Get the current time in different timezones</p>
+          </div>
+
+          <div className="command-card group">
+            <QuestionMarkCircleIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="text-xl font-semibold mb-2">/help</h3>
+            <p className="text-gray-600">Show all available commands and their usage</p>
+          </div>
         </div>
 
         <div className="mt-16 text-center">
@@ -112,7 +147,7 @@ export default function Home() {
           </Link>
         </div>
         <p className="hover:text-pink-500 transition-colors">
-          Made with ♥ by scanash and the pur.cat community
+          Made with ♥ by scanash and the Aethel Labs community
         </p>
       </footer>
     </div>

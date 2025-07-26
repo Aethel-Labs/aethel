@@ -415,6 +415,71 @@ async function incrementAndCheckDailyLimit(userId: string, limit: number = 20): 
   }
 }
 
+async function testApiKey(
+  apiKey: string,
+  model: string,
+  apiUrl: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fullApiUrl = apiUrl;
+    const testModel = model;
+
+    const testResponse = await fetch(fullApiUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: testModel,
+        messages: [
+          {
+            role: 'user',
+            content:
+              'Hello! This is a test message. Please respond with "API key test successful!"',
+          },
+        ],
+        max_tokens: 50,
+        temperature: 0.1,
+      }),
+    });
+
+    if (!testResponse.ok) {
+      const errorData = await testResponse.json().catch(() => ({}));
+      const errorMessage =
+        errorData.error?.message || `HTTP ${testResponse.status}: ${testResponse.statusText}`;
+
+      logger.warn(`API key test failed: ${errorMessage}`);
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+
+    const responseData = await testResponse.json();
+    const testMessage = responseData.choices?.[0]?.message?.content || 'Test completed';
+
+    logger.info('API key test successful');
+    return {
+      success: true,
+    };
+  } catch (error) {
+    logger.error('Error testing API key:', error);
+
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      return {
+        success: false,
+        error: 'Failed to connect to API endpoint. Please check the URL.',
+      };
+    }
+
+    return {
+      success: false,
+      error: 'API key test failed due to server error',
+    };
+  }
+}
+
 export default {
   data: new SlashCommandBuilder()
     .setName('ai')
@@ -584,14 +649,30 @@ export default {
         const apiUrl = interaction.fields.getTextInputValue('apiUrl').trim();
         const model = interaction.fields.getTextInputValue('model').trim();
 
+        // Test the API key before saving
+        await interaction.editReply(
+          await client.getLocaleText('commands.ai.testing', interaction.locale)
+        );
+
+        const testResult = await testApiKey(apiKey, model, apiUrl);
+
+        if (!testResult.success) {
+          const errorMessage = await client.getLocaleText(
+            'commands.ai.testfailed',
+            interaction.locale
+          );
+          await interaction.editReply(
+            errorMessage.replace('{error}', testResult.error || 'Unknown error')
+          );
+          return;
+        }
+
+        // Save credentials only if test passes
         await setUserApiKey(userId, apiKey, model, apiUrl);
 
-        await interaction.followUp({
-          // '✅ API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`'
-          content:
-            '✅ ' + (await client.getLocaleText('commands.ai.apicredssaved', interaction.locale)),
-          flags: MessageFlags.Ephemeral,
-        });
+        await interaction.editReply(
+          await client.getLocaleText('commands.ai.testsuccess', interaction.locale)
+        );
 
         if (!originalInteraction.deferred && !originalInteraction.replied) {
           await originalInteraction.deferReply();

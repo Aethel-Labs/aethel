@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   SlashCommandBuilder,
-  EmbedBuilder,
   InteractionContextType,
   ApplicationIntegrationType,
   MessageFlags,
+  TextDisplayBuilder,
+  ContainerBuilder,
 } from 'discord.js';
 import whois from 'whois-json';
 import { isIP } from 'net';
@@ -180,58 +181,179 @@ function formatRawWhoisData(rawData: string): string {
     : `\`\`\`\n${joined.substring(0, maxLength - 3)}...\`\`\``;
 }
 
+function parseRawWhoisData(rawText: string): any {
+  const parsed: any = {};
+  const lines = rawText.split('\n');
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (
+      !trimmed ||
+      trimmed.startsWith('%') ||
+      trimmed.startsWith('#') ||
+      trimmed.startsWith('>>>')
+    ) {
+      continue;
+    }
+
+    const colonIndex = trimmed.indexOf(':');
+    if (colonIndex > 0) {
+      const key = trimmed.substring(0, colonIndex).trim();
+      const value = trimmed.substring(colonIndex + 1).trim();
+
+      if (key && value && !value.includes('REDACTED')) {
+        if (parsed[key]) {
+          if (Array.isArray(parsed[key])) {
+            parsed[key].push(value);
+          } else {
+            parsed[key] = [parsed[key], value];
+          }
+        } else {
+          parsed[key] = value;
+        }
+      }
+    }
+  }
+
+  return parsed;
+}
+
 function formatWhoisData(data: any): string {
   try {
     if (typeof data === 'string') {
-      return formatRawWhoisData(data);
+      const parsedData = parseRawWhoisData(data);
+      if (Object.keys(parsedData).length > 0) {
+        data = parsedData;
+      } else {
+        return formatRawWhoisData(data);
+      }
     }
 
     const raw = data?.raw || data?.text || data?.whoisData?.raw;
-    if (raw) return formatRawWhoisData(raw);
+    if (raw && typeof data === 'object' && Object.keys(data).length <= 3) {
+      const parsedData = parseRawWhoisData(raw);
+      if (Object.keys(parsedData).length > 0) {
+        data = parsedData;
+      } else {
+        return formatRawWhoisData(raw);
+      }
+    }
 
     if (typeof data === 'object' && data !== null) {
       const sections: string[] = [];
-      const sectionData: Record<string, string[]> = {
-        domain: [],
-        dates: [],
-        registrar: [],
-        registrant: [],
-        admin: [],
-        tech: [],
-        billing: [],
-      };
+      const isIpData =
+        data.netRange ||
+        data.network ||
+        data.inetnum ||
+        data.route ||
+        data.origin ||
+        data.cidr ||
+        data.netName;
 
-      const sectionTitles: Record<string, string> = {
-        domain: '🌐 Domain Information',
-        dates: '📅 Important Dates',
-        registrar: '🏢 Registrar',
-        registrant: '👤 Registrant',
-        admin: '👨‍💼 Admin',
-        tech: '🔧 Technical',
-        billing: '💳 Billing',
-      };
+      const sectionData: Record<string, string[]> = isIpData
+        ? {
+            network: [],
+            organization: [],
+            contacts: [],
+            dates: [],
+            technical: [],
+          }
+        : {
+            domain: [],
+            dates: [],
+            registrar: [],
+            registrant: [],
+            admin: [],
+            tech: [],
+            billing: [],
+          };
 
-      const fieldMapping: Record<string, { display: string; section: keyof typeof sectionTitles }> =
-        {
-          domainName: { display: 'Domain Name', section: 'domain' },
-          registryDomainId: { display: 'Registry ID', section: 'domain' },
-          registryExpiryDate: { display: 'Expiration Date', section: 'dates' },
-          creationDate: { display: 'Created On', section: 'dates' },
-          updatedDate: { display: 'Last Updated', section: 'dates' },
-          domainStatus: { display: 'Status', section: 'domain' },
-          dnssec: { display: 'DNSSEC', section: 'domain' },
-          nameServer: { display: 'Name Servers', section: 'domain' },
-          registrar: { display: 'Registrar', section: 'registrar' },
-          registrarIanaId: { display: 'IANA ID', section: 'registrar' },
-          registrarWhoisServer: { display: 'WHOIS Server', section: 'registrar' },
-          registrarUrl: { display: 'Website', section: 'registrar' },
-          registrarAbuseContactEmail: { display: 'Abuse Contact', section: 'registrar' },
-          registrarAbuseContactPhone: { display: 'Abuse Phone', section: 'registrar' },
-          registrantEmail: { display: 'Email', section: 'registrant' },
-          adminEmail: { display: 'Admin Email', section: 'admin' },
-          techEmail: { display: 'Tech Email', section: 'tech' },
-          billingEmail: { display: 'Billing Email', section: 'billing' },
-        };
+      const sectionTitles: Record<string, string> = isIpData
+        ? {
+            network: '🌐 Network Information',
+            organization: '🏢 Organization',
+            contacts: '👤 Contacts',
+            dates: '📅 Important Dates',
+            technical: '🔧 Technical Details',
+          }
+        : {
+            domain: '🌐 Domain Information',
+            dates: '📅 Important Dates',
+            registrar: '🏢 Registrar',
+            registrant: '👤 Registrant',
+            admin: '👨‍💼 Admin',
+            tech: '🔧 Technical',
+            billing: '💳 Billing',
+          };
+
+      const fieldMapping: Record<string, { display: string; section: string }> = isIpData
+        ? {
+            netRange: { display: 'IP Range', section: 'network' },
+            cidr: { display: 'CIDR', section: 'network' },
+            netName: { display: 'Network Name', section: 'network' },
+            netHandle: { display: 'Network Handle', section: 'network' },
+            parent: { display: 'Parent Network', section: 'network' },
+            netType: { display: 'Network Type', section: 'network' },
+            originAS: { display: 'Origin AS', section: 'network' },
+            organization: { display: 'Organization', section: 'organization' },
+            orgName: { display: 'Organization Name', section: 'organization' },
+            orgId: { display: 'Organization ID', section: 'organization' },
+            address: { display: 'Address', section: 'organization' },
+            city: { display: 'City', section: 'organization' },
+            stateProv: { display: 'State/Province', section: 'organization' },
+            postalCode: { display: 'Postal Code', section: 'organization' },
+            country: { display: 'Country', section: 'organization' },
+            regDate: { display: 'Registration Date', section: 'dates' },
+            updated: { display: 'Last Updated', section: 'dates' },
+            comment: { display: 'Comments', section: 'technical' },
+            ref: { display: 'Reference', section: 'technical' },
+            orgAbuseHandle: { display: 'Abuse Handle', section: 'contacts' },
+            orgAbuseName: { display: 'Abuse Contact', section: 'contacts' },
+            orgAbusePhone: { display: 'Abuse Phone', section: 'contacts' },
+            orgAbuseEmail: { display: 'Abuse Email', section: 'contacts' },
+            orgTechHandle: { display: 'Tech Handle', section: 'contacts' },
+            orgTechName: { display: 'Tech Contact', section: 'contacts' },
+            orgTechPhone: { display: 'Tech Phone', section: 'contacts' },
+            orgTechEmail: { display: 'Tech Email', section: 'contacts' },
+            orgRoutingHandle: { display: 'Routing Handle', section: 'contacts' },
+            orgRoutingName: { display: 'Routing Contact', section: 'contacts' },
+            orgRoutingPhone: { display: 'Routing Phone', section: 'contacts' },
+            orgRoutingEmail: { display: 'Routing Email', section: 'contacts' },
+            orgRoutingRef: { display: 'Routing Reference', section: 'contacts' },
+            orgAbuseRef: { display: 'Abuse Reference', section: 'contacts' },
+            orgTechRef: { display: 'Tech Reference', section: 'contacts' },
+            network: { display: 'Network', section: 'network' },
+            inetnum: { display: 'IP Range', section: 'network' },
+            netname: { display: 'Network Name', section: 'network' },
+            descr: { display: 'Description', section: 'organization' },
+            countr: { display: 'Country', section: 'organization' },
+            'admin-c': { display: 'Admin Contact', section: 'contacts' },
+            'tech-c': { display: 'Tech Contact', section: 'contacts' },
+            'mnt-by': { display: 'Maintained By', section: 'technical' },
+            created: { display: 'Created', section: 'dates' },
+            'last-modified': { display: 'Last Modified', section: 'dates' },
+            source: { display: 'Source', section: 'technical' },
+          }
+        : {
+            domainName: { display: 'Domain Name', section: 'domain' },
+            registryDomainId: { display: 'Registry ID', section: 'domain' },
+            registryExpiryDate: { display: 'Expiration Date', section: 'dates' },
+            creationDate: { display: 'Created On', section: 'dates' },
+            updatedDate: { display: 'Last Updated', section: 'dates' },
+            domainStatus: { display: 'Status', section: 'domain' },
+            dnssec: { display: 'DNSSEC', section: 'domain' },
+            nameServer: { display: 'Name Servers', section: 'domain' },
+            registrar: { display: 'Registrar', section: 'registrar' },
+            registrarIanaId: { display: 'IANA ID', section: 'registrar' },
+            registrarWhoisServer: { display: 'WHOIS Server', section: 'registrar' },
+            registrarUrl: { display: 'Website', section: 'registrar' },
+            registrarAbuseContactEmail: { display: 'Abuse Contact', section: 'registrar' },
+            registrarAbuseContactPhone: { display: 'Abuse Phone', section: 'registrar' },
+            registrantEmail: { display: 'Email', section: 'registrant' },
+            adminEmail: { display: 'Admin Email', section: 'admin' },
+            techEmail: { display: 'Tech Email', section: 'tech' },
+            billingEmail: { display: 'Billing Email', section: 'billing' },
+          };
 
       const formatDate = (dateStr: string): string => {
         const date = new Date(dateStr);
@@ -259,12 +381,20 @@ function formatWhoisData(data: any): string {
             : `[${value}](mailto:${value})`;
         }
 
+        if (key === 'Ref' && value.startsWith('http')) {
+          value = `[${value}](${value})`;
+        }
+
+        if (key === 'Comment' && Array.isArray(value)) {
+          value = value.join('\n');
+        }
+
         sectionData[section].push(`**${display}:** ${value}`);
       }
 
       for (const [section, title] of Object.entries(sectionTitles)) {
         const content = sectionData[section];
-        if (content.length) sections.push(`**${title}**\n${content.join('\n')}`);
+        if (content && content.length) sections.push(`**${title}**\n${content.join('\n')}`);
       }
 
       sections.push(`_Last updated: ${new Date().toLocaleString()}_`);
@@ -291,12 +421,32 @@ async function getWhoisData(query: string): Promise<any> {
     const isIp = isIP(query);
 
     if (isIp) {
-      return await whois(query, {
-        server: 'whois.arin.net',
-        follow: 1,
-        timeout: INITIAL_TIMEOUT,
-        // format: 'json',
-      });
+      const ipServers = [
+        'whois.arin.net',
+        'whois.ripe.net',
+        'whois.apnic.net',
+        'whois.lacnic.net',
+        'whois.afrinic.net',
+      ];
+
+      for (const server of ipServers) {
+        try {
+          return await whois(query, {
+            server,
+            follow: 1,
+            timeout: INITIAL_TIMEOUT,
+            // format: 'json',
+          });
+        } catch (error: any) {
+          if (error.message.includes('No match') || error.message.includes('not found')) {
+            continue;
+          }
+          logger.debug(`IP WHOIS lookup failed on ${server}:`, error.message);
+          continue;
+        }
+      }
+
+      throw new Error('Could not retrieve IP WHOIS information from any regional registry.');
     }
 
     const { servers } = getWhoisServers(query);
@@ -371,14 +521,20 @@ export default {
       const whoisData = await getWhoisData(sanitizedQuery);
       const formattedData = formatWhoisData(whoisData);
 
-      const embed = new EmbedBuilder()
-        .setColor(0x3498db)
-        .setTitle(`🔍 WHOIS Lookup: ${sanitizedQuery}`)
-        .setDescription(formattedData)
-        .setFooter({ text: 'WHOIS data provided by whois-json' })
-        .setTimestamp();
+      const components = [
+        new ContainerBuilder()
+          .setAccentColor(0x3498db)
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# 🔍 WHOIS Lookup`))
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ${sanitizedQuery}`))
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(formattedData || 'No WHOIS data available')
+          ),
+      ];
 
-      await interaction.editReply({ embeds: [embed] });
+      await interaction.editReply({
+        components,
+        flags: MessageFlags.IsComponentsV2,
+      });
     } catch (error: any) {
       await errorHandler({
         interaction,

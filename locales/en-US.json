@@ -169,6 +169,9 @@
       },
       "nopendingrequest": "No pending request found. Please try the command again.",
       "apicredssaved": "API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`",
+      "testing": "Testing API key...",
+      "testfailed": "❌ API key test failed: {error}. Please check your credentials and try again.",
+      "testsuccess": "✅ API key test successful! Credentials saved.",
       "process": {
         "dailylimit": "You've reached your daily limit of AI requests",
         "noapikey": "Please set up your API key first"

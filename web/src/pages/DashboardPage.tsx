@@ -117,7 +117,7 @@ const DashboardPage = () => {
             </p>
             <a
               href="/api-keys"
-              className="bg-[#5865F2] text-white font-bold py-3 px-8 rounded-full inline-flex items-center space-x-2 transition-all transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5865F2] shadow-lg"
+              className="bg-white/90 text-gray-800 font-bold py-3 px-8 rounded-full inline-flex items-center space-x-2 transition-all hover:bg-gray-50 hover:shadow-xl hover:scale-102 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 shadow-lg"
             >
               <span>{overviewData.aiConfigured ? 'Manage Configuration' : 'Configure AI'}</span>
             </a>
@@ -133,7 +133,7 @@ const DashboardPage = () => {
             </p>
             <a
               href="/todos"
-              className="bg-white/90 text-gray-800 font-bold py-3 px-8 rounded-full inline-flex items-center space-x-2 transition-all transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 shadow-lg"
+              className="bg-white/90 text-gray-800 font-bold py-3 px-8 rounded-full inline-flex items-center space-x-2 transition-all hover:bg-gray-50 hover:shadow-xl hover:scale-102 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 shadow-lg"
             >
               <span>{recentTodos.length > 0 ? 'View All Todos' : 'Create Todo'}</span>
             </a>
@@ -151,7 +151,7 @@ const DashboardPage = () => {
             </p>
             <a
               href="/reminders"
-              className="bg-white/90 text-gray-800 font-bold py-3 px-8 rounded-full inline-flex items-center space-x-2 transition-all transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 shadow-lg"
+              className="bg-white/90 text-gray-800 font-bold py-3 px-8 rounded-full inline-flex items-center space-x-2 transition-all hover:bg-gray-50 hover:shadow-xl hover:scale-102 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 shadow-lg"
             >
               <span>
                 {overdueReminders.length > 0
@@ -203,7 +203,7 @@ const DashboardPage = () => {
                       {!todo.done && (
                         <button
                           onClick={() => handleCompleteTodo(todo.id)}
-                          className="text-green-600 hover:text-green-700 text-sm font-medium px-3 py-1 rounded transition-colors"
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50 text-sm font-medium px-3 py-1 rounded transition-colors"
                         >
                           Complete
                         </button>
@@ -221,7 +221,7 @@ const DashboardPage = () => {
                 </p>
                 <a
                   href="/todos"
-                  className="inline-flex items-center space-x-2 bg-green-600 text-white py-3 px-8 rounded-full transition-all transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 shadow-lg font-bold"
+                  className="inline-flex items-center space-x-2 bg-green-600 text-white py-3 px-8 rounded-full transition-all transform hover:bg-green-700 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 shadow-lg font-bold"
                 >
                   <Plus className="h-4 w-4" />
                   <span>Create Todo</span>
@@ -279,8 +279,8 @@ const DashboardPage = () => {
                           onClick={() => handleCompleteReminder(reminder.reminder_id)}
                           className={`text-sm font-medium px-3 py-1 rounded transition-colors ${
                             isOverdue
-                              ? 'text-red-600 hover:text-red-700'
-                              : 'text-green-600 hover:text-green-700'
+                              ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                              : 'text-green-600 hover:text-green-700 hover:bg-green-50'
                           }`}
                         >
                           Complete
@@ -299,7 +299,7 @@ const DashboardPage = () => {
                 </p>
                 <a
                   href="/reminders"
-                  className="inline-flex items-center space-x-2 bg-orange-600 text-white py-3 px-8 rounded-full transition-all transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 shadow-lg font-bold"
+                  className="inline-flex items-center space-x-2 bg-orange-600 text-white py-3 px-8 rounded-full transition-all transform hover:bg-orange-700 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 shadow-lg font-bold"
                 >
                   <Plus className="h-4 w-4" />
                   <span>Create Reminder</span>

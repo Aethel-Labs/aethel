@@ -115,19 +115,20 @@ const RemindersPage: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Reminders</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Reminders</h1>
           <p className="text-gray-600 mt-2">Manage your personal reminders and notifications</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {reminders.some((r) => r.is_completed) && (
             <button
               onClick={handleClearCompleted}
               className="btn btn-danger active:scale-95 transition-transform"
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Clear Completed
+              <span className="hidden sm:inline">Clear Completed</span>
+              <span className="sm:hidden">Clear</span>
             </button>
           )}
           <button
@@ -140,11 +141,12 @@ const RemindersPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Create Reminder Form */}
       {showCreateForm && (
-        <div className="bg-white/80 p-8 rounded-lg border border-gray-200 shadow-lg">
-          <h2 className="text-xl font-semibold mb-6 text-gray-900">Create New Reminder</h2>
-          <form onSubmit={handleCreateReminder} className="space-y-6">
+        <div className="bg-white/80 p-4 sm:p-8 rounded-lg border border-gray-200 shadow-lg">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-gray-900">
+            Create New Reminder
+          </h2>
+          <form onSubmit={handleCreateReminder} className="space-y-4 sm:space-y-6">
             <div>
               <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
                 Reminder Message
@@ -173,7 +175,7 @@ const RemindersPage: React.FC = () => {
                 required
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="submit"
                 className="btn btn-primary active:scale-95 transition-transform"
@@ -212,7 +214,7 @@ const RemindersPage: React.FC = () => {
           reminders.map((reminder) => (
             <div
               key={reminder.reminder_id}
-              className={`card p-6 border-l-4 ${
+              className={`card p-4 sm:p-6 border-l-4 ${
                 reminder.is_completed
                   ? 'border-green-500 bg-green-900/20'
                   : isExpired(reminder.expires_at)
@@ -220,27 +222,31 @@ const RemindersPage: React.FC = () => {
                     : 'border-blue-500'
               }`}
             >
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1">
                   <p
-                    className={`text-lg ${reminder.is_completed ? 'line-through text-gray-500' : 'text-gray-900'}`}
+                    className={`text-base sm:text-lg ${reminder.is_completed ? 'line-through text-gray-500' : 'text-gray-900'}`}
                   >
                     {reminder.message}
                   </p>
-                  <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-3 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
-                      <span>Remind at: {formatDate(reminder.expires_at)}</span>
+                      <span className="break-all">
+                        Remind at: {formatDate(reminder.expires_at)}
+                      </span>
                     </div>
-                    {isExpired(reminder.expires_at) && !reminder.is_completed && (
-                      <span className="text-red-600 font-medium">Overdue</span>
-                    )}
-                    {reminder.is_completed && (
-                      <span className="text-green-600 font-medium">Completed</span>
-                    )}
+                    <div className="flex gap-2">
+                      {isExpired(reminder.expires_at) && !reminder.is_completed && (
+                        <span className="text-red-600 font-medium">Overdue</span>
+                      )}
+                      {reminder.is_completed && (
+                        <span className="text-green-600 font-medium">Completed</span>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 ml-4">
+                <div className="flex items-center justify-end sm:justify-start gap-2 sm:ml-4">
                   {!reminder.is_completed && (
                     <button
                       onClick={() => handleCompleteReminder(reminder.reminder_id)}
