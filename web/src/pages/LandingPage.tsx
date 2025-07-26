@@ -63,7 +63,7 @@ export default function Home() {
             <img
               src="https://royalehosting.net/_app/immutable/assets/logo-wide.DCtttkZp.svg"
               alt="Royale Hosting"
-              className="h-8 mx-auto"
+              className="h-8 mx-auto filter brightness-0"
             />
           </a>
         </div>
