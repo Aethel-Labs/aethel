@@ -52,21 +52,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="text-center mb-12">
-          <p className="text-sm text-gray-500 mb-3">Powered by</p>
-          <a
-            href="https://royalehosting.net"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block hover:opacity-80 transition-opacity"
-          >
-            <img
-              src="https://royalehosting.net/_app/immutable/assets/logo-wide.DCtttkZp.svg"
-              alt="Royale Hosting"
-              className="h-8 mx-auto filter brightness-0"
-            />
-          </a>
-        </div>
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="command-card group">
@@ -164,6 +150,23 @@ export default function Home() {
             Terms of Service
           </Link>
         </div>
+        
+        <div className="mb-4">
+          <p className="text-xs text-gray-400 mb-2">Powered by</p>
+          <a
+            href="https://royalehosting.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="https://royalehosting.net/_app/immutable/assets/logo-wide.DCtttkZp.svg"
+              alt="Royale Hosting"
+              className="h-6 mx-auto filter brightness-0"
+            />
+          </a>
+        </div>
+        
         <p className="hover:text-pink-500 transition-colors">
           Made with ♥ by scanash and the Aethel Labs community
         </p>
