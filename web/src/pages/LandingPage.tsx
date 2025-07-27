@@ -152,7 +152,7 @@ export default function Home() {
         </div>
         
         <div className="mb-4">
-          <p className="text-xs text-gray-400 mb-2">Powered by</p>
+          <p className="text-xs text-gray-600 mb-2">Powered by</p>
           <a
             href="https://royalehosting.net"
             target="_blank"
@@ -160,9 +160,9 @@ export default function Home() {
             className="inline-block hover:opacity-80 transition-opacity"
           >
             <img
-              src="https://royalehosting.net/_app/immutable/assets/logo-wide.DCtttkZp.svg"
+              src="/royale_logo.svg"
               alt="Royale Hosting"
-              className="h-6 mx-auto filter brightness-0"
+              className="h-6 mx-auto filter"
             />
           </a>
         </div>
