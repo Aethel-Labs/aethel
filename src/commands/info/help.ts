@@ -102,7 +102,7 @@ export default {
             new ButtonBuilder()
               .setStyle(ButtonStyle.Link)
               .setLabel(supportServerText || 'Support')
-              .setURL('https://discord.gg/labs')
+              .setURL('https://discord.gg/63stE8pEaK')
           )
         );
 
