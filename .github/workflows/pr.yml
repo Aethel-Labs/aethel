@@ -24,12 +24,13 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'pnpm'
+        cache: false
         
-    - name: Install pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8
+    - name: Setup pnpm
+      run: |
+        npm install --global corepack@latest
+        corepack enable
+        corepack prepare pnpm@latest --activate
         
     - name: Install backend dependencies
       run: pnpm install --frozen-lockfile
@@ -54,7 +55,7 @@ jobs:
         
     - name: Run backend linting
       run: pnpm run lint
-        
+          
     - name: Run frontend linting
       run: |
         cd web
@@ -94,12 +95,13 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'pnpm'
+        cache: false
         
-    - name: Install pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8
+    - name: Setup pnpm
+      run: |
+        npm install --global corepack@latest
+        corepack enable
+        corepack prepare pnpm@latest --activate
         
     - name: Install frontend dependencies
       run: |
