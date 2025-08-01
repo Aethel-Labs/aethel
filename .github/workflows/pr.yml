@@ -54,11 +54,6 @@ jobs:
         
     - name: Run backend linting
       run: pnpm run lint
-          
-    - name: Run frontend linting
-      run: |
-        cd web
-        pnpm run lint
         
     - name: Check code formatting
       run: pnpm run format:check

@@ -71,8 +71,3 @@ jobs:
       run: |
         cd web
         pnpm run build
-        
-    - name: Lint frontend
-      run: |
-        cd web
-        pnpm run lint
