@@ -1,9 +1,9 @@
-import { CommandInteraction, MessageFlags } from 'discord.js';
+import { CommandInteraction, ButtonInteraction, MessageFlags } from 'discord.js';
 import BotClient from '@/services/Client';
 import logger from './logger';
 
 export interface ErrorHandlerOptions {
-  interaction: CommandInteraction;
+  interaction: CommandInteraction | ButtonInteraction;
   client: BotClient;
   error: Error;
   commandName: string;

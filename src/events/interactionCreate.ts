@@ -17,6 +17,7 @@ import {
   TextDisplayBuilder,
   SeparatorBuilder,
   SeparatorSpacingSize,
+  ButtonInteraction,
 } from 'discord.js';
 
 type InteractionHandler = (...args: ClientEvents['interactionCreate']) => void;
@@ -117,6 +118,17 @@ export default class InteractionCreateEvent {
     }
     if (i.isButton()) {
       try {
+        if (i.customId.startsWith('trivia_')) {
+          const triviaCommand = this.client.commands.get('trivia');
+          if (triviaCommand && 'handleButton' in triviaCommand) {
+            return await (
+              triviaCommand as {
+                handleButton: (client: BotClient, interaction: ButtonInteraction) => Promise<void>;
+              }
+            ).handleButton(this.client, i);
+          }
+        }
+
         const originalUser = i.message.interaction!.user;
         if (originalUser.id !== i.user.id) {
           return await i.reply({

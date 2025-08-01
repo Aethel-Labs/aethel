@@ -112,6 +112,7 @@
     },
     "remind": {
       "name": "remind",
+      "description": "Set a reminder",
       "reminder": "Reminder!",
       "remindyou": "You asked me to remind me about: {message}",
       "timeelapsed": "Time elapsed",
@@ -269,6 +270,54 @@
         "footer_multi": "Multiple cities found with similar names",
         "author": "Current Time",
         "multi_city_description": "Multiple cities found for '{city}':"
+      }
+    },
+    "trivia": {
+      "name": "trivia",
+      "description": "Start a multiplayer trivia game",
+      "buttons": {
+        "join": "🎯 Join Game",
+        "start": "🚀 Start Game",
+        "cancel": "❌ Cancel"
+      },
+      "messages": {
+        "game_exists": "❌ There's already a trivia game running in this channel!",
+        "game_starting": "## 🎯 Trivia Game Starting!\n\n**Players ({count}):**\n{players}\n\nClick **Join Game** to participate!\nClick **Start Game** when everyone has joined.",
+        "game_started": "The game has already started!",
+        "already_joined": "You're already in the game!",
+        "only_creator_start": "Only the person who started the game can begin it!",
+        "only_creator_cancel": "Only the person who started the game can cancel it!",
+        "need_players": "Need at least 1 player to start!",
+        "starting_game": "🎯 Starting trivia game... Fetching questions!",
+        "game_cancelled": "❌ Trivia game cancelled.",
+        "no_active_game": "❌ No active trivia game found.",
+        "not_your_turn": "It's not your turn!",
+        "no_active_question": "❌ No active game.",
+        "failed_start": "❌ Failed to start the trivia game. Please try again later.",
+        "preparing_next": "Preparing next question...",
+        "tied_game": "🤝 Tied game! Keep going until someone scores!"
+      },
+      "question": {
+        "header": "## 🧠 Trivia Question {current}/{total}",
+        "your_turn": "**{player}, it's your turn!**",
+        "category": "**Category:** {category}",
+        "difficulty": "**Difficulty:** {difficulty}",
+        "question_text": "**{question}**"
+      },
+      "answer": {
+        "correct": "✅ **Correct!**",
+        "incorrect": "❌ **Incorrect!**",
+        "result_format": "{result}\n\n**Question:** {question}\n**Your answer:** {answer}\n**Correct answer:** {correct}\n\n{preparing}"
+      },
+      "game_end": {
+        "header": "## 🏆 Trivia Game Complete!",
+        "final_scores": "**Final Scores:**",
+        "congratulations": "🎉 Congratulations {winner}!",
+        "tie": "🤝 It's a tie between {winners}!"
+      },
+      "errors": {
+        "fetch_failed": "Failed to fetch trivia questions: {error}",
+        "api_error": "Trivia API error: {code}"
       }
     }
   },
