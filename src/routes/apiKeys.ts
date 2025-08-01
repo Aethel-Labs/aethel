@@ -220,7 +220,7 @@ router.post(
       let parsedUrl;
       try {
         parsedUrl = new URL(fullApiUrl);
-      } catch (e) {
+      } catch {
         logger.warn(`Blocked invalid API URL for user ${userId}: ${fullApiUrl}`);
         return res.status(400).json({
           error: 'API URL is invalid. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).'
