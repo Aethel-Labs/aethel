@@ -11,6 +11,7 @@ import {
   UserIcon,
   ClockIcon,
   QuestionMarkCircleIcon,
+  AcademicCapIcon,
 } from '@heroicons/react/24/outline';
 
 import { Link } from 'react-router-dom';
@@ -113,6 +114,12 @@ export default function Home() {
             <p className="text-gray-600">
               Ask the magic 8ball a question and get a mysterious answer
             </p>
+          </div>
+
+          <div className="command-card group">
+            <AcademicCapIcon className="w-8 h-8 text-pink-500 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="text-xl font-semibold mb-2">/trivia</h3>
+            <p className="text-gray-600">Start a multiplayer trivia game with friends</p>
           </div>
 
           <div className="command-card group">
