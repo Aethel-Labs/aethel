@@ -19,6 +19,8 @@ import { createCommandLogger } from '@/utils/commandLogger';
 import { createErrorHandler } from '@/utils/errorHandler';
 import { createMemoryManager } from '@/utils/memoryManager';
 
+const ALLOWED_API_HOSTS = ['api.openai.com', 'openrouter.ai', 'generativelanguage.googleapis.com'];
+
 interface ConversationMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -647,6 +649,23 @@ export default {
         const apiKey = interaction.fields.getTextInputValue('apiKey').trim();
         const apiUrl = interaction.fields.getTextInputValue('apiUrl').trim();
         const model = interaction.fields.getTextInputValue('model').trim();
+
+        let parsedUrl;
+        try {
+          parsedUrl = new URL(apiUrl);
+        } catch {
+          await interaction.editReply(
+            'API URL is invalid. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).'
+          );
+          return;
+        }
+
+        if (!ALLOWED_API_HOSTS.includes(parsedUrl.hostname)) {
+          await interaction.editReply(
+            'API URL not allowed. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).'
+          );
+          return;
+        }
 
         await interaction.editReply(
           await client.getLocaleText('commands.ai.testing', interaction.locale)

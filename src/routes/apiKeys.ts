@@ -5,12 +5,7 @@ import { authenticateToken } from '../middlewares/auth';
 import { body, validationResult } from 'express-validator';
 import { encrypt as encryptApiKey } from '../utils/encrypt';
 
-// Whitelist of allowed hosts for API endpoints
-const ALLOWED_API_HOSTS = [
-  'api.openai.com',
-  'openrouter.ai',
-  'generativelanguage.googleapis.com'
-];
+const ALLOWED_API_HOSTS = ['api.openai.com', 'openrouter.ai', 'generativelanguage.googleapis.com'];
 
 const router = Router();
 
@@ -216,23 +211,25 @@ router.post(
       const userId = req.user?.userId;
 
       const fullApiUrl = apiUrl || 'https://api.openai.com/v1/chat/completions';
-      
+
       let parsedUrl;
       try {
         parsedUrl = new URL(fullApiUrl);
       } catch {
         logger.warn(`Blocked invalid API URL for user ${userId}: ${fullApiUrl}`);
         return res.status(400).json({
-          error: 'API URL is invalid. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).'
+          error:
+            'API URL is invalid. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).',
         });
       }
       if (!ALLOWED_API_HOSTS.includes(parsedUrl.hostname)) {
         logger.warn(`Blocked potentially malicious API URL for user ${userId}: ${fullApiUrl}`);
         return res.status(400).json({
-          error: 'API URL not allowed. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).'
+          error:
+            'API URL not allowed. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).',
         });
       }
-      
+
       const testModel = model || 'gpt-3.5-turbo';
 
       const testResponse = await fetch(fullApiUrl, {
