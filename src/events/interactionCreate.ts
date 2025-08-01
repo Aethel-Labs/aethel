@@ -18,6 +18,7 @@ import {
   SeparatorBuilder,
   SeparatorSpacingSize,
   ButtonInteraction,
+  type MessageActionRowComponentBuilder,
 } from 'discord.js';
 
 type InteractionHandler = (...args: ClientEvents['interactionCreate']) => void;
@@ -312,16 +313,20 @@ export default class InteractionCreateEvent {
           ]);
 
           const container = new ContainerBuilder()
-            .setAccentColor(0x5865f2)
+            .setAccentColor(0xf4f4f4)
+
+            .addMediaGalleryComponents(
+              new MediaGalleryBuilder().addItems(
+                new MediaGalleryItemBuilder().setURL('https://aethel.xyz/aethel_banner_white.png')
+              )
+            )
             .addTextDisplayComponents(
               new TextDisplayBuilder().setContent(`# ${title || 'Aethel Bot'}`)
             )
             .addTextDisplayComponents(
-              new TextDisplayBuilder().setContent(
-                description ||
-                  'Enhance your server with fun commands, utilities, and AI-powered features.'
-              )
+              new TextDisplayBuilder().setContent(description || 'Get information about Aethel')
             )
+            .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
             .addTextDisplayComponents(
               new TextDisplayBuilder().setContent(
                 `\n## **${linksSocialText || 'Links & Social Media'}**`
@@ -332,6 +337,7 @@ export default class InteractionCreateEvent {
                 '[Website](https://aethel.xyz) • [GitHub](https://github.com/aethel-labs/aethel) • [Bluesky](https://bsky.app/profile/aethel.xyz)'
               )
             )
+            .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
             .addTextDisplayComponents(
               new TextDisplayBuilder().setContent(`\n## **${featuresText || 'Features'}**`)
             )
@@ -345,6 +351,7 @@ export default class InteractionCreateEvent {
                     '**Multi-language** - Supports multiple languages'
               )
             )
+
             .addSeparatorComponents(
               new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true)
             )
@@ -353,8 +360,9 @@ export default class InteractionCreateEvent {
                 `-# ${dashboardText || 'Dashboard available at https://aethel.xyz/login for To-Dos, Reminders and custom AI API key management'}`
               )
             )
+            .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
             .addActionRowComponents(
-              new ActionRowBuilder<ButtonBuilder>().addComponents(
+              new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
                 new ButtonBuilder()
                   .setStyle(ButtonStyle.Primary)
                   .setLabel(viewCommandsText || 'Commands')

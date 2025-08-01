@@ -11,6 +11,8 @@ import {
   ButtonStyle,
   SeparatorBuilder,
   SeparatorSpacingSize,
+  MediaGalleryBuilder,
+  MediaGalleryItemBuilder,
   type MessageActionRowComponentBuilder,
 } from 'discord.js';
 
@@ -57,11 +59,20 @@ export default {
       ]);
 
       const container = new ContainerBuilder()
-        .setAccentColor(0x5865f2)
+        .setAccentColor(0xf4f4f4)
+
+        .addMediaGalleryComponents(
+          new MediaGalleryBuilder().addItems(
+            new MediaGalleryItemBuilder().setURL(
+              'https://aethel.xyz/aethel_banner_white.png'
+            )
+          )
+        )
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${title || 'Aethel Bot'}`))
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(description || 'Get information about Aethel')
         )
+        .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             `\n## **${linksSocialText || 'Links & Social Media'}**`
@@ -72,6 +83,7 @@ export default {
             '[Website](https://aethel.xyz) • [GitHub](https://github.com/aethel-labs/aethel) • [Bluesky](https://bsky.app/profile/aethel.xyz)'
           )
         )
+        .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(`\n## **${featuresText || 'Features'}**`)
         )
@@ -85,6 +97,7 @@ export default {
                 '**Multi-language** - Supports multiple languages'
           )
         )
+
         .addSeparatorComponents(
           new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true)
         )
@@ -93,6 +106,7 @@ export default {
             `-# ${dashboardText || 'Dashboard available at https://aethel.xyz/login for To-Dos, Reminders and custom AI API key management'}`
           )
         )
+        .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
         .addActionRowComponents(
           new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
             new ButtonBuilder()
