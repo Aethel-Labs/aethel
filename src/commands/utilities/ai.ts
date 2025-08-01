@@ -456,8 +456,7 @@ async function testApiKey(
       };
     }
 
-    const responseData = await testResponse.json();
-    const testMessage = responseData.choices?.[0]?.message?.content || 'Test completed';
+    await testResponse.json();
 
     logger.info('API key test successful');
     return {
