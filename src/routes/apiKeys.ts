@@ -226,7 +226,7 @@ router.post(
           error: 'API URL is invalid. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).'
         });
       }
-      if (!ALLOWED_API_HOSTS.includes(parsedUrl.host)) {
+      if (!ALLOWED_API_HOSTS.includes(parsedUrl.hostname)) {
         logger.warn(`Blocked potentially malicious API URL for user ${userId}: ${fullApiUrl}`);
         return res.status(400).json({
           error: 'API URL not allowed. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).'
