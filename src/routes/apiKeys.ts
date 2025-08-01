@@ -5,6 +5,12 @@ import { authenticateToken } from '../middlewares/auth';
 import { body, validationResult } from 'express-validator';
 import { encrypt as encryptApiKey } from '../utils/encrypt';
 
+const ALLOWED_API_ENDPOINTS = [
+  'https://api.openai.com/v1/chat/completions',
+  'https://openrouter.ai/api/v1/chat/completions',
+  'https://generativelanguage.googleapis.com/v1beta/openai/'
+];
+
 const router = Router();
 
 router.use(authenticateToken);
@@ -209,6 +215,14 @@ router.post(
       const userId = req.user?.userId;
 
       const fullApiUrl = apiUrl || 'https://api.openai.com/v1/chat/completions';
+      
+      if (!ALLOWED_API_ENDPOINTS.includes(fullApiUrl)) {
+        logger.warn(`Blocked potentially malicious API URL for user ${userId}: ${fullApiUrl}`);
+        return res.status(400).json({
+          error: 'API URL not allowed. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).'
+        });
+      }
+      
       const testModel = model || 'gpt-3.5-turbo';
 
       const testResponse = await fetch(fullApiUrl, {
