@@ -43,7 +43,7 @@ const Layout = ({ children }: LayoutProps) => {
         >
           <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200">
             <div className="flex items-center space-x-3">
-              <img className="w-8 h-8 rounded-lg" src="/bot_icon.png" alt="Aethel Bot" />
+              <img className="w-8 h-8 rounded-lg object-contain" src="/bot_icon.png" alt="Aethel Bot" style={{ imageRendering: 'crisp-edges' }} />
               <h1 className="text-xl font-semibold text-gray-900">Aethel</h1>
             </div>
             <button
@@ -128,7 +128,7 @@ const Layout = ({ children }: LayoutProps) => {
                 <Menu className="h-5 w-5" />
               </button>
               <div className="flex items-center space-x-3">
-                <img className="w-8 h-8 rounded-lg" src="/bot_icon.png" alt="Aethel Bot" />
+                <img className="w-8 h-8 rounded-lg object-contain" src="/bot_icon.png" alt="Aethel Bot" style={{ imageRendering: 'crisp-edges' }} />
                 <h1 className="text-xl font-semibold text-gray-900">Aethel</h1>
               </div>
             </div>

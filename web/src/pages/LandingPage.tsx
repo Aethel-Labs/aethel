@@ -39,9 +39,8 @@ export default function Home() {
           <img
             src="/bot_icon.png"
             alt="Aethel Bot Logo"
-            width={160}
-            height={160}
-            className="mx-auto mb-8 pixel-art rounded-2xl w-40 h-40 object-cover"
+            className="mx-auto mb-8 rounded-2xl w-40 h-40 object-contain"
+            style={{ imageRendering: 'auto' }}
           />
           <h1 className="text-4xl md:text-6xl font-bold mb-4 text-gray-800">Aethel</h1>
           <p className="text-xl text-gray-600 mb-8">A useful and multipurpose bot for Discord</p>
