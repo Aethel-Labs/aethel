@@ -63,9 +63,7 @@ export default {
 
         .addMediaGalleryComponents(
           new MediaGalleryBuilder().addItems(
-            new MediaGalleryItemBuilder().setURL(
-              'https://aethel.xyz/aethel_banner_white.png'
-            )
+            new MediaGalleryItemBuilder().setURL('https://aethel.xyz/aethel_banner_white.png')
           )
         )
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${title || 'Aethel Bot'}`))

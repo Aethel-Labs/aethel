@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  backend:
+    name: Backend Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'pnpm'
+        
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Build backend
+      run: pnpm run build
+      
+    - name: Lint code
+      run: pnpm run lint
+      
+    - name: Format check
+      run: pnpm run format:check
+      
+  frontend:
+    name: Frontend Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'pnpm'
+        
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        
+    - name: Install frontend dependencies
+      run: |
+        cd web
+        pnpm install --frozen-lockfile
+        
+    - name: TypeScript check frontend
+      run: |
+        cd web
+        npx tsc --noEmit
+        
+    - name: Build frontend
+      run: |
+        cd web
+        pnpm run build
+        
+    - name: Lint frontend
+      run: |
+        cd web
+        pnpm run lint

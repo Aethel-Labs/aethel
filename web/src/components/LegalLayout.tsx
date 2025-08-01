@@ -18,6 +18,7 @@ export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) 
             width={160}
             height={160}
             className="mx-auto mb-8 pixel-art rounded-2xl w-40 h-40 object-cover"
+            style={{ imageRendering: 'auto' }}
           />
           <h1 className="text-4xl md:text-6xl font-bold mb-4 text-gray-800">{title}</h1>
           <div className="w-24 h-1 bg-pink-500 mx-auto my-4 rounded-full"></div>
