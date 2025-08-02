@@ -82,8 +82,16 @@ async function getBotStatus() {
   }
 }
 
+interface StatusData {
+  status: string;
+  ping?: number;
+  uptime?: number | { days: number; hours: number; minutes: number; seconds: number } | string;
+  lastReady?: string;
+  error?: string;
+}
+
 export default function Status() {
-  const [status, setStatus] = useState<any>(null);
+  const [status, setStatus] = useState<StatusData | null>(null);
   const [commitHash, setCommitHash] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -152,7 +160,7 @@ export default function Status() {
       <div className="min-h-screen p-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading status...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading status...</p>
         </div>
       </div>
     );
@@ -169,7 +177,9 @@ export default function Status() {
             height={160}
             className="mx-auto mb-8 pixel-art rounded-2xl w-40 h-40 object-cover"
           />
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-gray-800">Bot Status</h1>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+            Bot Status
+          </h1>
 
           <div
             className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-8 ${
@@ -182,60 +192,66 @@ export default function Status() {
             {isOnline ? 'All Systems Operational' : 'Service Disruption'}
           </div>
 
-          {status.error ? (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md mx-auto mb-8">
-              <p className="text-red-600">{status.error}</p>
+          {status?.error ? (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 max-w-md mx-auto mb-8">
+              <p className="text-red-600 dark:text-red-400">{status.error}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-8">
-              <div className="bg-white/90 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+              <div className="bg-white/90 dark:bg-gray-800/90 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800">API Status</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                    API Status
+                  </h3>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      status.ping ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'
+                      status?.ping ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'
                     }`}
                   >
-                    {status.ping ? 'Live' : '--'}
+                    {status?.ping ? 'Live' : '--'}
                   </span>
                 </div>
-                <p className="text-3xl font-bold text-gray-900">
-                  {status.ping ? `${status.ping}ms` : '--'}
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  {status?.ping ? `${status.ping}ms` : '--'}
                 </p>
               </div>
 
-              <div className="bg-white/90 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Uptime</h3>
+              <div className="bg-white/90 dark:bg-gray-800/90 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                  Uptime
+                </h3>
                 <div className="flex items-center justify-between">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-gray-900">
+                    <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                       {String(uptime.hours).padStart(2, '0')}
                     </p>
-                    <p className="text-xs text-gray-500">Hours</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Hours</p>
                   </div>
-                  <span className="text-2xl text-gray-300">:</span>
+                  <span className="text-2xl text-gray-300 dark:text-gray-500">:</span>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-gray-900">
+                    <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                       {String(uptime.minutes).padStart(2, '0')}
                     </p>
-                    <p className="text-xs text-gray-500">Minutes</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Minutes</p>
                   </div>
                   <span className="text-2xl text-gray-300">:</span>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-gray-900">
+                    <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                       {String(uptime.seconds).padStart(2, '0')}
                     </p>
-                    <p className="text-xs text-gray-500">Seconds</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Seconds</p>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="bg-white/90 rounded-xl p-6 shadow-lg max-w-2xl mx-auto mb-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Version Information</h3>
+          <div className="bg-white/90 dark:bg-gray-800/90 rounded-xl p-6 shadow-lg max-w-2xl mx-auto mb-8">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
+              Version Information
+            </h3>
             <div className="flex items-center space-x-4">
-              <div className="inline-flex items-center bg-gray-50/50 border border-gray-200 rounded-lg px-3 py-1.5 group transition-colors hover:bg-pink-50/50">
+              <div className="inline-flex items-center bg-gray-50/50 dark:bg-gray-700/30 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 group transition-colors hover:bg-pink-50/50 dark:hover:bg-pink-900/30">
                 <svg
                   className="w-4 h-4 text-gray-500 group-hover:text-pink-500 transition-colors mr-2"
                   fill="currentColor"
@@ -247,13 +263,13 @@ export default function Status() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="font-mono text-sm font-medium text-gray-700 group-hover:text-pink-600 transition-colors">
+                <span className="font-mono text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-pink-600 transition-colors">
                   {commitHash ? commitHash.substring(0, 7) : 'unknown'}
                 </span>
               </div>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
                 Updated{' '}
-                {status.lastReady
+                {status?.lastReady
                   ? new Date(status.lastReady).toLocaleString(undefined, {
                       month: 'short',
                       day: 'numeric',
@@ -269,7 +285,7 @@ export default function Status() {
           <div className="mt-8">
             <Link
               to="/"
-              className="inline-flex items-center px-6 py-3 bg-white/90 hover:bg-white text-gray-800 font-medium rounded-full shadow-md hover:shadow-lg transition-all"
+              className="inline-flex items-center px-6 py-3 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium rounded-full shadow-md hover:shadow-lg transition-all"
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path

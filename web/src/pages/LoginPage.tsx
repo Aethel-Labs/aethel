@@ -29,13 +29,13 @@ const LoginPage = () => {
   const handleDiscordLogin = async () => {
     try {
       window.location.href = `${import.meta.env.VITE_FRONTEND_URL}/api/auth/discord`;
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to initiate Discord login');
     }
   };
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen p-8 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <main className="max-w-md mx-auto">
         <div className="text-center mb-8 pt-8">
           <img
@@ -45,15 +45,23 @@ const LoginPage = () => {
             height={120}
             className="mx-auto mb-6 pixel-art rounded-2xl w-32 h-32 object-cover"
           />
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Aethel Dashboard</h1>
-          <p className="text-gray-600 text-lg">Manage your todos and AI API keys</p>
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">
+            Aethel Dashboard
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">
+            Manage your todos and AI API keys
+          </p>
         </div>
 
-        <div className="card p-8 backdrop-blur-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 backdrop-blur-sm dark:bg-opacity-90">
           <div className="text-center space-y-6">
             <div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-2">Welcome back</h2>
-              <p className="text-gray-600">Sign in with your Discord account to continue</p>
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-2">
+                Welcome back
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Sign in with your Discord account to continue
+              </p>
             </div>
 
             <button
@@ -66,14 +74,16 @@ const LoginPage = () => {
               Continue with Discord
             </button>
 
-            <div className="text-xs text-gray-600 text-center">
+            <div className="text-xs text-gray-600 dark:text-gray-400 text-center">
               By signing in, you agree to our terms of service and privacy policy.
             </div>
           </div>
         </div>
 
         <div className="text-center mt-8">
-          <p className="text-gray-600 text-sm">Need help? Contact us on our Discord server</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">
+            Need help? Contact us on our Discord server
+          </p>
         </div>
       </main>
     </div>

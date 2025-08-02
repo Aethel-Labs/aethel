@@ -28,7 +28,7 @@ const RemindersPage: React.FC = () => {
     try {
       const response = await remindersAPI.getReminders();
       setReminders(response.data.reminders || []);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to fetch reminders');
     } finally {
       setLoading(false);
@@ -53,7 +53,7 @@ const RemindersPage: React.FC = () => {
       setNewReminder({ message: '', expires_at: '' });
       setShowCreateForm(false);
       fetchReminders();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to create reminder');
     }
   };
@@ -63,7 +63,7 @@ const RemindersPage: React.FC = () => {
       await remindersAPI.completeReminder(id);
       toast.success('Reminder completed!');
       fetchReminders();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to complete reminder');
     }
   };
@@ -79,7 +79,7 @@ const RemindersPage: React.FC = () => {
       await remindersAPI.clearCompletedReminders();
       toast.success('Completed reminders cleared!');
       fetchReminders();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to clear completed reminders');
     }
   };
@@ -117,8 +117,12 @@ const RemindersPage: React.FC = () => {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Reminders</h1>
-          <p className="text-gray-600 mt-2">Manage your personal reminders and notifications</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Reminders
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Manage your personal reminders and notifications
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {reminders.some((r) => r.is_completed) && (
@@ -142,13 +146,16 @@ const RemindersPage: React.FC = () => {
       </div>
 
       {showCreateForm && (
-        <div className="bg-white/80 p-4 sm:p-8 rounded-lg border border-gray-200 shadow-lg">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-gray-900">
+        <div className="bg-white/80 dark:bg-gray-800/90 p-4 sm:p-8 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">
             Create New Reminder
           </h2>
           <form onSubmit={handleCreateReminder} className="space-y-4 sm:space-y-6">
             <div>
-              <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="message"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Reminder Message
               </label>
               <textarea
@@ -156,13 +163,16 @@ const RemindersPage: React.FC = () => {
                 value={newReminder.message}
                 onChange={(e) => setNewReminder({ ...newReminder, message: e.target.value })}
                 placeholder="What would you like to be reminded about?"
-                className="input"
+                className="input dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                 rows={3}
                 required
               />
             </div>
             <div>
-              <label htmlFor="expires_at" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="expires_at"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Remind me at
               </label>
               <input
@@ -171,7 +181,7 @@ const RemindersPage: React.FC = () => {
                 value={newReminder.expires_at}
                 onChange={(e) => setNewReminder({ ...newReminder, expires_at: e.target.value })}
                 min={getMinDateTime()}
-                className="input"
+                className="input dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                 required
               />
             </div>
@@ -201,8 +211,12 @@ const RemindersPage: React.FC = () => {
         {reminders.length === 0 ? (
           <div className="text-center py-12">
             <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No reminders yet</h3>
-            <p className="text-gray-600 mb-4">Create your first reminder to get started!</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No reminders yet
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              Create your first reminder to get started!
+            </p>
             <button
               onClick={() => setShowCreateForm(true)}
               className="btn btn-primary active:scale-95 transition-transform"
@@ -225,11 +239,11 @@ const RemindersPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1">
                   <p
-                    className={`text-base sm:text-lg ${reminder.is_completed ? 'line-through text-gray-500' : 'text-gray-900'}`}
+                    className={`text-base sm:text-lg ${reminder.is_completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}
                   >
                     {reminder.message}
                   </p>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-3 text-sm text-gray-600">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-3 text-sm text-gray-600 dark:text-gray-300">
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
                       <span className="break-all">

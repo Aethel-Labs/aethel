@@ -101,8 +101,8 @@ const TodosPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Todos</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Todos</h1>
+          <p className="text-gray-600 dark:text-gray-300">
             Manage your todo list. {todos?.length || 0} total, {completedTodos.length} completed
           </p>
         </div>
@@ -142,31 +142,31 @@ const TodosPage = () => {
       {todos && todos.length > 0 ? (
         <div className="space-y-4">
           {pendingTodos.length > 0 && (
-            <div className="bg-white/80 p-6 rounded-lg border border-gray-200 shadow-lg">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">
+            <div className="bg-white/80 dark:bg-gray-800/90 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
+              <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                 Pending ({pendingTodos.length})
               </h2>
               <div className="space-y-3">
                 {pendingTodos.map((todo: Todo) => (
                   <div
                     key={todo.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600"
                   >
                     <div className="flex items-center space-x-3">
                       <button
                         onClick={() => handleToggleTodo(todo.id, todo.done)}
-                        className="flex-shrink-0 w-5 h-5 border-2 border-gray-300 rounded hover:border-green-500 transition-colors"
+                        className="flex-shrink-0 w-5 h-5 border-2 border-gray-300 dark:border-gray-500 rounded hover:border-green-500 transition-colors"
                         disabled={updateTodoMutation.isPending}
                       >
                         {updateTodoMutation.isPending ? (
                           <div className="w-full h-full animate-spin rounded-full border-b border-gray-400"></div>
                         ) : null}
                       </button>
-                      <span className="text-gray-900">{todo.item}</span>
+                      <span className="text-gray-900 dark:text-gray-100">{todo.item}</span>
                     </div>
                     <button
                       onClick={() => handleDeleteTodo(todo.id)}
-                      className="text-red-600 hover:text-red-800 p-1"
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 p-1"
                       disabled={deleteTodoMutation.isPending}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -178,15 +178,15 @@ const TodosPage = () => {
           )}
 
           {completedTodos.length > 0 && (
-            <div className="bg-white/80 p-6 rounded-lg border border-gray-200 shadow-lg">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">
+            <div className="bg-white/80 dark:bg-gray-800/90 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
+              <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
                 Completed ({completedTodos.length})
               </h2>
               <div className="space-y-3">
                 {completedTodos.map((todo: Todo) => (
                   <div
                     key={todo.id}
-                    className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200"
+                    className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-700"
                   >
                     <div className="flex items-center space-x-3">
                       <button
@@ -196,11 +196,13 @@ const TodosPage = () => {
                       >
                         <Check className="h-3 w-3 text-white" />
                       </button>
-                      <span className="text-gray-600 line-through">{todo.item}</span>
+                      <span className="text-gray-600 dark:text-gray-400 line-through">
+                        {todo.item}
+                      </span>
                     </div>
                     <button
                       onClick={() => handleDeleteTodo(todo.id)}
-                      className="text-red-600 hover:text-red-800 p-1"
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 p-1"
                       disabled={deleteTodoMutation.isPending}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -214,19 +216,23 @@ const TodosPage = () => {
       ) : (
         <div className="card p-12 text-center">
           <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No todos yet</h3>
-          <p className="text-gray-600">Create your first todo to get started!</p>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            No todos yet
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300">Create your first todo to get started!</p>
         </div>
       )}
 
       {showClearConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
             <div className="flex items-center mb-4">
-              <AlertCircle className="h-6 w-6 text-red-600 mr-3" />
-              <h3 className="text-lg font-medium text-gray-900">Clear All Todos</h3>
+              <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 mr-3" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                Clear All Todos
+              </h3>
             </div>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               Are you sure you want to clear all todos? This action cannot be undone.
             </p>
             <div className="flex justify-end space-x-3">
