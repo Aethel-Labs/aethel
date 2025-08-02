@@ -100,6 +100,8 @@ function decodeHtmlEntities(text: string): string {
     '&frac34;': '¾',
     '&times;': '×',
     '&divide;': '÷',
+    '&prime;': '′',
+    '&Prime;': '″',
     '&agrave;': 'à',
     '&aacute;': 'á',
     '&acirc;': 'â',
@@ -223,12 +225,17 @@ async function createJoinQueueButtons(client: import('@/services/Client').defaul
 }
 
 function createAnswerButtons(answers: string[], questionId: string) {
-  const buttons = answers.map((answer, index) =>
-    new ButtonBuilder()
+  const buttons = answers.map((answer, index) => {
+    const prefix = `${String.fromCharCode(65 + index)}. `;
+    const maxAnswerLength = 80 - prefix.length;
+    const truncatedAnswer =
+      answer.length > maxAnswerLength ? answer.substring(0, maxAnswerLength - 3) + '...' : answer;
+
+    return new ButtonBuilder()
       .setCustomId(`trivia_answer_${questionId}_${index}`)
-      .setLabel(`${String.fromCharCode(65 + index)}. ${answer.substring(0, 80)}`)
-      .setStyle(ButtonStyle.Secondary)
-  );
+      .setLabel(`${prefix}${truncatedAnswer}`)
+      .setStyle(ButtonStyle.Secondary);
+  });
 
   const rows = [];
   for (let i = 0; i < buttons.length; i += 2) {
