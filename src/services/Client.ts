@@ -20,7 +20,7 @@ export default class BotClient extends Client {
 
   constructor() {
     super({
-      intents: [GatewayIntentBits.MessageContent],
+      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent],
       presence: {
         status: 'online',
         activities: [
