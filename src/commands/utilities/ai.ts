@@ -333,17 +333,11 @@ function splitResponseIntoChunks(response: string, maxLength: number = 2000): st
 
 function extractAIResponse(data: AIResponse): string {
   if (data.choices?.[0]?.message?.reasoning && data.choices?.[0]?.message?.content) {
-    return JSON.stringify({
-      reasoning: data.choices[0].message.reasoning,
-      content: data.choices[0].message.content,
-    });
+    return data.choices[0].message.content;
   }
 
   if (data.reasoning && data.content) {
-    return JSON.stringify({
-      reasoning: data.reasoning,
-      content: data.content,
-    });
+    return data.content;
   }
 
   if (data.choices && data.choices[0]?.message?.content) {
@@ -937,7 +931,21 @@ async function makeAIRequest(
 
     const data = JSON.parse(responseText);
 
-    const aiResponse = extractAIResponse(data);
+    let aiResponse;
+    if (data.choices?.[0]?.message?.reasoning && data.choices?.[0]?.message?.content) {
+      aiResponse = JSON.stringify({
+        reasoning: data.choices[0].message.reasoning,
+        content: data.choices[0].message.content,
+      });
+    } else if (data.reasoning && data.content) {
+      aiResponse = JSON.stringify({
+        reasoning: data.reasoning,
+        content: data.content,
+      });
+    } else {
+      aiResponse = extractAIResponse(data);
+    }
+
     if (!aiResponse) {
       logger.error('No valid response content from AI API');
       return null;
