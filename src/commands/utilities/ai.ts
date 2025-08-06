@@ -48,9 +48,14 @@ interface User {
 
 interface AIResponse {
   choices?: Array<{
-    message?: { content: string };
+    message?: {
+      content: string;
+      reasoning?: string;
+    };
     text?: string;
   }>;
+  reasoning?: string;
+  content?: string;
 }
 
 class LRUCache<K, V> {
@@ -327,12 +332,69 @@ function splitResponseIntoChunks(response: string, maxLength: number = 2000): st
 }
 
 function extractAIResponse(data: AIResponse): string {
+  if (data.choices?.[0]?.message?.reasoning && data.choices?.[0]?.message?.content) {
+    return JSON.stringify({
+      reasoning: data.choices[0].message.reasoning,
+      content: data.choices[0].message.content,
+    });
+  }
+
+  if (data.reasoning && data.content) {
+    return JSON.stringify({
+      reasoning: data.reasoning,
+      content: data.content,
+    });
+  }
+
   if (data.choices && data.choices[0]?.message?.content) {
     return data.choices[0].message.content;
   } else if (data.choices && data.choices[0]?.text) {
     return data.choices[0].text;
   }
+
   return '';
+}
+
+function processReasoningContent(response: string): string {
+  let content = response;
+  let reasoning = '';
+
+  try {
+    const parsed = JSON.parse(response);
+    if (parsed.reasoning) {
+      reasoning = parsed.reasoning;
+      content = parsed.content || parsed.choices?.[0]?.message?.content || parsed.message || '';
+    } else if (parsed.choices?.[0]?.message?.reasoning) {
+      reasoning = parsed.choices[0].message.reasoning;
+      content = parsed.choices[0].message.content || '';
+    }
+  } catch {
+    const reasoningPatterns = [
+      /<thinking>(.*?)<\/thinking>/gis,
+      /<analysis>(.*?)<\/analysis>/gis,
+      /<reasoning>(.*?)<\/reasoning>/gis,
+      /<thought_process>(.*?)<\/thought_process>/gis,
+      /<think>(.*?)<\/think>/gis,
+      /<reflection>(.*?)<\/reflection>/gis,
+    ];
+
+    for (const pattern of reasoningPatterns) {
+      content = content.replace(pattern, (match, extractedReasoning) => {
+        reasoning = extractedReasoning.trim();
+        return '';
+      });
+    }
+  }
+
+  if (reasoning) {
+    const quotedReasoning = reasoning
+      .split('\n')
+      .map((line) => `> ${line}`)
+      .join('\n');
+    return `${quotedReasoning}\n\n${content}`.trim();
+  }
+
+  return content;
 }
 
 async function getUserById(userId: string): Promise<User | undefined> {
@@ -873,9 +935,9 @@ async function makeAIRequest(
       return null;
     }
 
-    const data: AIResponse = JSON.parse(responseText);
-    const aiResponse = extractAIResponse(data);
+    const data = JSON.parse(responseText);
 
+    const aiResponse = extractAIResponse(data);
     if (!aiResponse) {
       logger.error('No valid response content from AI API');
       return null;
@@ -893,8 +955,10 @@ async function sendAIResponse(
   response: string,
   client: BotClient
 ): Promise<void> {
-  const processedResponse = processUrls(response);
-  const chunks = splitResponseIntoChunks(processedResponse);
+  const reasoningProcessedResponse = processReasoningContent(response);
+  const urlProcessedResponse = processUrls(reasoningProcessedResponse);
+
+  const chunks = splitResponseIntoChunks(urlProcessedResponse);
 
   try {
     await interaction.editReply(chunks[0]);

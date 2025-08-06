@@ -20,7 +20,11 @@ export default class BotClient extends Client {
 
   constructor() {
     super({
-      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent],
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.DirectMessages,
+      ],
       presence: {
         status: 'online',
         activities: [
@@ -50,8 +54,15 @@ export default class BotClient extends Client {
     for (const event of readdirSync(path.join(eventsDir))) {
       const filepath = path.join(eventsDir, event);
       const fileUrl = `file://${filepath.replace(/\\/g, '/')}`;
-      const EventClass = await (await import(fileUrl)).default;
-      new EventClass(this);
+      const EventModule = await (await import(fileUrl)).default;
+
+      if (typeof EventModule === 'function') {
+        // Handle class exports (like InteractionCreateEvent)
+        new EventModule(this);
+      } else if (EventModule && typeof EventModule.execute === 'function') {
+        // Handle object exports with execute method (like messageCreate)
+        this.on(EventModule.name, (...args) => EventModule.execute(...args, this));
+      }
     }
   }
 

@@ -5,7 +5,12 @@ import { authenticateToken } from '../middlewares/auth';
 import { body, validationResult } from 'express-validator';
 import { encrypt as encryptApiKey } from '../utils/encrypt';
 
-const ALLOWED_API_HOSTS = ['api.openai.com', 'openrouter.ai', 'generativelanguage.googleapis.com'];
+const ALLOWED_API_HOSTS = [
+  'api.openai.com',
+  'openrouter.ai',
+  'generativelanguage.googleapis.com',
+  'api.anthropic.com',
+];
 
 const router = Router();
 
