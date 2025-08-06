@@ -11,7 +11,7 @@ on:
 jobs:
   security-audit:
     name: Security Audit
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: read
       security-events: write
@@ -55,7 +55,7 @@ jobs:
       
   dependency-review:
     name: Dependency Review
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: github.event_name == 'pull_request'
     permissions:
       contents: read
