@@ -195,9 +195,63 @@ function getApiConfiguration(apiKey: string | null, model: string | null, apiUrl
 function buildConversation(
   existingConversation: ConversationMessage[],
   prompt: string,
-  usingDefaultKey: boolean
+  usingDefaultKey: boolean,
+  client?: BotClient,
+  model?: string,
+  username?: string,
+  interaction?: ChatInputCommandInteraction
 ): ConversationMessage[] {
+  const now = new Date();
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const formattedDate = now.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: timezone,
+  });
+  const formattedTime = now.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+    timeZone: timezone,
+  });
+
+  let supportedCommands = '/help - Show all available commands and their usage';
+  if (client && client.commands) {
+    const commandEntries = Array.from(client.commands.entries()).sort(([a], [b]) =>
+      a.localeCompare(b)
+    );
+    supportedCommands = commandEntries
+      .map(
+        ([name, command]) => `/${name} - ${command.data.description || 'No description available'}`
+      )
+      .join('\n');
+  } else {
+    supportedCommands =
+      'Various commands available - use /help to see all commands with descriptions';
+  }
+
+  const currentModel = model || (usingDefaultKey ? 'moonshotai/kimi-k2 (default)' : 'custom model');
+
   const baseInstructions = `You are a helpful, accurate, and privacy-respecting AI assistant for the /ai command of the Aethel Discord User Bot. Your primary goal is to provide clear, concise, and friendly answers to user questions, adapting your tone to be conversational and approachable. Only mention your AI model or the /ai command if it is directly relevant to the user's request—do not introduce yourself with this information by default.
+
+**USER INFORMATION:**
+- Username: ${username || 'Discord User'}
+- Language: ${interaction?.locale || 'en-US'}
+
+**AI MODEL INFORMATION:**
+- Current model: ${currentModel}
+- ${usingDefaultKey ? 'Using default model (Kimi K2 via OpenRouter)' : 'Using custom model configured by user'}
+
+**CURRENT DATE/TIME CONTEXT:**
+- Current date: ${formattedDate}
+- Current time: ${formattedTime}
+- Timezone: ${timezone}
+
+The timezone does not reflect the user's timezone, it reflects the server's timezone.
+
 
 **IMPORTANT INSTRUCTIONS ABOUT URLS:**
 - NEVER format, modify, or alter URLs in any way. Leave them exactly as they are.
@@ -208,19 +262,25 @@ function buildConversation(
 **BOT FACTS (use only if asked about the bot):**
 - Name: Aethel
 - Website: https://aethel.xyz
-- Type: Discord user bot (not a server bot; only added to users, not servers)
-- Supported commands: /8ball, /ai, /wiki, /weather, /joke, /remind, /cat, /dog, /help
+- Developer: scanash (main mantainer) and Aethel Labs (org)
+- Open source, available at https://github.com/Aethel-Labs/aethel
+- Type: Discord user bot (not a server bot; only added to users, not servers, can be used in Group Chats, Private messages (with you or other users) and servers that allow external applications.)
+- Supported commands: ${supportedCommands}
 - /remind: Can be used with /remind time message, or by right-clicking a message and selecting Apps > Remind Me
 - /dog and /cat: Show an embed with a new dog/cat button (dog images from erm.dog, cat images from pur.cat)
+- /ai command supports custom AI models, configurable in the command by doing use_custom_api=true or in the dashboard, also has a default model, which is Kimi K2
 - The bot status and info are available on its website.
 
+There is a dashboard available at https://aethel.xyz/login so users can manage their To-Dos, Reminders and AI configuration.
+
 When answering questions about the Aethel bot, only use the above factual information. Do not speculate about features or commands not listed here.
+
 
 Format your responses using Discord markdown (bold, italics, code blocks, lists, etc) where appropriate, but NEVER format URLs—leave them as-is. Only greet the user at the start of a new conversation, not in every message. Always prioritize being helpful, accurate, and respectful.`;
 
   const modelSpecificInstructions = usingDefaultKey
     ? '\n\n**IMPORTANT (DEFAULT MODEL ONLY):** Please keep your responses under 3000 characters. Be concise and to the point.'
-    : '';
+    : '\n\n**CUSTOM MODEL ACTIVE:** Using user-configured AI model. Response length limits may vary based on model capabilities.';
 
   const systemInstructions = baseInstructions + modelSpecificInstructions;
 
@@ -742,7 +802,15 @@ async function processAIRequest(
     }
 
     const existingConversation = userConversations.get(interaction.user.id) || [];
-    const conversation = buildConversation(existingConversation, prompt!, !!config.usingDefaultKey);
+    const conversation = buildConversation(
+      existingConversation,
+      prompt!,
+      !!config.usingDefaultKey,
+      client,
+      config.finalModel,
+      interaction.user.tag,
+      interaction
+    );
 
     const aiResponse = await makeAIRequest(config, conversation);
     if (!aiResponse) return;
