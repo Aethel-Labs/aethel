@@ -28,7 +28,10 @@ class MemoryManager<K, V> {
       }
     }
 
-    this.map.set(key, { ...value, timestamp: Date.now() } as V & { timestamp: number });
+    const wrappedValue = Array.isArray(value)
+      ? Object.assign([...value], { timestamp: Date.now() })
+      : { ...value, timestamp: Date.now() };
+    this.map.set(key, wrappedValue as V & { timestamp: number });
   }
 
   get(key: K): V | undefined {
@@ -40,7 +43,14 @@ class MemoryManager<K, V> {
       return undefined;
     }
 
-    return entry as V;
+    if (Array.isArray(entry)) {
+      const result = [...entry];
+      delete (result as unknown as Record<string, unknown>).timestamp;
+      return result as V;
+    } else {
+      const { timestamp: _timestamp, ...valueWithoutTimestamp } = entry;
+      return valueWithoutTimestamp as V;
+    }
   }
 
   delete(key: K): boolean {
@@ -71,7 +81,14 @@ class MemoryManager<K, V> {
     const entries: [K, V][] = [];
     for (const [key, value] of this.map.entries()) {
       if (Date.now() - value.timestamp <= this.maxAge) {
-        entries.push([key, value as V]);
+        if (Array.isArray(value)) {
+          const result = [...value];
+          delete (result as unknown as Record<string, unknown>).timestamp;
+          entries.push([key, result as V]);
+        } else {
+          const { timestamp: _timestamp, ...valueWithoutTimestamp } = value;
+          entries.push([key, valueWithoutTimestamp as V]);
+        }
       }
     }
     return entries[Symbol.iterator]();

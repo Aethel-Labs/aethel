@@ -255,7 +255,7 @@ const ApiKeysPage = () => {
                   setHasPassedTest(false);
                   setTestResult(null);
                 }}
-                placeholder="e.g., gpt-4, claude-3-opus"
+                placeholder="e.g., openai/gpt-4o-mini, anthropic/claude-4-sonnet"
                 className="input dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               />
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -275,11 +275,12 @@ const ApiKeysPage = () => {
                   setHasPassedTest(false);
                   setTestResult(null);
                 }}
-                placeholder="https://api.openai.com/v1/chat/completions"
+                placeholder="https://openrouter.ai/api/v1"
                 className="input dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               />
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                Enter the full API endpoint URL including the path (e.g., /chat/completions)
+                Enter the base API URL (e.g., https://openrouter.ai/api/v1,
+                https://api.openai.com/v1)
               </p>
             </div>
 
@@ -355,8 +356,8 @@ const ApiKeysPage = () => {
           <div className="flex items-start space-x-2">
             <Key className="h-4 w-4 text-green-500 dark:text-green-400 mt-0.5 flex-shrink-0" />
             <p>
-              Supported providers include OpenAI, Anthropic, and any OpenAI-compatible API
-              endpoints.
+              Supported providers include OpenAI, OpenRouter, Anthropic, and any OpenAI-compatible
+              API endpoints.
             </p>
           </div>
           <div className="flex items-start space-x-2">
