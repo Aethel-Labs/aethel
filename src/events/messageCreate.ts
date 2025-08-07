@@ -12,6 +12,7 @@ import {
 } from '@/commands/utilities/ai';
 import type { ConversationMessage, AIResponse } from '@/commands/utilities/ai';
 import { createMemoryManager } from '@/utils/memoryManager';
+import { processUrls } from '@/commands/utilities/ai';
 
 const TRUSTED_IMAGE_DOMAINS = [
   'cdn.discordapp.com',
@@ -295,6 +296,8 @@ export default class MessageCreateEvent {
         );
         return;
       }
+
+      aiResponse.content = await processUrls(aiResponse.content);
 
       await this.sendDMResponse(message, aiResponse);
 
