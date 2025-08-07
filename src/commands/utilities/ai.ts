@@ -529,7 +529,15 @@ async function sendAIResponse(
   }
 }
 
-export { makeAIRequest, getApiConfiguration, buildSystemPrompt, buildConversation, sendAIResponse };
+export {
+  makeAIRequest,
+  getApiConfiguration,
+  buildSystemPrompt,
+  buildConversation,
+  sendAIResponse,
+  getUserCredentials,
+  incrementAndCheckDailyLimit,
+};
 
 export default {
   data: new SlashCommandBuilder()

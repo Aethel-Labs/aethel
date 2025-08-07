@@ -6,6 +6,8 @@ import {
   getApiConfiguration,
   buildSystemPrompt,
   buildConversation,
+  getUserCredentials,
+  incrementAndCheckDailyLimit,
 } from '@/commands/utilities/ai';
 import { createMemoryManager } from '@/utils/memoryManager';
 
@@ -90,9 +92,15 @@ export default class MessageCreateEvent {
 
       logger.info(`hasImageAttachments: ${hasImageAttachments}, hasImageUrls: ${hasImageUrls}`);
       const hasImages = hasImageAttachments || hasImageUrls;
-      const selectedModel = hasImages ? 'google/gemma-3-4b-it' : 'moonshotai/kimi-k2';
 
-      logger.info(`Using model: ${selectedModel} for message with images: ${hasImages}`);
+      const { model: userCustomModel } = await getUserCredentials(message.author.id);
+
+      const selectedModel =
+        userCustomModel || (hasImages ? 'google/gemma-3-4b-it' : 'moonshotai/kimi-k2');
+
+      logger.info(
+        `Using model: ${selectedModel} for message with images: ${hasImages}${userCustomModel ? ' (user custom model)' : ' (default model)'}`
+      );
 
       const systemPrompt = buildSystemPrompt(
         true,
@@ -191,7 +199,26 @@ export default class MessageCreateEvent {
         systemPrompt
       );
 
-      const config = getApiConfiguration(null, selectedModel, null);
+      const { apiKey: userApiKey, apiUrl: userApiUrl } = await getUserCredentials(
+        message.author.id
+      );
+      const config = getApiConfiguration(userApiKey ?? null, selectedModel, userApiUrl ?? null);
+
+      if (config.usingDefaultKey) {
+        const exemptUserId = process.env.AI_EXEMPT_USER_ID;
+        if (message.author.id !== exemptUserId) {
+          const allowed = await incrementAndCheckDailyLimit(message.author.id, 10);
+          if (!allowed) {
+            await message.reply(
+              "❌ You've reached your daily limit of AI requests. Please try again tomorrow or set up your own API key using the `/ai` command."
+            );
+            return;
+          }
+        }
+      } else if (!config.finalApiKey) {
+        await message.reply('❌ Please set up your API key first using the `/ai` command.');
+        return;
+      }
 
       let aiResponse = await makeAIRequest(config, updatedConversation);
 
@@ -231,13 +258,19 @@ export default class MessageCreateEvent {
           return msg;
         });
 
+        const fallbackModel = userCustomModel || 'moonshotai/kimi-k2';
+
         const fallbackConversation = buildConversation(
           cleanedConversation,
           fallbackContent,
-          buildSystemPrompt(true, this.client, 'moonshotai/kimi-k2', message.author.username)
+          buildSystemPrompt(true, this.client, fallbackModel, message.author.username)
         );
 
-        const fallbackConfig = getApiConfiguration(null, 'moonshotai/kimi-k2', null);
+        const fallbackConfig = getApiConfiguration(
+          userApiKey ?? null,
+          fallbackModel,
+          userApiUrl ?? null
+        );
         aiResponse = await makeAIRequest(fallbackConfig, fallbackConversation);
 
         if (aiResponse) {
