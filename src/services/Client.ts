@@ -1,7 +1,7 @@
 import * as config from '@/config';
 import initialzeCommands from '@/handlers/initialzeCommands';
 import { SlashCommandProps } from '@/types/command';
-import { Client, Collection, GatewayIntentBits } from 'discord.js';
+import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
 import { promises, readdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -22,9 +22,11 @@ export default class BotClient extends Client {
     super({
       intents: [
         GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.DirectMessages,
       ],
+      partials: [Partials.Channel, Partials.Message],
       presence: {
         status: 'online',
         activities: [
