@@ -27,6 +27,16 @@ interface ConversationMessage {
   content: string;
 }
 
+interface AIResponse {
+  content: string;
+  reasoning?: string;
+}
+
+interface OpenAIMessageWithReasoning {
+  content: string;
+  reasoning?: string;
+}
+
 interface PendingRequest {
   interaction: ChatInputCommandInteraction;
   prompt: string;
@@ -362,7 +372,7 @@ async function testApiKey(
 async function makeAIRequest(
   config: ReturnType<typeof getApiConfiguration>,
   conversation: ConversationMessage[]
-): Promise<string | null> {
+): Promise<AIResponse | null> {
   try {
     const client = getOpenAIClient(config.finalApiKey!, config.finalApiUrl);
     const maxTokens = config.usingDefaultKey ? 1000 : 3000;
@@ -379,7 +389,12 @@ async function makeAIRequest(
       return null;
     }
 
-    return content;
+    const reasoning = (completion.choices[0]?.message as OpenAIMessageWithReasoning)?.reasoning;
+
+    return {
+      content,
+      reasoning,
+    };
   } catch (error) {
     logger.error(`Error making AI request: ${error}`);
     return null;
@@ -439,7 +454,7 @@ async function processAIRequest(
 
     const updatedConversation = [
       ...conversation.filter((msg) => msg.role !== 'system'),
-      { role: 'assistant', content: aiResponse },
+      { role: 'assistant', content: aiResponse.content },
     ] as ConversationMessage[];
 
     if (updatedConversation.length > 10) {
@@ -463,10 +478,18 @@ async function processAIRequest(
 
 async function sendAIResponse(
   interaction: ChatInputCommandInteraction,
-  response: string,
+  aiResponse: AIResponse,
   client: BotClient
 ): Promise<void> {
-  const urlProcessedResponse = processUrls(response);
+  let fullResponse = '';
+
+  if (aiResponse.reasoning) {
+    fullResponse += `> ${aiResponse.reasoning}\n\n`;
+  }
+
+  fullResponse += aiResponse.content;
+
+  const urlProcessedResponse = processUrls(fullResponse);
   const chunks = splitResponseIntoChunks(urlProcessedResponse);
 
   try {
