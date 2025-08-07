@@ -24,7 +24,16 @@ const ALLOWED_API_HOSTS = ['api.openai.com', 'openrouter.ai', 'generativelanguag
 
 interface ConversationMessage {
   role: 'system' | 'user' | 'assistant';
-  content: string;
+  content:
+    | string
+    | Array<{
+        type: 'text' | 'image_url';
+        text?: string;
+        image_url?: {
+          url: string;
+          detail?: 'low' | 'high' | 'auto';
+        };
+      }>;
 }
 
 interface AIResponse {
@@ -199,7 +208,16 @@ function buildSystemPrompt(
 
 function buildConversation(
   existingConversation: ConversationMessage[],
-  prompt: string,
+  prompt:
+    | string
+    | Array<{
+        type: 'text' | 'image_url';
+        text?: string;
+        image_url?: {
+          url: string;
+          detail?: 'low' | 'high' | 'auto';
+        };
+      }>,
   systemPrompt: string
 ): ConversationMessage[] {
   let conversation = existingConversation.filter((msg) => msg.role !== 'system');
@@ -510,6 +528,19 @@ async function sendAIResponse(
     }
   }
 }
+
+export {
+  makeAIRequest,
+  getApiConfiguration,
+  buildSystemPrompt,
+  buildConversation,
+  sendAIResponse,
+  getUserCredentials,
+  incrementAndCheckDailyLimit,
+  splitResponseIntoChunks,
+};
+
+export type { ConversationMessage, AIResponse };
 
 export default {
   data: new SlashCommandBuilder()
