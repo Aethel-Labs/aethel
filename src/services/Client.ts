@@ -57,10 +57,8 @@ export default class BotClient extends Client {
       const EventModule = await (await import(fileUrl)).default;
 
       if (typeof EventModule === 'function') {
-        // Handle class exports (like InteractionCreateEvent)
         new EventModule(this);
       } else if (EventModule && typeof EventModule.execute === 'function') {
-        // Handle object exports with execute method (like messageCreate)
         this.on(EventModule.name, (...args) => EventModule.execute(...args, this));
       }
     }

@@ -4,6 +4,7 @@ import logger from '../utils/logger';
 import { authenticateToken } from '../middlewares/auth';
 import { body, validationResult } from 'express-validator';
 import { encrypt as encryptApiKey } from '../utils/encrypt';
+import OpenAI from 'openai';
 
 const ALLOWED_API_HOSTS = [
   'api.openai.com',
@@ -11,6 +12,20 @@ const ALLOWED_API_HOSTS = [
   'generativelanguage.googleapis.com',
   'api.anthropic.com',
 ];
+
+function getOpenAIClient(apiKey: string, baseURL?: string): OpenAI {
+  return new OpenAI({
+    apiKey,
+    baseURL: baseURL || 'https://api.openai.com/v1',
+    defaultHeaders:
+      new URL(baseURL || '').hostname === 'openrouter.ai'
+        ? {
+            'HTTP-Referer': 'https://aethel.xyz',
+            'X-Title': 'Aethel Discord Bot',
+          }
+        : {},
+  });
+}
 
 const router = Router();
 
@@ -215,7 +230,7 @@ router.post(
       const { apiKey, model, apiUrl } = req.body;
       const userId = req.user?.userId;
 
-      const fullApiUrl = apiUrl || 'https://api.openai.com/v1/chat/completions';
+      const fullApiUrl = apiUrl || 'https://openrouter.ai/api/v1';
 
       let parsedUrl;
       try {
@@ -224,26 +239,22 @@ router.post(
         logger.warn(`Blocked invalid API URL for user ${userId}: ${fullApiUrl}`);
         return res.status(400).json({
           error:
-            'API URL is invalid. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).',
+            'API URL is invalid. Please use a supported API endpoint (OpenAI, OpenRouter, Anthropic, or Google Gemini).',
         });
       }
       if (!ALLOWED_API_HOSTS.includes(parsedUrl.hostname)) {
         logger.warn(`Blocked potentially malicious API URL for user ${userId}: ${fullApiUrl}`);
         return res.status(400).json({
           error:
-            'API URL not allowed. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).',
+            'API URL not allowed. Please use a supported API endpoint (OpenAI, OpenRouter, Anthropic, or Google Gemini).',
         });
       }
 
-      const testModel = model || 'gpt-3.5-turbo';
+      const testModel = model || 'openai/gpt-4o-mini';
+      const client = getOpenAIClient(apiKey, fullApiUrl);
 
-      const testResponse = await fetch(fullApiUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      try {
+        const response = await client.chat.completions.create({
           model: testModel,
           messages: [
             {
@@ -254,29 +265,23 @@ router.post(
           ],
           max_tokens: 50,
           temperature: 0.1,
-        }),
-      });
+        });
 
-      if (!testResponse.ok) {
-        const errorData = await testResponse.json().catch(() => ({}));
-        const errorMessage =
-          errorData.error?.message || `HTTP ${testResponse.status}: ${testResponse.statusText}`;
+        const testMessage = response.choices?.[0]?.message?.content || 'Test completed';
 
+        logger.info(`API key test successful for user ${userId}`);
+        res.json({
+          success: true,
+          message: 'API key is valid and working!',
+          testResponse: testMessage,
+        });
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         logger.warn(`API key test failed for user ${userId}: ${errorMessage}`);
         return res.status(400).json({
           error: `API key test failed: ${errorMessage}`,
         });
       }
-
-      const responseData = await testResponse.json();
-      const testMessage = responseData.choices?.[0]?.message?.content || 'Test completed';
-
-      logger.info(`API key test successful for user ${userId}`);
-      res.json({
-        success: true,
-        message: 'API key test successful!',
-        testResponse: testMessage.substring(0, 100),
-      });
     } catch (error) {
       logger.error('Error testing API key:', error);
 
