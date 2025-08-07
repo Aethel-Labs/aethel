@@ -537,7 +537,10 @@ export {
   sendAIResponse,
   getUserCredentials,
   incrementAndCheckDailyLimit,
+  splitResponseIntoChunks,
 };
+
+export type { ConversationMessage, AIResponse };
 
 export default {
   data: new SlashCommandBuilder()

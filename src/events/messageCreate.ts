@@ -8,26 +8,35 @@ import {
   buildConversation,
   getUserCredentials,
   incrementAndCheckDailyLimit,
+  splitResponseIntoChunks,
 } from '@/commands/utilities/ai';
+import type { ConversationMessage, AIResponse } from '@/commands/utilities/ai';
 import { createMemoryManager } from '@/utils/memoryManager';
 
-interface ConversationMessage {
-  role: 'system' | 'user' | 'assistant';
-  content:
-    | string
-    | Array<{
-        type: 'text' | 'image_url';
-        text?: string;
-        image_url?: {
-          url: string;
-          detail?: 'low' | 'high' | 'auto';
-        };
-      }>;
-}
+const TRUSTED_IMAGE_DOMAINS = [
+  'cdn.discordapp.com',
+  'media.discordapp.net',
+  'discord.com',
+  'discordapp.com',
+  'imgur.com',
+  'i.imgur.com',
+  'github.com',
+  'raw.githubusercontent.com',
+  'user-images.githubusercontent.com',
+];
 
-interface AIResponse {
-  content: string;
-  reasoning?: string;
+function isUrlFromTrustedDomain(url: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.toLowerCase();
+
+    return TRUSTED_IMAGE_DOMAINS.some(
+      (domain) => hostname === domain || hostname.endsWith('.' + domain)
+    );
+  } catch (_error) {
+    logger.warn(`Invalid URL format: ${url}`);
+    return false;
+  }
 }
 
 const dmConversations = createMemoryManager<string, ConversationMessage[]>({
@@ -43,25 +52,25 @@ export default class MessageCreateEvent {
   }
 
   private async execute(message: Message): Promise<void> {
-    logger.info(
-      `Message received: ${message.content} from ${message.author.username} in channel type: ${message.channel.type}`
+    logger.debug(
+      `Message received from ${message.author.username} in channel type: ${message.channel.type}`
     );
 
     if (message.author.bot) {
-      logger.info('Ignoring message from bot');
+      logger.debug('Ignoring message from bot');
       return;
     }
 
     if (message.channel.type !== ChannelType.DM) {
-      logger.info(`Ignoring message - not a DM (channel type: ${message.channel.type})`);
+      logger.debug(`Ignoring message - not a DM (channel type: ${message.channel.type})`);
       return;
     }
 
     logger.info('Processing DM message...');
 
     try {
-      logger.info(
-        `DM received from ${message.author.tag} (${message.author.id}): ${message.content}`
+      logger.debug(
+        `DM received from user ${message.author.id} (${message.content.length} characters)`
       );
 
       const userId = message.author.id;
@@ -72,25 +81,33 @@ export default class MessageCreateEvent {
           att.contentType?.startsWith('image/') ||
           att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
       );
-      const hasImageUrls =
-        /\.(jpg|jpeg|png|gif|webp|bmp|svg)\b/i.test(message.content) ||
-        /https?:\/\/[^\s]*\.(jpg|jpeg|png|gif|webp|bmp|svg)/i.test(message.content) ||
-        /discord(?:app)?\.com\/attachments\/[^\s]*\.(jpg|jpeg|png|gif|webp|bmp|svg)/i.test(
-          message.content
-        );
+      const imageUrlRegex = /https?:\/\/[^\s]*\.(jpg|jpeg|png|gif|webp|bmp|svg)[^\s]*/gi;
+      const discordImageRegex = /https?:\/\/(?:cdn\.)?discord(?:app)?\.com\/attachments\/[^\s]+/gi;
+      const potentialImageUrls = [
+        ...(message.content.match(imageUrlRegex) || []),
+        ...(message.content.match(discordImageRegex) || []),
+      ];
+
+      const trustedImageUrls = potentialImageUrls.filter((url) => {
+        const isTrusted = isUrlFromTrustedDomain(url);
+        if (!isTrusted) {
+          logger.warn(`Blocked untrusted image URL: ${url}`);
+        }
+        return isTrusted;
+      });
+
+      const hasImageUrls = trustedImageUrls.length > 0;
 
       if (message.attachments.size > 0) {
-        logger.info(`Found ${message.attachments.size} attachment(s)`);
+        logger.debug(`Found ${message.attachments.size} attachment(s)`);
         message.attachments.forEach((att) => {
-          logger.info(
-            `Attachment: ${att.name}, Content-Type: ${att.contentType}, URL: ${att.url}, Size: ${att.size}`
-          );
+          logger.debug(`Attachment: type=${att.contentType}, size=${att.size}bytes`);
         });
       } else {
-        logger.info('No attachments found in message');
+        logger.debug('No attachments found in message');
       }
 
-      logger.info(`hasImageAttachments: ${hasImageAttachments}, hasImageUrls: ${hasImageUrls}`);
+      logger.debug(`hasImageAttachments: ${hasImageAttachments}, hasImageUrls: ${hasImageUrls}`);
       const hasImages = hasImageAttachments || hasImageUrls;
 
       const { model: userCustomModel } = await getUserCredentials(message.author.id);
@@ -127,13 +144,7 @@ export default class MessageCreateEvent {
             att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
         );
 
-        const imageUrlRegex = /https?:\/\/[^\s]*\.(jpg|jpeg|png|gif|webp|bmp|svg)[^\s]*/gi;
-        const discordImageRegex =
-          /https?:\/\/(?:cdn\.)?discord(?:app)?\.com\/attachments\/[^\s]+/gi;
-        const imageUrls = [
-          ...(message.content.match(imageUrlRegex) || []),
-          ...(message.content.match(discordImageRegex) || []),
-        ];
+        const imageUrls = trustedImageUrls;
 
         const contentArray: Array<{
           type: 'text' | 'image_url';
@@ -319,7 +330,7 @@ export default class MessageCreateEvent {
     if (fullResponse.length <= maxLength) {
       await message.reply(fullResponse);
     } else {
-      const chunks = this.splitResponseIntoChunks(fullResponse, maxLength);
+      const chunks = splitResponseIntoChunks(fullResponse, maxLength);
 
       await message.reply(chunks[0]);
 
@@ -329,47 +340,5 @@ export default class MessageCreateEvent {
         }
       }
     }
-  }
-
-  private splitResponseIntoChunks(response: string, maxLength: number = 2000): string[] {
-    if (response.length <= maxLength) {
-      return [response];
-    }
-
-    const chunks: string[] = [];
-    let currentChunk = '';
-    const lines = response.split('\n');
-
-    for (const line of lines) {
-      if (currentChunk.length + line.length + 1 <= maxLength) {
-        currentChunk += (currentChunk ? '\n' : '') + line;
-      } else {
-        if (currentChunk) {
-          chunks.push(currentChunk);
-          currentChunk = line;
-        } else {
-          const words = line.split(' ');
-          for (const word of words) {
-            if (currentChunk.length + word.length + 1 <= maxLength) {
-              currentChunk += (currentChunk ? ' ' : '') + word;
-            } else {
-              if (currentChunk) {
-                chunks.push(currentChunk);
-                currentChunk = word;
-              } else {
-                chunks.push(word.substring(0, maxLength));
-                currentChunk = word.substring(maxLength);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    if (currentChunk) {
-      chunks.push(currentChunk);
-    }
-
-    return chunks;
   }
 }
