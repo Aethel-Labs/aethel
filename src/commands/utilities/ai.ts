@@ -238,18 +238,26 @@ function splitResponseIntoChunks(response: string, maxLength: number = 2000): st
   let remaining = response;
 
   while (remaining.length > 0) {
-    const chunk = remaining.substring(0, maxLength);
-    chunks.push(chunk);
-    remaining = remaining.substring(chunk.length);
+    let chunk = remaining.substring(0, maxLength);
+    let chunkLength = chunk.length;
 
-    if (remaining.length > 0 && remaining[0] !== '\n') {
-      const nextNewline = remaining.indexOf('\n');
-      if (nextNewline > 0 && nextNewline <= 50) {
-        const extra = remaining.substring(0, nextNewline + 1);
-        chunks[chunks.length - 1] += extra;
-        remaining = remaining.substring(extra.length);
-      }
+    if (remaining.length > maxLength) {
+      const lastNewline = chunk.lastIndexOf('\n');
+      const lastSpace = chunk.lastIndexOf(' ');
+
+      const breakPoint =
+        lastNewline > maxLength * 0.8
+          ? lastNewline + 1
+          : lastSpace > maxLength * 0.8
+            ? lastSpace + 1
+            : maxLength;
+
+      chunk = remaining.substring(0, breakPoint);
+      chunkLength = breakPoint;
     }
+
+    chunks.push(chunk);
+    remaining = remaining.substring(chunkLength);
   }
 
   return chunks;
