@@ -22,7 +22,6 @@ docs
 .eslintrc.*
 .prettierrc*
 .prettierignore
-tsconfig.json
 eslint.config.mjs
 Dockerfile*
 docker-compose*.yml
