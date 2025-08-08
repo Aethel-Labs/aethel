@@ -20,6 +20,12 @@ const dmConversations = createMemoryManager<string, ConversationMessage[]>({
   cleanupInterval: 10 * 60 * 1000,
 });
 
+const serverConversations = createMemoryManager<string, ConversationMessage[]>({
+  maxSize: 1000,
+  maxAge: 1 * 60 * 60 * 1000,
+  cleanupInterval: 10 * 60 * 1000,
+});
+
 export default class MessageCreateEvent {
   constructor(private client: BotClient) {
     this.client = client;
@@ -36,20 +42,27 @@ export default class MessageCreateEvent {
       return;
     }
 
-    if (message.channel.type !== ChannelType.DM) {
-      logger.debug(`Ignoring message - not a DM (channel type: ${message.channel.type})`);
+    const isDM = message.channel.type === ChannelType.DM;
+    const isMentioned =
+      message.mentions.users.has(this.client.user!.id) && !message.mentions.everyone;
+
+    if (!isDM && !isMentioned) {
+      logger.debug(
+        `Ignoring message - not a DM and bot not mentioned (channel type: ${message.channel.type})`
+      );
       return;
     }
 
-    logger.info('Processing DM message...');
+    logger.info(isDM ? 'Processing DM message...' : 'Processing mention in server...');
 
     try {
       logger.debug(
         `DM received from user ${message.author.id} (${message.content.length} characters)`
       );
 
-      const userId = message.author.id;
-      const conversation = dmConversations.get(userId) || [];
+      const conversationKey = isDM ? message.author.id : message.channel.id;
+      const conversationManager = isDM ? dmConversations : serverConversations;
+      const conversation = conversationManager.get(conversationKey) || [];
 
       const hasImageAttachments = message.attachments.some(
         (att) =>
@@ -82,7 +95,7 @@ export default class MessageCreateEvent {
       );
 
       const systemPrompt = buildSystemPrompt(
-        true,
+        isDM,
         this.client,
         selectedModel,
         message.author.username
@@ -97,7 +110,7 @@ export default class MessageCreateEvent {
               url: string;
               detail?: 'low' | 'high' | 'auto';
             };
-          }> = message.content;
+          }> = isDM ? message.content : message.content.replace(/<@!?\d+>/g, '').trim();
 
       if (hasImages) {
         const imageAttachments = message.attachments.filter(
@@ -115,10 +128,13 @@ export default class MessageCreateEvent {
           };
         }> = [];
 
-        if (message.content.trim()) {
+        const cleanContent = isDM
+          ? message.content
+          : message.content.replace(/<@!?\d+>/g, '').trim();
+        if (cleanContent.trim()) {
           contentArray.push({
             type: 'text',
-            text: message.content,
+            text: cleanContent,
           });
         }
 
@@ -219,7 +235,7 @@ export default class MessageCreateEvent {
         const fallbackConversation = buildConversation(
           cleanedConversation,
           fallbackContent,
-          buildSystemPrompt(true, this.client, fallbackModel, message.author.username)
+          buildSystemPrompt(isDM, this.client, fallbackModel, message.author.username)
         );
 
         const fallbackConfig = getApiConfiguration(
@@ -243,15 +259,17 @@ export default class MessageCreateEvent {
 
       aiResponse.content = processUrls(aiResponse.content);
 
-      await this.sendDMResponse(message, aiResponse);
+      await this.sendResponse(message, aiResponse, isDM);
 
       updatedConversation.push({
         role: 'assistant',
         content: aiResponse.content,
       });
-      dmConversations.set(userId, updatedConversation);
+      conversationManager.set(conversationKey, updatedConversation);
 
-      logger.info(`DM response sent to ${message.author.tag} (${message.author.id})`);
+      logger.info(
+        `${isDM ? 'DM' : 'Server'} response sent to ${message.author.tag} (${message.author.id})`
+      );
     } catch (error) {
       logger.error(`Error processing DM from ${message.author.tag} (${message.author.id}):`, error);
       try {
@@ -264,7 +282,11 @@ export default class MessageCreateEvent {
     }
   }
 
-  private async sendDMResponse(message: Message, aiResponse: AIResponse): Promise<void> {
+  private async sendResponse(
+    message: Message,
+    aiResponse: AIResponse,
+    isDM: boolean
+  ): Promise<void> {
     let fullResponse = '';
 
     if (aiResponse.reasoning) {
