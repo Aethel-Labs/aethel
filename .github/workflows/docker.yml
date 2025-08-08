@@ -17,7 +17,7 @@ env:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -25,9 +25,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Log in to Container Registry
         if: github.event_name != 'pull_request'
@@ -49,14 +46,22 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix={{branch}}-
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+      - name: Build with Kaniko
+        if: github.event_name != 'pull_request'
+        uses: aevea/action-kaniko@master
         with:
-          context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          image: ${{ env.IMAGE_NAME }}
+          tag: ${{ github.ref_name }}
+          tag_with_latest: ${{ github.ref == 'refs/heads/main' }}
+          build_args: |
             SOURCE_COMMIT=${{ github.sha }}
+
+      - name: Build for PR (no push)
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "PR build - image would be built but not pushed"
+          echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.head_ref }}"
