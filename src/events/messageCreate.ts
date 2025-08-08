@@ -33,9 +33,7 @@ export default class MessageCreateEvent {
   }
 
   private async execute(message: Message): Promise<void> {
-    logger.debug(
-      `Message received from ${message.author.username} in channel type: ${message.channel.type}`
-    );
+    logger.debug(`Message received in channel type: ${message.channel.type}`);
 
     if (message.author.bot) {
       logger.debug('Ignoring message from bot');
@@ -56,9 +54,7 @@ export default class MessageCreateEvent {
     logger.info(isDM ? 'Processing DM message...' : 'Processing mention in server...');
 
     try {
-      logger.debug(
-        `DM received from user ${message.author.id} (${message.content.length} characters)`
-      );
+      logger.debug(`DM received (${message.content.length} characters)`);
 
       const conversationKey = isDM ? message.author.id : message.channel.id;
       const conversationManager = isDM ? dmConversations : serverConversations;
@@ -267,11 +263,12 @@ export default class MessageCreateEvent {
       });
       conversationManager.set(conversationKey, updatedConversation);
 
-      logger.info(
-        `${isDM ? 'DM' : 'Server'} response sent to ${message.author.tag} (${message.author.id})`
-      );
+      logger.info(`${isDM ? 'DM' : 'Server'} response sent successfully`);
     } catch (error) {
-      logger.error(`Error processing DM from ${message.author.tag} (${message.author.id}):`, error);
+      logger.error(
+        `Error processing ${isDM ? 'DM' : 'server message'}:`,
+        error instanceof Error ? error.message : String(error)
+      );
       try {
         await message.reply(
           'Sorry, I encountered an error processing your message. Please try again later.'
