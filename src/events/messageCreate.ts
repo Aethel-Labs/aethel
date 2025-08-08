@@ -54,7 +54,7 @@ export default class MessageCreateEvent {
     logger.info(isDM ? 'Processing DM message...' : 'Processing mention in server...');
 
     try {
-      logger.debug(`DM received (${message.content.length} characters)`);
+      logger.debug(`${isDM ? 'DM' : 'Message'} received (${message.content.length} characters)`);
 
       const conversationKey = isDM ? message.author.id : message.channel.id;
       const conversationManager = isDM ? dmConversations : serverConversations;
