@@ -259,7 +259,7 @@ export default class MessageCreateEvent {
 
       aiResponse.content = processUrls(aiResponse.content);
 
-      await this.sendResponse(message, aiResponse, isDM);
+      await this.sendResponse(message, aiResponse);
 
       updatedConversation.push({
         role: 'assistant',
@@ -282,11 +282,7 @@ export default class MessageCreateEvent {
     }
   }
 
-  private async sendResponse(
-    message: Message,
-    aiResponse: AIResponse,
-    isDM: boolean
-  ): Promise<void> {
+  private async sendResponse(message: Message, aiResponse: AIResponse): Promise<void> {
     let fullResponse = '';
 
     if (aiResponse.reasoning) {
