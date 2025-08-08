@@ -13,7 +13,6 @@ COPY scripts ./scripts
 COPY locales ./locales
 COPY migrations ./migrations
 COPY tsconfig.json ./
-COPY eslint.config.mjs ./
 
 RUN pnpm run build
 
