@@ -9,35 +9,10 @@ import {
   getUserCredentials,
   incrementAndCheckDailyLimit,
   splitResponseIntoChunks,
+  processUrls,
 } from '@/commands/utilities/ai';
 import type { ConversationMessage, AIResponse } from '@/commands/utilities/ai';
 import { createMemoryManager } from '@/utils/memoryManager';
-
-const TRUSTED_IMAGE_DOMAINS = [
-  'cdn.discordapp.com',
-  'media.discordapp.net',
-  'discord.com',
-  'discordapp.com',
-  'imgur.com',
-  'i.imgur.com',
-  'github.com',
-  'raw.githubusercontent.com',
-  'user-images.githubusercontent.com',
-];
-
-function isUrlFromTrustedDomain(url: string): boolean {
-  try {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname.toLowerCase();
-
-    return TRUSTED_IMAGE_DOMAINS.some(
-      (domain) => hostname === domain || hostname.endsWith('.' + domain)
-    );
-  } catch (_error) {
-    logger.warn(`Invalid URL format: ${url}`);
-    return false;
-  }
-}
 
 const dmConversations = createMemoryManager<string, ConversationMessage[]>({
   maxSize: 500,
@@ -81,22 +56,8 @@ export default class MessageCreateEvent {
           att.contentType?.startsWith('image/') ||
           att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
       );
-      const imageUrlRegex = /https?:\/\/[^\s]*\.(jpg|jpeg|png|gif|webp|bmp|svg)[^\s]*/gi;
-      const discordImageRegex = /https?:\/\/(?:cdn\.)?discord(?:app)?\.com\/attachments\/[^\s]+/gi;
-      const potentialImageUrls = [
-        ...(message.content.match(imageUrlRegex) || []),
-        ...(message.content.match(discordImageRegex) || []),
-      ];
 
-      const trustedImageUrls = potentialImageUrls.filter((url) => {
-        const isTrusted = isUrlFromTrustedDomain(url);
-        if (!isTrusted) {
-          logger.warn(`Blocked untrusted image URL: ${url}`);
-        }
-        return isTrusted;
-      });
-
-      const hasImageUrls = trustedImageUrls.length > 0;
+      const hasImageUrls = false;
 
       if (message.attachments.size > 0) {
         logger.debug(`Found ${message.attachments.size} attachment(s)`);
@@ -108,12 +69,13 @@ export default class MessageCreateEvent {
       }
 
       logger.debug(`hasImageAttachments: ${hasImageAttachments}, hasImageUrls: ${hasImageUrls}`);
-      const hasImages = hasImageAttachments || hasImageUrls;
+      const hasImages = hasImageAttachments;
 
       const { model: userCustomModel } = await getUserCredentials(message.author.id);
 
-      const selectedModel =
-        userCustomModel || (hasImages ? 'google/gemma-3-4b-it' : 'moonshotai/kimi-k2');
+      const selectedModel = hasImages
+        ? 'google/gemma-3-4b-it'
+        : userCustomModel || 'moonshotai/kimi-k2';
 
       logger.info(
         `Using model: ${selectedModel} for message with images: ${hasImages}${userCustomModel ? ' (user custom model)' : ' (default model)'}`
@@ -144,8 +106,6 @@ export default class MessageCreateEvent {
             att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
         );
 
-        const imageUrls = trustedImageUrls;
-
         const contentArray: Array<{
           type: 'text' | 'image_url';
           text?: string;
@@ -155,15 +115,10 @@ export default class MessageCreateEvent {
           };
         }> = [];
 
-        let textContent = message.content;
-        imageUrls.forEach((url) => {
-          textContent = textContent.replace(url, '').trim();
-        });
-
-        if (textContent.trim()) {
+        if (message.content.trim()) {
           contentArray.push({
             type: 'text',
-            text: textContent,
+            text: message.content,
           });
         }
 
@@ -172,16 +127,6 @@ export default class MessageCreateEvent {
             type: 'image_url',
             image_url: {
               url: att.url,
-              detail: 'auto',
-            },
-          });
-        });
-
-        imageUrls.forEach((url) => {
-          contentArray.push({
-            type: 'image_url',
-            image_url: {
-              url: url,
               detail: 'auto',
             },
           });
@@ -295,6 +240,8 @@ export default class MessageCreateEvent {
         );
         return;
       }
+
+      aiResponse.content = processUrls(aiResponse.content);
 
       await this.sendDMResponse(message, aiResponse);
 

@@ -104,10 +104,10 @@ function getOpenAIClient(apiKey: string, baseURL?: string): OpenAI {
   return openaiClients.get(clientKey)!;
 }
 
-function processUrls(text: string): string {
+export function processUrls(text: string): string {
   return text.replace(
     /(https?:\/\/(?:[\w.-]+)(?:\/[\w\d%/#?&=&%#?\w\d/-]*)?)(?<![.,!?])([.,!?])?(?=(\s|$))/gi,
-    (match: string, url: string, punctuation: string | undefined): string => {
+    (_match: string, url: string, punctuation: string | undefined): string => {
       const startIdx = text.indexOf(url);
       const before = text[startIdx - 1];
       const after = text[startIdx + url.length];
