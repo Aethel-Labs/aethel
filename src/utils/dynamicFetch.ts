@@ -11,7 +11,7 @@ class FetchError extends Error {
     message: string,
     public readonly status?: number,
     public readonly statusText?: string,
-    public readonly url?: string
+    public readonly url?: string,
   ) {
     super(message);
     this.name = 'FetchError';
@@ -70,7 +70,7 @@ const fetch = async (url: string | URL, init?: RequestInit & FetchOptions): Prom
             `Request timeout after ${timeout}ms`,
             undefined,
             undefined,
-            url.toString()
+            url.toString(),
           );
         }
 
@@ -87,7 +87,7 @@ const fetch = async (url: string | URL, init?: RequestInit & FetchOptions): Prom
             `Client error: ${error.message}`,
             error.status,
             'statusText' in error ? (error.statusText as string) : undefined,
-            url.toString()
+            url.toString(),
           );
         }
       }
@@ -117,7 +117,7 @@ const fetch = async (url: string | URL, init?: RequestInit & FetchOptions): Prom
     `Request failed after ${retries + 1} attempts: ${lastError?.message || 'Unknown error'}`,
     undefined,
     undefined,
-    url.toString()
+    url.toString(),
   );
 };
 

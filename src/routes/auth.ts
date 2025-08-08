@@ -80,7 +80,7 @@ router.get('/discord/callback', async (req, res) => {
         'INSERT INTO users (user_id, language, created_at) VALUES ($1, $2, NOW())';
       await pool.query(insertQuery, [discordUser.id, 'en']);
       logger.info(
-        `New user created: ${discordUser.username}#${discordUser.discriminator} (${discordUser.id})`
+        `New user created: ${discordUser.username}#${discordUser.discriminator} (${discordUser.id})`,
       );
     }
 
@@ -92,7 +92,7 @@ router.get('/discord/callback', async (req, res) => {
         avatar: discordUser.avatar,
       },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '7d' },
     );
 
     const redirectUrl = new URL(`${FRONTEND_URL}/login`);

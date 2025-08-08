@@ -10,7 +10,7 @@ const MAX_ENCRYPTED_LENGTH = 10000;
 class EncryptionError extends Error {
   constructor(
     message: string,
-    public readonly operation: 'encrypt' | 'decrypt'
+    public readonly operation: 'encrypt' | 'decrypt',
   ) {
     super(message);
     this.name = 'EncryptionError';
@@ -54,7 +54,7 @@ function decrypt(encrypted: string): string {
   if (!encrypted || typeof encrypted !== 'string') {
     throw new EncryptionError(
       'Invalid input: encrypted data must be a non-empty string',
-      'decrypt'
+      'decrypt',
     );
   }
 
@@ -86,14 +86,14 @@ function decrypt(encrypted: string): string {
     if (iv.length !== IV_LENGTH) {
       throw new EncryptionError(
         `Invalid IV length: expected ${IV_LENGTH}, got ${iv.length}`,
-        'decrypt'
+        'decrypt',
       );
     }
 
     if (tag.length !== 16) {
       throw new EncryptionError(
         `Invalid auth tag length: expected 16, got ${tag.length}`,
-        'decrypt'
+        'decrypt',
       );
     }
 
@@ -113,11 +113,11 @@ function decrypt(encrypted: string): string {
     if (error instanceof Error) {
       if (error.message.includes('Unsupported state or unable to authenticate data')) {
         logger.warn(
-          'Authentication failed during decryption - data may be corrupted or key changed'
+          'Authentication failed during decryption - data may be corrupted or key changed',
         );
         throw new EncryptionError(
           'Authentication failed - data may be corrupted or encryption key changed',
-          'decrypt'
+          'decrypt',
         );
       }
       if (error.message.includes('Invalid key length')) {

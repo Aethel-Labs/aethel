@@ -47,10 +47,9 @@ class MemoryManager<K, V> {
       const result = [...entry];
       delete (result as unknown as Record<string, unknown>).timestamp;
       return result as V;
-    } else {
-      const { timestamp: _timestamp, ...valueWithoutTimestamp } = entry;
-      return valueWithoutTimestamp as V;
     }
+    const { timestamp: _timestamp, ...valueWithoutTimestamp } = entry;
+    return valueWithoutTimestamp as V;
   }
 
   delete(key: K): boolean {

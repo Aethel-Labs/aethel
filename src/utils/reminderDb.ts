@@ -45,13 +45,13 @@ function createDatabaseError(error: unknown, operation: string): DatabaseError {
       return new DatabaseError(
         errorMessage,
         'Unable to connect to the database. Please try again later.',
-        true
+        true,
       );
     case '42703':
       return new DatabaseError(
         errorMessage,
         'Database schema error. Please contact support.',
-        true
+        true,
       );
     case '23505':
       return new DatabaseError(errorMessage, 'This reminder already exists.', true);
@@ -59,7 +59,7 @@ function createDatabaseError(error: unknown, operation: string): DatabaseError {
       return new DatabaseError(
         errorMessage,
         'Missing required information. Please try again.',
-        true
+        true,
       );
     case '23503':
       return new DatabaseError(errorMessage, 'Invalid reference. Please try again.', true);
@@ -67,7 +67,7 @@ function createDatabaseError(error: unknown, operation: string): DatabaseError {
       return new DatabaseError(
         errorMessage,
         'A database error occurred. Please try again later.',
-        false
+        false,
       );
   }
 }
@@ -75,7 +75,7 @@ function createDatabaseError(error: unknown, operation: string): DatabaseError {
 async function ensureUserRegistered(
   userId: string,
   userTag: string,
-  language: string = 'en'
+  language = 'en',
 ): Promise<void> {
   const query = `
     SELECT ensure_user_registered($1, $2, $3)
@@ -92,7 +92,7 @@ async function saveReminder(reminderData: ReminderData): Promise<ReminderData> {
   await ensureUserRegistered(
     reminderData.user_id,
     reminderData.user_tag,
-    reminderData.locale || 'en'
+    reminderData.locale || 'en',
   );
 
   const query = `

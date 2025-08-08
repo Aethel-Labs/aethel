@@ -3,7 +3,7 @@ import { RequestHandler } from 'express';
 
 const authenticateApiKey: RequestHandler = (req, res, next) => {
   const apiKey = req.headers['x-api-key'];
-  if (!apiKey || typeof apiKey != 'string') {
+  if (!apiKey || typeof apiKey !== 'string') {
     res.status(401).json({ error: 'Unauthorized: Missing API key' });
     return;
   }

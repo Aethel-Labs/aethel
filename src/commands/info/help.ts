@@ -63,27 +63,27 @@ export default {
 
         .addMediaGalleryComponents(
           new MediaGalleryBuilder().addItems(
-            new MediaGalleryItemBuilder().setURL('https://aethel.xyz/aethel_banner_white.png')
-          )
+            new MediaGalleryItemBuilder().setURL('https://aethel.xyz/aethel_banner_white.png'),
+          ),
         )
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${title || 'Aethel Bot'}`))
         .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(description || 'Get information about Aethel')
+          new TextDisplayBuilder().setContent(description || 'Get information about Aethel'),
         )
         .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
-            `\n## **${linksSocialText || 'Links & Social Media'}**`
-          )
+            `\n## **${linksSocialText || 'Links & Social Media'}**`,
+          ),
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
-            '[Website](https://aethel.xyz) • [GitHub](https://github.com/aethel-labs/aethel) • [Bluesky](https://bsky.app/profile/aethel.xyz)'
-          )
+            '[Website](https://aethel.xyz) • [GitHub](https://github.com/aethel-labs/aethel) • [Bluesky](https://bsky.app/profile/aethel.xyz)',
+          ),
         )
         .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
         .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(`\n## **${featuresText || 'Features'}**`)
+          new TextDisplayBuilder().setContent(`\n## **${featuresText || 'Features'}**`),
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
@@ -92,17 +92,17 @@ export default {
                 '**AI Integration** - Powered by OpenAI and other providers\n' +
                 '**Reminders** - Never forget important tasks\n' +
                 '**Utilities** - Weather, help, and productivity tools\n' +
-                '**Multi-language** - Supports multiple languages'
-          )
+                '**Multi-language** - Supports multiple languages',
+          ),
         )
 
         .addSeparatorComponents(
-          new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true)
+          new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true),
         )
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
-            `-# ${dashboardText || 'Dashboard available at https://aethel.xyz/login for To-Dos, Reminders and custom AI API key management'}`
-          )
+            `-# ${dashboardText || 'Dashboard available at https://aethel.xyz/login for To-Dos, Reminders and custom AI API key management'}`,
+          ),
         )
         .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
         .addActionRowComponents(
@@ -114,8 +114,8 @@ export default {
             new ButtonBuilder()
               .setStyle(ButtonStyle.Link)
               .setLabel(supportServerText || 'Support')
-              .setURL('https://discord.gg/63stE8pEaK')
-          )
+              .setURL('https://discord.gg/63stE8pEaK'),
+          ),
         );
 
       await interaction.reply({

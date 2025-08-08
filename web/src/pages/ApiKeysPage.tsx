@@ -207,7 +207,10 @@ const ApiKeysPage = () => {
             {apiKeyInfo?.hasApiKey ? 'Update' : 'Configure'} API Key
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4"
+          >
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                 <span className="text-red-600 dark:text-red-400">*</span> You must test the API key

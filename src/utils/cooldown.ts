@@ -19,7 +19,7 @@ setInterval(
       }
     }
   },
-  5 * 60 * 1000
+  5 * 60 * 1000,
 );
 
 export function createCooldownManager(commandName: string, cooldownTime: number): CooldownManager {
@@ -35,7 +35,7 @@ export async function checkCooldown(
   manager: CooldownManager,
   userId: string,
   client: BotClient,
-  locale: string
+  locale: string,
 ): Promise<{ onCooldown: boolean; timeLeft?: number; message?: string }> {
   const now = Date.now();
   const cooldownEnd = manager.cooldowns.get(userId) || 0;

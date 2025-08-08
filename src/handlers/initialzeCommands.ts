@@ -23,7 +23,7 @@ export default async (c: BotClient) => {
   const commands: (SlashCommandBuilder | ContextMenuCommandBuilder)[] = [];
   for (const cat of cmdCat) {
     const commandFiles = readdirSync(path.join(cmdDir, cat)).filter(
-      (f) => f.endsWith('.js') || f.endsWith('.ts')
+      (f) => f.endsWith('.js') || f.endsWith('.ts'),
     );
     for (const file of commandFiles) {
       const commandPath = path.join(cmdDir, cat, file);

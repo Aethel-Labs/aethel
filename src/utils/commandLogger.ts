@@ -3,24 +3,20 @@ import { CommandInteraction } from 'discord.js';
 
 export interface CommandLogOptions {
   commandName: string;
-  userId: string;
-  username: string;
   additionalInfo?: string;
-  guildId?: string;
-  channelId?: string;
+  isGuild?: boolean;
+  isDM?: boolean;
 }
 
 export function logUserAction(options: CommandLogOptions): void {
-  const { commandName, userId, username, guildId, channelId, additionalInfo } = options;
+  const { commandName, isGuild, isDM, additionalInfo } = options;
 
-  let logMessage = `User ${username} (${userId}) used ${commandName} command`;
+  let logMessage = `User executed ${commandName} command`;
 
-  if (guildId) {
-    logMessage += ` in guild ${guildId}`;
-  }
-
-  if (channelId) {
-    logMessage += ` in channel ${channelId}`;
+  if (isGuild) {
+    logMessage += ` in guild`;
+  } else if (isDM) {
+    logMessage += ` in DM`;
   }
 
   if (additionalInfo) {
@@ -33,14 +29,12 @@ export function logUserAction(options: CommandLogOptions): void {
 export function logUserActionFromInteraction(
   interaction: CommandInteraction,
   commandName: string,
-  additionalInfo?: string
+  additionalInfo?: string,
 ): void {
   logUserAction({
     commandName,
-    userId: interaction.user.id,
-    username: interaction.user.tag,
-    guildId: interaction.guildId || undefined,
-    channelId: interaction.channelId,
+    isGuild: !!interaction.guildId,
+    isDM: !interaction.guildId,
     additionalInfo,
   });
 }

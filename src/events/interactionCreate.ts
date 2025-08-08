@@ -58,12 +58,11 @@ export default class InteractionCreateEvent {
                 content: `You have been banned from using Aethel commands for 7 days due to repeated use of unallowed language. Ban expires: <t:${Math.floor(new Date(banned_until).getTime() / 1000)}:F>.`,
                 flags: MessageFlags.Ephemeral,
               });
-            } else {
-              return i.reply({
-                content: `Your request was flagged by Aethel for ${category}. You have ${strike_count}/5 strikes. For more information, visit https://aethel.xyz/legal/terms`,
-                flags: MessageFlags.Ephemeral,
-              });
             }
+            return i.reply({
+              content: `Your request was flagged by Aethel for ${category}. You have ${strike_count}/5 strikes. For more information, visit https://aethel.xyz/legal/terms`,
+              flags: MessageFlags.Ephemeral,
+            });
           }
         }
       }
@@ -164,11 +163,13 @@ export default class InteractionCreateEvent {
                       ? await this.client.getLocaleText('reddit.from', i.locale, {
                           subreddit: data.subreddit,
                         })
-                      : ''
-                  )
+                      : '',
+                  ),
                 )
                 .addMediaGalleryComponents(
-                  new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL(data.url))
+                  new MediaGalleryBuilder().addItems(
+                    new MediaGalleryItemBuilder().setURL(data.url),
+                  ),
                 )
                 .addActionRowComponents(
                   new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -176,8 +177,8 @@ export default class InteractionCreateEvent {
                       .setStyle(ButtonStyle.Danger)
                       .setLabel(refreshLabel)
                       .setEmoji({ name: '🐱' })
-                      .setCustomId('refresh_cat')
-                  )
+                      .setCustomId('refresh_cat'),
+                  ),
                 );
 
               await i.update({
@@ -187,8 +188,8 @@ export default class InteractionCreateEvent {
             } else {
               const container = new ContainerBuilder().addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                  await this.client.getLocaleText('commands.cat.error', i.locale)
-                )
+                  await this.client.getLocaleText('commands.cat.error', i.locale),
+                ),
               );
 
               await i.update({
@@ -200,8 +201,8 @@ export default class InteractionCreateEvent {
             logger.error('Error refreshing cat image:', error);
             const container = new ContainerBuilder().addTextDisplayComponents(
               new TextDisplayBuilder().setContent(
-                await this.client.getLocaleText('commands.cat.error', i.locale)
-              )
+                await this.client.getLocaleText('commands.cat.error', i.locale),
+              ),
             );
 
             await i.update({
@@ -224,7 +225,7 @@ export default class InteractionCreateEvent {
 
           for (const cmd of this.client.commands.values()) {
             const ClientApplicationCommandCache = this.client.application?.commands.cache.find(
-              (command) => command.name == cmd.data.name
+              (command) => command.name === cmd.data.name,
             );
             const category = cmd.category || 'Uncategorized';
             if (!commandCategories.has(category)) {
@@ -233,35 +234,35 @@ export default class InteractionCreateEvent {
 
             const localizedDescription = await this.client.getLocaleText(
               `commands.${cmd.data.name}.description`,
-              i.locale
+              i.locale,
             );
             commandCategories
               .get(category)!
               .push(
-                `</${ClientApplicationCommandCache?.name}:${ClientApplicationCommandCache?.id}> - ${localizedDescription}`
+                `</${ClientApplicationCommandCache?.name}:${ClientApplicationCommandCache?.id}> - ${localizedDescription}`,
               );
           }
 
           const container = new ContainerBuilder()
             .setAccentColor(0x5865f2)
             .addTextDisplayComponents(
-              new TextDisplayBuilder().setContent('# 📋 **Available Commands**')
+              new TextDisplayBuilder().setContent('# 📋 **Available Commands**'),
             );
 
           for (const [category, cmds] of commandCategories.entries()) {
             const localizedCategory = await this.client.getLocaleText(
               `categories.${category}`,
-              i.locale
+              i.locale,
             );
 
             container.addTextDisplayComponents(
-              new TextDisplayBuilder().setContent(`\n## 📂 ${localizedCategory}`)
+              new TextDisplayBuilder().setContent(`\n## 📂 ${localizedCategory}`),
             );
 
             container.addTextDisplayComponents(
               new TextDisplayBuilder().setContent(
-                cmds.map((line) => line.replace(/\u007F/g, '')).join('\n')
-              )
+                cmds.map((line) => line.replace(/\u007F/g, '')).join('\n'),
+              ),
             );
           }
 
@@ -273,8 +274,8 @@ export default class InteractionCreateEvent {
                 .setStyle(ButtonStyle.Secondary)
                 .setLabel(backLabel)
                 .setEmoji({ name: '⬅️' })
-                .setCustomId(`help_back_${i.user.id}`)
-            )
+                .setCustomId(`help_back_${i.user.id}`),
+            ),
           );
 
           await i.update({
@@ -317,29 +318,29 @@ export default class InteractionCreateEvent {
 
             .addMediaGalleryComponents(
               new MediaGalleryBuilder().addItems(
-                new MediaGalleryItemBuilder().setURL('https://aethel.xyz/aethel_banner_white.png')
-              )
+                new MediaGalleryItemBuilder().setURL('https://aethel.xyz/aethel_banner_white.png'),
+              ),
             )
             .addTextDisplayComponents(
-              new TextDisplayBuilder().setContent(`# ${title || 'Aethel Bot'}`)
+              new TextDisplayBuilder().setContent(`# ${title || 'Aethel Bot'}`),
             )
             .addTextDisplayComponents(
-              new TextDisplayBuilder().setContent(description || 'Get information about Aethel')
+              new TextDisplayBuilder().setContent(description || 'Get information about Aethel'),
             )
             .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
             .addTextDisplayComponents(
               new TextDisplayBuilder().setContent(
-                `\n## **${linksSocialText || 'Links & Social Media'}**`
-              )
+                `\n## **${linksSocialText || 'Links & Social Media'}**`,
+              ),
             )
             .addTextDisplayComponents(
               new TextDisplayBuilder().setContent(
-                '[Website](https://aethel.xyz) • [GitHub](https://github.com/aethel-labs/aethel) • [Bluesky](https://bsky.app/profile/aethel.xyz)'
-              )
+                '[Website](https://aethel.xyz) • [GitHub](https://github.com/aethel-labs/aethel) • [Bluesky](https://bsky.app/profile/aethel.xyz)',
+              ),
             )
             .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
             .addTextDisplayComponents(
-              new TextDisplayBuilder().setContent(`\n## **${featuresText || 'Features'}**`)
+              new TextDisplayBuilder().setContent(`\n## **${featuresText || 'Features'}**`),
             )
             .addTextDisplayComponents(
               new TextDisplayBuilder().setContent(
@@ -348,17 +349,17 @@ export default class InteractionCreateEvent {
                     '**AI Integration** - Powered by OpenAI and other providers\n' +
                     '**Reminders** - Never forget important tasks\n' +
                     '**Utilities** - Weather, help, and productivity tools\n' +
-                    '**Multi-language** - Supports multiple languages'
-              )
+                    '**Multi-language** - Supports multiple languages',
+              ),
             )
 
             .addSeparatorComponents(
-              new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true)
+              new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true),
             )
             .addTextDisplayComponents(
               new TextDisplayBuilder().setContent(
-                `-# ${dashboardText || 'Dashboard available at https://aethel.xyz/login for To-Dos, Reminders and custom AI API key management'}`
-              )
+                `-# ${dashboardText || 'Dashboard available at https://aethel.xyz/login for To-Dos, Reminders and custom AI API key management'}`,
+              ),
             )
             .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
             .addActionRowComponents(
@@ -370,8 +371,8 @@ export default class InteractionCreateEvent {
                 new ButtonBuilder()
                   .setStyle(ButtonStyle.Link)
                   .setLabel(supportServerText || 'Support')
-                  .setURL('https://discord.gg/63stE8pEaK')
-              )
+                  .setURL('https://discord.gg/63stE8pEaK'),
+              ),
             );
 
           await i.update({
@@ -386,8 +387,8 @@ export default class InteractionCreateEvent {
             if (!response.ok) {
               const container = new ContainerBuilder().addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                  await this.client.getLocaleText('commands.dog.error', i.locale)
-                )
+                  await this.client.getLocaleText('commands.dog.error', i.locale),
+                ),
               );
 
               return await i.update({
@@ -428,13 +429,13 @@ export default class InteractionCreateEvent {
                       ? await this.client.getLocaleText('reddit.from', i.locale, {
                           subreddit: data!.subreddit,
                         })
-                      : ''
-                  )
+                      : '',
+                  ),
                 )
                 .addMediaGalleryComponents(
                   new MediaGalleryBuilder().addItems(
-                    new MediaGalleryItemBuilder().setURL(data!.url)
-                  )
+                    new MediaGalleryItemBuilder().setURL(data!.url),
+                  ),
                 )
                 .addActionRowComponents(
                   new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -442,8 +443,8 @@ export default class InteractionCreateEvent {
                       .setStyle(ButtonStyle.Secondary)
                       .setLabel(refreshLabel)
                       .setEmoji({ name: '🐶' })
-                      .setCustomId('refresh_dog')
-                  )
+                      .setCustomId('refresh_dog'),
+                  ),
                 );
 
               await i.update({
@@ -453,8 +454,8 @@ export default class InteractionCreateEvent {
             } else {
               const container = new ContainerBuilder().addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                  await this.client.getLocaleText('commands.dog.error', i.locale)
-                )
+                  await this.client.getLocaleText('commands.dog.error', i.locale),
+                ),
               );
 
               await i.update({
@@ -466,8 +467,8 @@ export default class InteractionCreateEvent {
             logger.error('Error refreshing dog image:', error);
             const container = new ContainerBuilder().addTextDisplayComponents(
               new TextDisplayBuilder().setContent(
-                await this.client.getLocaleText('commands.dog.error', i.locale)
-              )
+                await this.client.getLocaleText('commands.dog.error', i.locale),
+              ),
             );
 
             await i.update({
@@ -483,7 +484,6 @@ export default class InteractionCreateEvent {
           components: [],
         });
       }
-      return;
     }
   };
 }

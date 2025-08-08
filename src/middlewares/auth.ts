@@ -32,10 +32,9 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     } else if (error instanceof jwt.JsonWebTokenError) {
       logger.debug('Invalid JWT token used');
       return res.status(401).json({ error: 'Invalid token' });
-    } else {
-      logger.error('JWT verification error:', error);
-      return res.status(500).json({ error: 'Token verification failed' });
     }
+    logger.error('JWT verification error:', error);
+    return res.status(500).json({ error: 'Token verification failed' });
   }
 };
 

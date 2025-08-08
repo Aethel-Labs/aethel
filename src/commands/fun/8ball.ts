@@ -73,7 +73,7 @@ const eightBallCommand = {
           'en-US': 'Your yes/no question for the magic 8-ball',
         })
         .setRequired(true)
-        .setMaxLength(200)
+        .setMaxLength(200),
     )
     .setContexts([
       InteractionContextType.BotDM,
@@ -84,14 +84,14 @@ const eightBallCommand = {
 
   execute: async (
     client: import('@/services/Client').default,
-    interaction: import('discord.js').ChatInputCommandInteraction
+    interaction: import('discord.js').ChatInputCommandInteraction,
   ) => {
     try {
       const cooldownCheck = await checkCooldown(
         cooldownManager,
         interaction.user.id,
         client,
-        interaction.locale
+        interaction.locale,
       );
       if (cooldownCheck.onCooldown) {
         return interaction.reply(createCooldownResponse(cooldownCheck.message!));
@@ -110,11 +110,11 @@ const eightBallCommand = {
       const question = sanitizeInput(interaction.options.getString('question'));
       const translatedResponse = await client.getLocaleText(
         `commands.8ball.responces.${random(responses)}`,
-        interaction.locale
+        interaction.locale,
       );
       commandLogger.logFromInteraction(
         interaction,
-        `question: "${question?.substring(0, 50)}${question && question.length > 50 ? '...' : ''}"`
+        `question: "${question?.substring(0, 50)}${question && question.length > 50 ? '...' : ''}"`,
       );
       const [title, questionLabel, answerLabel] = await Promise.all([
         await client.getLocaleText('commands.8ball.says', interaction.locale),
@@ -126,7 +126,7 @@ const eightBallCommand = {
         .setAccentColor(0x8b5cf6)
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# 🔮 ${title}`))
         .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(`**${questionLabel}**\n> ${question}\n\n`)
+          new TextDisplayBuilder().setContent(`**${questionLabel}**\n> ${question}\n\n`),
         )
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ✨ ${answerLabel}`))
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(translatedResponse));

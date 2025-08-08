@@ -9,7 +9,7 @@ interface ValidationResult {
 
 function validateCommandOptions(
   interaction: ChatInputCommandInteraction,
-  requiredOptions: string[] = []
+  requiredOptions: string[] = [],
 ): ValidationResult {
   for (const option of requiredOptions) {
     const value = interaction.options.getString(option);

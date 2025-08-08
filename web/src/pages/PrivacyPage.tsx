@@ -2,7 +2,10 @@ import LegalLayout from '../components/LegalLayout';
 
 export default function PrivacyPolicy() {
   return (
-    <LegalLayout title="Privacy Policy" lastUpdated="July 26, 2025">
+    <LegalLayout
+      title="Privacy Policy"
+      lastUpdated="July 26, 2025"
+    >
       <div className="space-y-8">
         <section>
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">

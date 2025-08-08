@@ -91,7 +91,7 @@ export async function loadActiveReminders(client: BotClient) {
           ...reminder,
           created_at: reminder.created_at || new Date(reminder.expires_at),
         }),
-        timeUntilExpiry
+        timeUntilExpiry,
       );
 
       activeReminders.set(reminder.reminder_id, {
@@ -100,7 +100,7 @@ export async function loadActiveReminders(client: BotClient) {
       });
 
       logger.debug(
-        `Scheduled reminder ${reminder.reminder_id} for ${new Date(expiresAt).toISOString()}`
+        `Scheduled reminder ${reminder.reminder_id} for ${new Date(expiresAt).toISOString()}`,
       );
     }
 
@@ -131,7 +131,7 @@ export function scheduleReminder(client: BotClient, reminder: Reminder) {
         ...reminder,
         created_at: reminder.created_at || new Date(),
       }),
-      timeUntilExpiry
+      timeUntilExpiry,
     );
 
     activeReminders.set(reminder.reminder_id, {
@@ -140,7 +140,7 @@ export function scheduleReminder(client: BotClient, reminder: Reminder) {
     });
 
     logger.info(
-      `Scheduled reminder ${reminder.reminder_id} for ${new Date(expiresAt).toISOString()}`
+      `Scheduled reminder ${reminder.reminder_id} for ${new Date(expiresAt).toISOString()}`,
     );
     return true;
   } catch (error) {
@@ -166,7 +166,7 @@ function createReminderHandler(client: BotClient, reminder: Reminder) {
 
       const minutes = Math.floor(
         (new Date(reminder.expires_at).getTime() - new Date(reminder.created_at!).getTime()) /
-          (60 * 1000)
+          (60 * 1000),
       );
 
       const reminderTitle =
@@ -174,7 +174,7 @@ function createReminderHandler(client: BotClient, reminder: Reminder) {
       const reminderDesc = await client.getLocaleText(
         'commands.remind.remindyou',
         reminder.locale,
-        { message: reminder.message }
+        { message: reminder.message },
       );
 
       const timeElapsedText =
@@ -192,7 +192,7 @@ function createReminderHandler(client: BotClient, reminder: Reminder) {
             name: originalTimeText,
             value: `<t:${Math.floor(new Date(reminder.created_at!).getTime() / 1000)}:f>`,
             inline: true,
-          }
+          },
         )
         .setFooter({ text: `ID: ${reminder.reminder_id.slice(-6)}` })
         .setTimestamp();
@@ -201,7 +201,7 @@ function createReminderHandler(client: BotClient, reminder: Reminder) {
         const originalMessageText = await client.getLocaleText('common.ogmessage', reminder.locale);
         const jumpToMessageText = await client.getLocaleText(
           'common.jumptomessage',
-          reminder.locale
+          reminder.locale,
         );
 
         reminderEmbed.addFields({
@@ -233,7 +233,7 @@ function createReminderHandler(client: BotClient, reminder: Reminder) {
         {
           error,
           reminderId: reminder.reminder_id,
-        }
+        },
       );
     } finally {
       try {
@@ -271,7 +271,7 @@ setInterval(
       }
     }
   },
-  60 * 60 * 1000
+  60 * 60 * 1000,
 );
 
 function createCommandBuilder() {
@@ -298,7 +298,7 @@ function createCommandBuilder() {
           'es-ES': 'Cuándo recordarte (ej: 1h, 30m, 5h30m)',
           'es-419': 'Cuándo recordarte (ej: 1h, 30m, 5h30m)',
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -312,7 +312,7 @@ function createCommandBuilder() {
           'es-ES': 'Sobre qué quieres que te recuerde',
           'es-419': 'Sobre qué quieres que te recuerde',
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .setContexts([
       InteractionContextType.BotDM,
@@ -360,14 +360,14 @@ export default {
 
       commandLogger.logFromInteraction(
         interaction,
-        `time: ${timeStr}, message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`
+        `time: ${timeStr}, message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
       );
 
       if (!validateTimeString(timeStr)) {
         logger.warn(`Invalid time format from ${userTag}: ${timeStr}`);
         const errorMsg = await client.getLocaleText(
           'commands.remind.errors.invalidformat',
-          interaction.locale
+          interaction.locale,
         );
         return await interaction.editReply({
           content: errorMsg,
@@ -379,7 +379,7 @@ export default {
         logger.warn(`Invalid message from ${userTag} - Length: ${message?.length}`);
         const errorMsg = await client.getLocaleText(
           'commands.remind.errors.providevalidchars',
-          interaction.locale
+          interaction.locale,
         );
         return await interaction.editReply({
           content: errorMsg,
@@ -392,7 +392,7 @@ export default {
         logger.warn(`Reminder time too short from ${userTag}: ${timeStr}`);
         const errorMsg = await client.getLocaleText(
           'commands.remind.errors.atleastoneminute',
-          interaction.locale
+          interaction.locale,
         );
         return await interaction.editReply({
           content: errorMsg,
@@ -403,7 +403,7 @@ export default {
         logger.warn(`Reminder time too long from ${userTag}: ${minutes} minutes`);
         const errorMsg = await client.getLocaleText(
           'commands.remind.errors.notlongerthanaday',
-          interaction.locale
+          interaction.locale,
         );
         return await interaction.editReply({
           content: errorMsg,
@@ -436,7 +436,7 @@ export default {
             ...reminderData,
             created_at: new Date(),
           }),
-          minutes * 60 * 1000
+          minutes * 60 * 1000,
         );
 
         activeReminders.set(reminderId, {
@@ -447,13 +447,13 @@ export default {
         const embed = new EmbedBuilder()
           .setColor(0xfaa0a0)
           .setTitle(
-            '⏰ ' + (await client.getLocaleText('commands.remind.reminderset', interaction.locale))
+            '⏰ ' + (await client.getLocaleText('commands.remind.reminderset', interaction.locale)),
           )
           .setDescription(
             await client.getLocaleText('commands.remind.iwillremindyou', interaction.locale, {
               message,
               time: formatTimeString(minutes),
-            })
+            }),
           )
           .addFields(
             {
@@ -468,7 +468,7 @@ export default {
                 (await client.getLocaleText('commands.remind.willtrigger', interaction.locale)),
               value: `<t:${Math.floor(expiresAt.getTime() / 1000)}:R>`,
               inline: true,
-            }
+            },
           )
           .setFooter({
             text: await client.getLocaleText('commands.remind.reminderid', interaction.locale, {
@@ -487,9 +487,8 @@ export default {
             userTag,
             expiresAt: expiresAt.toISOString(),
             messagePreview: message.length > 50 ? `${message.substring(0, 50)}...` : message,
-          }
+          },
         );
-        return;
       } catch (error) {
         if (error instanceof DatabaseError) {
           logger.error(`Database error saving reminder: ${error.message}`, {
@@ -506,7 +505,7 @@ export default {
           });
           const errorMessage = await client.getLocaleText(
             'commands.remind.errors.failedtosave',
-            interaction.locale
+            interaction.locale,
           );
           throw new Error(errorMessage);
         }
@@ -551,16 +550,16 @@ export default {
           messageId: message.id,
           channelId: message.channelId,
           guildId: message.guildId,
-        }
+        },
       );
 
       const modalTitle = await client.getLocaleText(
         'commands.remind.modal.setreminder',
-        interaction.locale
+        interaction.locale,
       );
       const timeLabel = await client.getLocaleText(
         'commands.remind.modal.whento',
-        interaction.locale
+        interaction.locale,
       );
       const modal = new ModalBuilder().setCustomId(modalId).setTitle(modalTitle);
 
@@ -583,7 +582,7 @@ export default {
           userId: user.id,
           userTag: user.tag,
           messageId: message?.id,
-        }
+        },
       );
 
       let errorMessage: string;
@@ -595,7 +594,7 @@ export default {
       } else {
         errorMessage = await client.getLocaleText(
           'commands.remind.errors.modalfailed',
-          interaction.locale
+          interaction.locale,
         );
         errorTitle = '❌ ' + (await client.getLocaleText('error', interaction.locale));
       }
@@ -631,7 +630,7 @@ export default {
         logger.warn(`No message info found for modal ID: ${modalId}`, { userId: user.id });
         const errorMsg = await client.getLocaleText(
           'commands.remind.errors.expired',
-          interaction.locale
+          interaction.locale,
         );
         return await modalInteraction.editReply({
           content: errorMsg,
@@ -647,7 +646,7 @@ export default {
         logger.warn(`Invalid time format from ${user.tag} in modal: ${timeStr}`);
         const errorMsg = await client.getLocaleText(
           'commands.remind.errors.invalidformat',
-          interaction.locale
+          interaction.locale,
         );
         return await modalInteraction.editReply({
           content: errorMsg,
@@ -660,7 +659,7 @@ export default {
         logger.warn(`Invalid time duration from ${user.tag} in modal: ${minutes} minutes`);
         const errorMsg = await client.getLocaleText(
           'commands.remind.errors.notlongerthanaday',
-          interaction.locale
+          interaction.locale,
         );
         return await modalInteraction.editReply({
           content: errorMsg,
@@ -702,16 +701,15 @@ export default {
           return await modalInteraction.editReply({
             content: error.userMessage,
           });
-        } else {
-          logger.error(`Error saving reminder to database: ${(error as Error).message}`, { error });
-          const errorMsg = await client.getLocaleText(
-            'commands.remind.errors.failedtosave',
-            interaction.locale
-          );
-          return await modalInteraction.editReply({
-            content: errorMsg,
-          });
         }
+        logger.error(`Error saving reminder to database: ${(error as Error).message}`, { error });
+        const errorMsg = await client.getLocaleText(
+          'commands.remind.errors.failedtosave',
+          interaction.locale,
+        );
+        return await modalInteraction.editReply({
+          content: errorMsg,
+        });
       }
 
       const timeoutId = setTimeout(
@@ -724,7 +722,7 @@ export default {
             message_url: messageInfo.url,
           },
         }),
-        minutes * 60 * 1000
+        minutes * 60 * 1000,
       );
 
       activeReminders.set(reminderId, {
@@ -734,19 +732,19 @@ export default {
 
       const jumpToMessageField = await client.getLocaleText(
         'common.jumptomessage',
-        interaction.locale
+        interaction.locale,
       );
 
       const embed = new EmbedBuilder()
         .setColor(0xfaa0a0)
         .setTitle(
-          '⏰ ' + (await client.getLocaleText('commands.remind.reminderset', interaction.locale))
+          '⏰ ' + (await client.getLocaleText('commands.remind.reminderset', interaction.locale)),
         )
         // .setTitle(reminderSetTitle)
         .setDescription(
           await client.getLocaleText('commands.remind.contextiwillremindyou', interaction.locale, {
             time: formatTimeString(minutes),
-          })
+          }),
         )
         // .setDescription(reminderSetDesc)
         .addFields(
@@ -758,7 +756,7 @@ export default {
             name: await client.getLocaleText('commands.remind.willtrigger', interaction.locale),
             value: `<t:${Math.floor(expiresAt.getTime() / 1000)}:R>`,
             inline: true,
-          }
+          },
         )
         .setFooter({
           text: await client.getLocaleText('commands.remind.reminderid', interaction.locale, {
@@ -775,20 +773,19 @@ export default {
         channelId: messageInfo.channelId,
         minutes,
       });
-      return;
     } catch (error) {
       logger.error(
         `Error handling reminder modal for ${user.tag} (${user.id}): ${(error as Error).message}`,
         {
           error,
           modalId,
-        }
+        },
       );
 
       try {
         const errorMsg = await client.getLocaleText(
           'commands.remind.errors.base',
-          interaction.locale
+          interaction.locale,
         );
         await modalInteraction.editReply({
           content: errorMsg,
@@ -796,7 +793,6 @@ export default {
       } catch (replyError) {
         logger.error('Failed to send error response to user:', { error: replyError });
       }
-      return;
     }
   },
 } as RemindCommandProps;

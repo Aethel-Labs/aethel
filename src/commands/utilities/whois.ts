@@ -34,7 +34,7 @@ const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout
 async function withRetry<T>(
   fn: () => Promise<T>,
   maxRetries = MAX_RETRIES,
-  baseDelay = 1000
+  baseDelay = 1000,
 ): Promise<T> {
   let lastError: any;
 
@@ -466,7 +466,7 @@ async function getWhoisData(query: string): Promise<any> {
     }
 
     throw new Error(
-      'Could not retrieve WHOIS information. The domain may not exist or the WHOIS server may be temporarily unavailable.'
+      'Could not retrieve WHOIS information. The domain may not exist or the WHOIS server may be temporarily unavailable.',
     );
   };
 
@@ -481,7 +481,7 @@ export default {
     .setName('whois')
     .setDescription('Look up WHOIS information for a domain or IP address')
     .addStringOption((option) =>
-      option.setName('query').setDescription('Domain or IP address to look up').setRequired(true)
+      option.setName('query').setDescription('Domain or IP address to look up').setRequired(true),
     )
     .setContexts([
       InteractionContextType.BotDM,
@@ -495,7 +495,7 @@ export default {
       cooldownManager,
       interaction.user.id,
       client,
-      interaction.locale
+      interaction.locale,
     );
     if (cooldownCheck.onCooldown) {
       return interaction.reply(createCooldownResponse(cooldownCheck.message!));
@@ -527,7 +527,7 @@ export default {
           .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# 🔍 WHOIS Lookup`))
           .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ${sanitizedQuery}`))
           .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(formattedData || 'No WHOIS data available')
+            new TextDisplayBuilder().setContent(formattedData || 'No WHOIS data available'),
           ),
       ];
 

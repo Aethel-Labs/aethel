@@ -46,7 +46,7 @@ export default class MessageCreateEvent {
 
     if (!isDM && !isMentioned) {
       logger.debug(
-        `Ignoring message - not a DM and bot not mentioned (channel type: ${message.channel.type})`
+        `Ignoring message - not a DM and bot not mentioned (channel type: ${message.channel.type})`,
       );
       return;
     }
@@ -63,7 +63,7 @@ export default class MessageCreateEvent {
       const hasImageAttachments = message.attachments.some(
         (att) =>
           att.contentType?.startsWith('image/') ||
-          att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
+          att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i),
       );
 
       const hasImageUrls = false;
@@ -87,14 +87,14 @@ export default class MessageCreateEvent {
         : userCustomModel || 'moonshotai/kimi-k2';
 
       logger.info(
-        `Using model: ${selectedModel} for message with images: ${hasImages}${userCustomModel ? ' (user custom model)' : ' (default model)'}`
+        `Using model: ${selectedModel} for message with images: ${hasImages}${userCustomModel ? ' (user custom model)' : ' (default model)'}`,
       );
 
       const systemPrompt = buildSystemPrompt(
         isDM,
         this.client,
         selectedModel,
-        message.author.username
+        message.author.username,
       );
 
       let messageContent:
@@ -112,7 +112,7 @@ export default class MessageCreateEvent {
         const imageAttachments = message.attachments.filter(
           (att) =>
             att.contentType?.startsWith('image/') ||
-            att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
+            att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i),
         );
 
         const contentArray: Array<{
@@ -164,11 +164,11 @@ export default class MessageCreateEvent {
       const updatedConversation = buildConversation(
         filteredConversation,
         messageContent,
-        systemPrompt
+        systemPrompt,
       );
 
       const { apiKey: userApiKey, apiUrl: userApiUrl } = await getUserCredentials(
-        message.author.id
+        message.author.id,
       );
       const config = getApiConfiguration(userApiKey ?? null, selectedModel, userApiUrl ?? null);
 
@@ -178,7 +178,7 @@ export default class MessageCreateEvent {
           const allowed = await incrementAndCheckDailyLimit(message.author.id, 10);
           if (!allowed) {
             await message.reply(
-              "❌ You've reached your daily limit of AI requests. Please try again tomorrow or set up your own API key using the `/ai` command."
+              "❌ You've reached your daily limit of AI requests. Please try again tomorrow or set up your own API key using the `/ai` command.",
             );
             return;
           }
@@ -231,13 +231,13 @@ export default class MessageCreateEvent {
         const fallbackConversation = buildConversation(
           cleanedConversation,
           fallbackContent,
-          buildSystemPrompt(isDM, this.client, fallbackModel, message.author.username)
+          buildSystemPrompt(isDM, this.client, fallbackModel, message.author.username),
         );
 
         const fallbackConfig = getApiConfiguration(
           userApiKey ?? null,
           fallbackModel,
-          userApiUrl ?? null
+          userApiUrl ?? null,
         );
         aiResponse = await makeAIRequest(fallbackConfig, fallbackConversation);
 
@@ -248,7 +248,7 @@ export default class MessageCreateEvent {
 
       if (!aiResponse) {
         await message.reply(
-          'Sorry, I encountered an error processing your message. Please try again later.'
+          'Sorry, I encountered an error processing your message. Please try again later.',
         );
         return;
       }
@@ -267,11 +267,11 @@ export default class MessageCreateEvent {
     } catch (error) {
       logger.error(
         `Error processing ${isDM ? 'DM' : 'server message'}:`,
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       );
       try {
         await message.reply(
-          'Sorry, I encountered an error processing your message. Please try again later.'
+          'Sorry, I encountered an error processing your message. Please try again later.',
         );
       } catch (replyError) {
         logger.error('Failed to send error message:', replyError);

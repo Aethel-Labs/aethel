@@ -22,14 +22,35 @@ function App() {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/"
+        element={<LandingPage />}
+      />
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+        element={
+          isAuthenticated ? (
+            <Navigate
+              to="/dashboard"
+              replace
+            />
+          ) : (
+            <LoginPage />
+          )
+        }
       />
-      <Route path="/status" element={<StatusPage />} />
-      <Route path="/legal/privacy" element={<PrivacyPage />} />
-      <Route path="/legal/terms" element={<TermsPage />} />
+      <Route
+        path="/status"
+        element={<StatusPage />}
+      />
+      <Route
+        path="/legal/privacy"
+        element={<PrivacyPage />}
+      />
+      <Route
+        path="/legal/terms"
+        element={<TermsPage />}
+      />
 
       {/* Protected routes */}
       {isAuthenticated ? (
@@ -38,17 +59,45 @@ function App() {
           element={
             <Layout>
               <Routes>
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/todos" element={<TodosPage />} />
-                <Route path="/reminders" element={<RemindersPage />} />
-                <Route path="/api-keys" element={<ApiKeysPage />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                <Route
+                  path="/dashboard"
+                  element={<DashboardPage />}
+                />
+                <Route
+                  path="/todos"
+                  element={<TodosPage />}
+                />
+                <Route
+                  path="/reminders"
+                  element={<RemindersPage />}
+                />
+                <Route
+                  path="/api-keys"
+                  element={<ApiKeysPage />}
+                />
+                <Route
+                  path="*"
+                  element={
+                    <Navigate
+                      to="/dashboard"
+                      replace
+                    />
+                  }
+                />
               </Routes>
             </Layout>
           }
         />
       ) : (
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/"
+              replace
+            />
+          }
+        />
       )}
     </Routes>
   );

@@ -79,8 +79,8 @@ export default {
             value: 'programming',
             name_localizations: { 'es-ES': 'Programación', 'es-419': 'Programación' },
           },
-          { name: 'Dad', value: 'dad', name_localizations: { 'es-ES': 'Papá', 'es-419': 'Papá' } }
-        )
+          { name: 'Dad', value: 'dad', name_localizations: { 'es-ES': 'Papá', 'es-419': 'Papá' } },
+        ),
     )
     .setContexts([
       InteractionContextType.BotDM,
@@ -95,7 +95,7 @@ export default {
         cooldownManager,
         interaction.user.id,
         client,
-        interaction.locale
+        interaction.locale,
       );
       if (cooldownCheck.onCooldown) {
         return interaction.reply(createCooldownResponse(cooldownCheck.message!));
@@ -114,7 +114,7 @@ export default {
         interaction.locale,
         {
           type: await client.getLocaleText(`commands.joke.type.${joke.type}`, interaction.locale),
-        }
+        },
       );
 
       const waitingFooter = await client.getLocaleText(
@@ -122,7 +122,7 @@ export default {
         interaction.locale,
         {
           seconds: 3,
-        }
+        },
       );
 
       const embed = new EmbedBuilder()
@@ -136,7 +136,7 @@ export default {
       setTimeout(async () => {
         try {
           embed.setDescription(
-            `${sanitizeInput(joke.setup)}\n\n*${sanitizeInput(joke.punchline)}*`
+            `${sanitizeInput(joke.setup)}\n\n*${sanitizeInput(joke.punchline)}*`,
           );
           embed.setFooter({ text: 'Ba dum tss! 🥁' });
           await interaction.editReply({ embeds: [embed] });
