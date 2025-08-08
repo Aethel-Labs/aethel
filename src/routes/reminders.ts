@@ -74,7 +74,7 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
 
         if (scheduled) {
           logger.info(
-            `Successfully scheduled reminder ${savedReminder.reminder_id} from dashboard`
+            `Successfully scheduled reminder ${savedReminder.reminder_id} from dashboard`,
           );
         } else {
           logger.warn(`Failed to schedule reminder ${savedReminder.reminder_id} from dashboard`);
@@ -145,7 +145,7 @@ router.patch('/:id/complete', authenticateToken, async (req: Request, res: Respo
         if (user) {
           const minutes = Math.floor(
             (new Date(reminder.expires_at).getTime() - new Date(reminder.created_at!).getTime()) /
-              (60 * 1000)
+              (60 * 1000),
           );
 
           const reminderTitle =
@@ -153,7 +153,7 @@ router.patch('/:id/complete', authenticateToken, async (req: Request, res: Respo
           const reminderDesc = await client.getLocaleText(
             'commands.remind.remindyou',
             reminder.locale,
-            { message: reminder.message }
+            { message: reminder.message },
           );
 
           const timeElapsedText =
@@ -171,7 +171,7 @@ router.patch('/:id/complete', authenticateToken, async (req: Request, res: Respo
                 name: originalTimeText,
                 value: `<t:${Math.floor(new Date(reminder.created_at!).getTime() / 1000)}:f>`,
                 inline: true,
-              }
+              },
             )
             .setFooter({ text: `ID: ${reminder.reminder_id.slice(-6)}` })
             .setTimestamp();
@@ -179,11 +179,11 @@ router.patch('/:id/complete', authenticateToken, async (req: Request, res: Respo
           if (reminder.metadata?.message_url) {
             const originalMessageText = await client.getLocaleText(
               'common.ogmessage',
-              reminder.locale
+              reminder.locale,
             );
             const jumpToMessageText = await client.getLocaleText(
               'common.jumptomessage',
-              reminder.locale
+              reminder.locale,
             );
 
             reminderEmbed.addFields({
@@ -196,7 +196,7 @@ router.patch('/:id/complete', authenticateToken, async (req: Request, res: Respo
           if (reminder.message.includes('http') && !reminder.metadata?.message_url) {
             const messageLinkText = await client.getLocaleText(
               'common.messagelink',
-              reminder.locale
+              reminder.locale,
             );
             reminderEmbed.addFields({
               name: messageLinkText,
@@ -220,7 +220,7 @@ router.patch('/:id/complete', authenticateToken, async (req: Request, res: Respo
         {
           error: notificationError,
           reminderId: reminder.reminder_id,
-        }
+        },
       );
     }
 

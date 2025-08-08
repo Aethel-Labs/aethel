@@ -61,7 +61,7 @@ export default {
           'es-419': 'La ciudad (ej: Londres, Nueva York)',
         })
         .setRequired(true)
-        .setAutocomplete(true)
+        .setAutocomplete(true),
     )
     .setContexts([
       InteractionContextType.BotDM,
@@ -93,7 +93,7 @@ export default {
         const flag = iso2ToDiscordFlag(match.iso2);
         const fieldDay = await client.getLocaleText(
           'commands.time.embed.field_day_of_week',
-          locale
+          locale,
         );
         const fieldTime = await client.getLocaleText('commands.time.embed.field_time', locale);
         const fieldDate = await client.getLocaleText('commands.time.embed.field_date', locale);
@@ -126,7 +126,7 @@ export default {
         const description = await client.getLocaleText(
           'commands.time.embed.multi_city_description',
           locale,
-          { city }
+          { city },
         );
         const fields = await Promise.all(
           shown.map(async (match) => {
@@ -137,7 +137,7 @@ export default {
             const flag = iso2ToDiscordFlag(match.iso2);
             const fieldDay = await client.getLocaleText(
               'commands.time.embed.field_day_of_week',
-              locale
+              locale,
             );
             const fieldTime = await client.getLocaleText('commands.time.embed.field_time', locale);
             const fieldDate = await client.getLocaleText('commands.time.embed.field_date', locale);
@@ -146,7 +146,7 @@ export default {
               value: `${fieldDay}: **${day}**\n${fieldTime}: **${time}**\n${fieldDate}: **${date}**`,
               inline: false,
             };
-          })
+          }),
         );
         const title = await client.getLocaleText('commands.time.embed.title_multi', locale, {
           city,
@@ -186,7 +186,7 @@ export default {
   async autocomplete(client, interaction: AutocompleteInteraction) {
     const focused = interaction.options.getFocused();
     const filtered = POPULAR_CITIES.filter((city) =>
-      city.toLowerCase().includes(focused.toLowerCase())
+      city.toLowerCase().includes(focused.toLowerCase()),
     ).slice(0, 25);
     await interaction.respond(filtered.map((city) => ({ name: city, value: city })));
   },

@@ -9,7 +9,7 @@ export interface StrikeInfo {
 export class StrikeError extends Error {
   constructor(
     message: string,
-    public readonly userId?: string
+    public readonly userId?: string,
   ) {
     super(message);
     this.name = 'StrikeError';
@@ -24,7 +24,7 @@ export async function getUserStrikeInfo(userId: string): Promise<StrikeInfo | nu
   try {
     const res = await pgClient.query(
       'SELECT strike_count, banned_until FROM user_strikes WHERE user_id = $1',
-      [userId]
+      [userId],
     );
 
     if (res.rows.length === 0) {
@@ -56,7 +56,7 @@ export async function incrementUserStrike(userId: string): Promise<StrikeInfo> {
         last_strike_at = NOW()
       RETURNING strike_count, banned_until;
     `,
-      [userId]
+      [userId],
     );
 
     if (res.rows.length === 0) {
@@ -137,7 +137,7 @@ export async function resetOldStrikes(): Promise<number> {
       `UPDATE user_strikes
        SET strike_count = 0, banned_until = NULL
        WHERE last_strike_at < NOW() - INTERVAL '3 days'
-       RETURNING user_id`
+       RETURNING user_id`,
     );
 
     const resetCount = res.rows.length;
@@ -161,7 +161,7 @@ export async function clearUserStrikes(userId: string): Promise<boolean> {
   try {
     const res = await pgClient.query(
       'UPDATE user_strikes SET strike_count = 0, banned_until = NULL WHERE user_id = $1',
-      [userId]
+      [userId],
     );
 
     logger.info('Cleared user strikes', { userId });

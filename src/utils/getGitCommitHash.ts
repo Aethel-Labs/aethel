@@ -39,6 +39,8 @@ function getGitCommitHash(): string {
   return cachedCommitHash || getGitCommitHashSync();
 }
 
-initializeGitCommitHash().catch(() => {});
+initializeGitCommitHash().catch((error) => {
+  console.warn('Failed to initialize git commit hash:', error.message);
+});
 
 export default getGitCommitHash;

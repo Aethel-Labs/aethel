@@ -59,7 +59,7 @@ export default {
           'es-419': 'La URL del video a descargar',
           'en-US': 'The URL of the video to download',
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -84,8 +84,8 @@ export default {
           { name: '1440p', value: '1440' },
           { name: '2160p (4K)', value: '2160' },
           { name: '4320p (8K)', value: '4320' },
-          { name: 'Max', value: 'max' }
-        )
+          { name: 'Max', value: 'max' },
+        ),
     )
     .addBooleanOption((option) =>
       option
@@ -100,7 +100,7 @@ export default {
           'es-ES': 'Descargar solo audio',
           'es-419': 'Descargar solo audio',
           'en-US': 'Download audio only',
-        })
+        }),
     )
     .addBooleanOption((option) =>
       option
@@ -115,7 +115,7 @@ export default {
           'es-ES': 'Silenciar audio',
           'es-419': 'Silenciar audio',
           'en-US': 'Mute audio',
-        })
+        }),
     )
     .addBooleanOption((option) =>
       option
@@ -130,7 +130,7 @@ export default {
           'es-ES': 'Descargar como GIF de Twitter',
           'es-419': 'Descargar como GIF de Twitter',
           'en-US': 'Download as Twitter GIF',
-        })
+        }),
     )
     .addBooleanOption((option) =>
       option
@@ -145,7 +145,7 @@ export default {
           'es-ES': 'Incluir audio original de TikTok',
           'es-419': 'Incluir audio original de TikTok',
           'en-US': 'Include TikTok original audio',
-        })
+        }),
     )
     .addStringOption((option) =>
       option
@@ -165,8 +165,8 @@ export default {
           { name: 'MP3', value: 'mp3' },
           { name: 'OGG', value: 'ogg' },
           { name: 'WAV', value: 'wav' },
-          { name: 'Best', value: 'best' }
-        )
+          { name: 'Best', value: 'best' },
+        ),
     )
     .setContexts([
       InteractionContextType.BotDM,
@@ -221,7 +221,7 @@ export default {
 
         const buttonLabel = await client.getLocaleText(
           'commands.cobalt.button_label',
-          interaction.locale
+          interaction.locale,
         );
 
         const container = new ContainerBuilder()
@@ -230,18 +230,18 @@ export default {
             new MediaGalleryBuilder().addItems(
               new MediaGalleryItemBuilder()
                 .setDescription(data.filename || 'Downloaded media')
-                .setURL(downloadUrl)
-            )
+                .setURL(downloadUrl),
+            ),
           )
 
           .addSectionComponents(
             new SectionBuilder()
               .addTextDisplayComponents((textDisplay) =>
-                textDisplay.setContent(`-# Took: ${processingTime}s`)
+                textDisplay.setContent(`-# Took: ${processingTime}s`),
               )
               .setButtonAccessory((button) =>
-                button.setLabel(buttonLabel).setStyle(ButtonStyle.Link).setURL(downloadUrl)
-              )
+                button.setLabel(buttonLabel).setStyle(ButtonStyle.Link).setURL(downloadUrl),
+              ),
           );
 
         await interaction.editReply({
@@ -251,7 +251,7 @@ export default {
       } else if (data.status === 'error') {
         const unknownError = await client.getLocaleText(
           'commands.cobalt.unknown_error',
-          interaction.locale
+          interaction.locale,
         );
         let errorText = unknownError;
 
@@ -266,15 +266,15 @@ export default {
           interaction.locale,
           {
             error: errorText,
-          }
+          },
         );
 
         const errorContainer = new ContainerBuilder()
           .setAccentColor(0xff4757)
           .addSectionComponents(
             new SectionBuilder().addTextDisplayComponents((textDisplay) =>
-              textDisplay.setContent(`❌ ${errorMessage}`)
-            )
+              textDisplay.setContent(`❌ ${errorMessage}`),
+            ),
           );
 
         await interaction.editReply({
@@ -285,7 +285,7 @@ export default {
         const multipleItemsMessage = await client.getLocaleText(
           'commands.cobalt.multiple_items',
           interaction.locale,
-          { url }
+          { url },
         );
 
         const pickerContainer = new ContainerBuilder()
@@ -293,9 +293,9 @@ export default {
           .addSectionComponents(
             new SectionBuilder().addTextDisplayComponents((textDisplay) =>
               textDisplay.setContent(
-                `⚠️ ${multipleItemsMessage || 'Multiple items found. Please provide a more specific URL.'}`
-              )
-            )
+                `⚠️ ${multipleItemsMessage || 'Multiple items found. Please provide a more specific URL.'}`,
+              ),
+            ),
           );
 
         await interaction.editReply({
@@ -305,7 +305,7 @@ export default {
       } else if (data.status === 'local-processing') {
         const notSupportedMessage = await client.getLocaleText(
           'commands.cobalt.local_processing_not_supported',
-          interaction.locale
+          interaction.locale,
         );
 
         const processingContainer = new ContainerBuilder()
@@ -313,9 +313,9 @@ export default {
           .addSectionComponents(
             new SectionBuilder().addTextDisplayComponents((textDisplay) =>
               textDisplay.setContent(
-                `⚠️ ${notSupportedMessage || 'Local processing is not supported. Please try a different URL or option.'}`
-              )
-            )
+                `⚠️ ${notSupportedMessage || 'Local processing is not supported. Please try a different URL or option.'}`,
+              ),
+            ),
           );
 
         await interaction.editReply({
@@ -325,15 +325,15 @@ export default {
       } else {
         const unknownResponseMessage = await client.getLocaleText(
           'commands.cobalt.unknown_response',
-          interaction.locale
+          interaction.locale,
         );
 
         const unknownContainer = new ContainerBuilder()
           .setAccentColor(0xff4757)
           .addSectionComponents(
             new SectionBuilder().addTextDisplayComponents((textDisplay) =>
-              textDisplay.setContent(`❓ ${unknownResponseMessage}`)
-            )
+              textDisplay.setContent(`❓ ${unknownResponseMessage}`),
+            ),
           );
 
         await interaction.editReply({

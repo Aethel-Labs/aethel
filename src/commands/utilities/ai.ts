@@ -113,7 +113,7 @@ export function processUrls(text: string): string {
       const after = text[startIdx + url.length];
       if (before === '<' && after === '>') return url + (punctuation || '');
       return `<${url}>${punctuation || ''}`;
-    }
+    },
   );
 }
 
@@ -138,7 +138,7 @@ function buildSystemPrompt(
   client?: BotClient,
   model?: string,
   username?: string,
-  interaction?: ChatInputCommandInteraction
+  interaction?: ChatInputCommandInteraction,
 ): string {
   const now = new Date();
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -160,11 +160,11 @@ function buildSystemPrompt(
   let supportedCommands = '/help - Show all available commands and their usage';
   if (client?.commands) {
     const commandEntries = Array.from(client.commands.entries()).sort(([a], [b]) =>
-      a.localeCompare(b)
+      a.localeCompare(b),
     );
     supportedCommands = commandEntries
       .map(
-        ([name, command]) => `/${name} - ${command.data.description || 'No description available'}`
+        ([name, command]) => `/${name} - ${command.data.description || 'No description available'}`,
       )
       .join('\n');
   }
@@ -218,7 +218,7 @@ function buildConversation(
           detail?: 'low' | 'high' | 'auto';
         };
       }>,
-  systemPrompt: string
+  systemPrompt: string,
 ): ConversationMessage[] {
   let conversation = existingConversation.filter((msg) => msg.role !== 'system');
   conversation.push({ role: 'user', content: prompt });
@@ -231,7 +231,7 @@ function buildConversation(
   return conversation;
 }
 
-function splitResponseIntoChunks(response: string, maxLength: number = 2000): string[] {
+function splitResponseIntoChunks(response: string, maxLength = 2000): string[] {
   if (response.length <= maxLength) return [response];
 
   const chunks: string[] = [];
@@ -272,12 +272,12 @@ async function setUserApiKey(
   userId: string,
   apiKey: string | null,
   model: string | null,
-  apiUrl: string | null
+  apiUrl: string | null,
 ): Promise<void> {
   if (apiKey === null) {
     await pool.query(
       `UPDATE users SET api_key_encrypted = NULL, custom_model = NULL, custom_api_url = NULL, updated_at = now() WHERE user_id = $1`,
-      [userId]
+      [userId],
     );
     logger.info(`Cleared API credentials for user ${userId}`);
   } else {
@@ -291,7 +291,7 @@ async function setUserApiKey(
        VALUES ($1, $2, $3, $4, now())
        ON CONFLICT (user_id) DO UPDATE SET 
          api_key_encrypted = $2, custom_model = $3, custom_api_url = $4, updated_at = now()`,
-      [userId, encrypted, model?.trim() || null, apiUrl?.trim() || null]
+      [userId, encrypted, model?.trim() || null, apiUrl?.trim() || null],
     );
     logger.info(`Successfully saved encrypted API credentials for user ${userId}`);
   }
@@ -340,7 +340,7 @@ async function clearCorruptedApiKey(userId: string): Promise<void> {
   }
 }
 
-async function incrementAndCheckDailyLimit(userId: string, limit: number = 20): Promise<boolean> {
+async function incrementAndCheckDailyLimit(userId: string, limit = 20): Promise<boolean> {
   const today = new Date().toISOString().slice(0, 10);
   const client = await pool.connect();
   try {
@@ -351,7 +351,7 @@ async function incrementAndCheckDailyLimit(userId: string, limit: number = 20): 
     const res = await client.query(
       `INSERT INTO ai_usage (user_id, usage_date, count) VALUES ($1, $2, 1)
        ON CONFLICT (user_id, usage_date) DO UPDATE SET count = ai_usage.count + 1 RETURNING count`,
-      [userId, today]
+      [userId, today],
     );
     await client.query('COMMIT');
     return res.rows[0].count <= limit;
@@ -366,7 +366,7 @@ async function incrementAndCheckDailyLimit(userId: string, limit: number = 20): 
 async function testApiKey(
   apiKey: string,
   model: string,
-  apiUrl: string
+  apiUrl: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const client = getOpenAIClient(apiKey, apiUrl);
@@ -397,7 +397,7 @@ async function testApiKey(
 
 async function makeAIRequest(
   config: ReturnType<typeof getApiConfiguration>,
-  conversation: ConversationMessage[]
+  conversation: ConversationMessage[],
 ): Promise<AIResponse | null> {
   try {
     const client = getOpenAIClient(config.finalApiKey!, config.finalApiUrl);
@@ -429,7 +429,7 @@ async function makeAIRequest(
 
 async function processAIRequest(
   client: BotClient,
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<void> {
   try {
     if (!interaction.deferred && !interaction.replied) {
@@ -439,7 +439,7 @@ async function processAIRequest(
     const prompt = interaction.options.getString('prompt')!;
     commandLogger.logFromInteraction(
       interaction,
-      `prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`
+      `prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
     );
 
     const { apiKey, model, apiUrl } = await getUserCredentials(interaction.user.id);
@@ -452,14 +452,14 @@ async function processAIRequest(
         if (!allowed) {
           await interaction.editReply(
             '❌ ' +
-              (await client.getLocaleText('commands.ai.process.dailylimit', interaction.locale))
+              (await client.getLocaleText('commands.ai.process.dailylimit', interaction.locale)),
           );
           return;
         }
       }
     } else if (!config.finalApiKey) {
       await interaction.editReply(
-        '❌ ' + (await client.getLocaleText('commands.ai.process.noapikey', interaction.locale))
+        '❌ ' + (await client.getLocaleText('commands.ai.process.noapikey', interaction.locale)),
       );
       return;
     }
@@ -471,7 +471,7 @@ async function processAIRequest(
       client,
       config.finalModel,
       interaction.user.tag,
-      interaction
+      interaction,
     );
     const conversation = buildConversation(conversationArray, prompt, systemPrompt);
 
@@ -505,7 +505,7 @@ async function processAIRequest(
 async function sendAIResponse(
   interaction: ChatInputCommandInteraction,
   aiResponse: AIResponse,
-  client: BotClient
+  client: BotClient,
 ): Promise<void> {
   let fullResponse = '';
 
@@ -584,13 +584,13 @@ export default {
           'es-419': 'Tu mensaje para la IA',
           'en-US': 'Your message to the AI',
         })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addBooleanOption((option) =>
-      option.setName('use_custom_api').setDescription('Use your own API key?').setRequired(false)
+      option.setName('use_custom_api').setDescription('Use your own API key?').setRequired(false),
     )
     .addBooleanOption((option) =>
-      option.setName('reset').setDescription('Reset your AI chat history').setRequired(false)
+      option.setName('reset').setDescription('Reset your AI chat history').setRequired(false),
     ),
 
   async execute(client: BotClient, interaction: ChatInputCommandInteraction) {
@@ -647,7 +647,7 @@ export default {
           .setLabel(await client.getLocaleText('commands.ai.modal.apikey', interaction.locale))
           .setStyle(TextInputStyle.Short)
           .setPlaceholder(
-            await client.getLocaleText('commands.ai.modal.apikeyplaceholder', interaction.locale)
+            await client.getLocaleText('commands.ai.modal.apikeyplaceholder', interaction.locale),
           )
           .setRequired(true);
 
@@ -656,7 +656,7 @@ export default {
           .setLabel(await client.getLocaleText('commands.ai.modal.apiurl', interaction.locale))
           .setStyle(TextInputStyle.Short)
           .setPlaceholder(
-            await client.getLocaleText('commands.ai.modal.apiurlplaceholder', interaction.locale)
+            await client.getLocaleText('commands.ai.modal.apiurlplaceholder', interaction.locale),
           )
           .setRequired(true);
 
@@ -665,14 +665,14 @@ export default {
           .setLabel(await client.getLocaleText('commands.ai.modal.model', interaction.locale))
           .setStyle(TextInputStyle.Short)
           .setPlaceholder(
-            await client.getLocaleText('commands.ai.modal.modelplaceholder', interaction.locale)
+            await client.getLocaleText('commands.ai.modal.modelplaceholder', interaction.locale),
           )
           .setRequired(true);
 
         modal.addComponents(
           new ActionRowBuilder<TextInputBuilder>().addComponents(apiKeyInput),
           new ActionRowBuilder<TextInputBuilder>().addComponents(apiUrlInput),
-          new ActionRowBuilder<TextInputBuilder>().addComponents(modelInput)
+          new ActionRowBuilder<TextInputBuilder>().addComponents(modelInput),
         );
 
         await interaction.showModal(modal);
@@ -701,7 +701,7 @@ export default {
 
         if (!pendingRequest) {
           return interaction.editReply(
-            await client.getLocaleText('commands.ai.nopendingrequest', interaction.locale)
+            await client.getLocaleText('commands.ai.nopendingrequest', interaction.locale),
           );
         }
 
@@ -715,37 +715,37 @@ export default {
           parsedUrl = new URL(apiUrl);
         } catch {
           await interaction.editReply(
-            'API URL is invalid. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).'
+            'API URL is invalid. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).',
           );
           return;
         }
 
         if (!ALLOWED_API_HOSTS.includes(parsedUrl.hostname)) {
           await interaction.editReply(
-            'API URL not allowed. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).'
+            'API URL not allowed. Please use a supported API endpoint (OpenAI, OpenRouter, or Google Gemini).',
           );
           return;
         }
 
         await interaction.editReply(
-          await client.getLocaleText('commands.ai.testing', interaction.locale)
+          await client.getLocaleText('commands.ai.testing', interaction.locale),
         );
         const testResult = await testApiKey(apiKey, model, apiUrl);
 
         if (!testResult.success) {
           const errorMessage = await client.getLocaleText(
             'commands.ai.testfailed',
-            interaction.locale
+            interaction.locale,
           );
           await interaction.editReply(
-            errorMessage.replace('{error}', testResult.error || 'Unknown error')
+            errorMessage.replace('{error}', testResult.error || 'Unknown error'),
           );
           return;
         }
 
         await setUserApiKey(userId, apiKey, model, apiUrl);
         await interaction.editReply(
-          await client.getLocaleText('commands.ai.testsuccess', interaction.locale)
+          await client.getLocaleText('commands.ai.testsuccess', interaction.locale),
         );
 
         if (!originalInteraction.deferred && !originalInteraction.replied) {

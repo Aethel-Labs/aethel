@@ -33,7 +33,10 @@ const Layout = ({ children }: LayoutProps) => {
           mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="fixed inset-0 bg-black/70" onClick={() => setMobileMenuOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black/70"
+          onClick={() => setMobileMenuOpen(false)}
+        />
         <div
           className={`fixed inset-y-0 left-0 flex w-72 flex-col bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-xl transform transition-transform duration-200 ease-out ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'

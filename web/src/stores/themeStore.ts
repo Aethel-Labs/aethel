@@ -28,8 +28,8 @@ export const useThemeStore = create<ThemeState>()(
           updateBodyClass(state.isDarkMode);
         }
       },
-    }
-  )
+    },
+  ),
 );
 
 function updateBodyClass(isDark: boolean) {

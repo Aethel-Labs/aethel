@@ -119,7 +119,7 @@ router.post(
       logger.error('Error updating API key:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 );
 
 router.put(
@@ -179,7 +179,7 @@ router.put(
       logger.error('Error updating API key:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 );
 
 router.delete('/', async (req, res) => {
@@ -293,7 +293,7 @@ router.post(
 
       res.status(500).json({ error: 'API key test failed due to server error' });
     }
-  }
+  },
 );
 
 export default router;

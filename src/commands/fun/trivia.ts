@@ -172,13 +172,13 @@ function decodeHtmlEntities(text: string): string {
 async function fetchTriviaQuestions(
   client: import('@/services/Client').default,
   locale: string,
-  playerCount: number
+  playerCount: number,
 ): Promise<TriviaQuestion[]> {
   try {
     const totalQuestions = Math.min(Math.max(playerCount * 2 + 1, 5), 50);
 
     const response = await dynamicFetch(
-      `https://opentdb.com/api.php?amount=${totalQuestions}&type=multiple`
+      `https://opentdb.com/api.php?amount=${totalQuestions}&type=multiple`,
     );
     const data: TriviaAPIResponse = await response.json();
 
@@ -256,13 +256,13 @@ function getNextPlayer(session: GameSession): string {
 async function startTriviaGame(
   interaction: ChatInputCommandInteraction | ButtonInteraction,
   session: GameSession,
-  client: import('@/services/Client').default
+  client: import('@/services/Client').default,
 ) {
   try {
     session.questions = await fetchTriviaQuestions(
       client,
       interaction.locale,
-      session.players.size
+      session.players.size,
     );
     session.originalQuestionCount = session.questions.length;
     session.isActive = true;
@@ -274,7 +274,7 @@ async function startTriviaGame(
   } catch {
     const errorMsg = await client.getLocaleText(
       'commands.trivia.messages.failed_start',
-      interaction.locale
+      interaction.locale,
     );
     await interaction.editReply({
       content: errorMsg,
@@ -286,7 +286,7 @@ async function startTriviaGame(
 async function askQuestion(
   interaction: ChatInputCommandInteraction | ButtonInteraction,
   session: GameSession,
-  client: import('@/services/Client').default
+  client: import('@/services/Client').default,
 ) {
   if (session.currentQuestionIndex >= session.questions.length) {
     const sortedScores = Array.from(session.scores.entries()).sort(([, a], [, b]) => b - a);
@@ -300,7 +300,7 @@ async function askQuestion(
 
         const tiedGameText = await client.getLocaleText(
           'commands.trivia.messages.tied_game',
-          interaction.locale
+          interaction.locale,
         );
         await interaction.editReply({
           content: tiedGameText || '🤝 Tied game! Keep going until someone scores!',
@@ -349,7 +349,7 @@ async function askQuestion(
     '\n' +
     difficultyText.replace(
       '{difficulty}',
-      question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1)
+      question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1),
     ) +
     '\n\n' +
     questionText.replace('{question}', question.question);
@@ -365,7 +365,7 @@ async function askQuestion(
 async function endGame(
   interaction: ChatInputCommandInteraction | ButtonInteraction,
   session: GameSession,
-  client: import('@/services/Client').default
+  client: import('@/services/Client').default,
 ) {
   const sortedScores = Array.from(session.scores.entries()).sort(([, a], [, b]) => b - a);
 
@@ -412,7 +412,7 @@ const triviaCommand = {
 
   execute: async (
     client: import('@/services/Client').default,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
   ) => {
     try {
       const channelId = interaction.channelId;
@@ -420,7 +420,7 @@ const triviaCommand = {
       if (gameManager.has(channelId)) {
         const errorMsg = await client.getLocaleText(
           'commands.trivia.messages.game_exists',
-          interaction.locale
+          interaction.locale,
         );
         return interaction.reply({
           content: errorMsg,
@@ -471,7 +471,7 @@ const triviaCommand = {
 
   handleButton: async (
     client: import('@/services/Client').default,
-    interaction: ButtonInteraction
+    interaction: ButtonInteraction,
   ) => {
     try {
       const channelId = interaction.channelId;
@@ -480,7 +480,7 @@ const triviaCommand = {
       if (!session) {
         const errorMsg = await client.getLocaleText(
           'commands.trivia.messages.no_active_game',
-          interaction.locale
+          interaction.locale,
         );
         return interaction.reply({
           content: errorMsg,
@@ -494,7 +494,7 @@ const triviaCommand = {
         if (!session.queueOpen) {
           const errorMsg = await client.getLocaleText(
             'commands.trivia.messages.game_started',
-            interaction.locale
+            interaction.locale,
           );
           return interaction.reply({
             content: '❌ ' + errorMsg,
@@ -505,7 +505,7 @@ const triviaCommand = {
         if (session.players.has(interaction.user.id)) {
           const errorMsg = await client.getLocaleText(
             'commands.trivia.messages.already_joined',
-            interaction.locale
+            interaction.locale,
           );
           return interaction.reply({
             content: '❌ ' + errorMsg,
@@ -535,7 +535,7 @@ const triviaCommand = {
         if (interaction.user.id !== session.gameCreator) {
           const errorMsg = await client.getLocaleText(
             'commands.trivia.messages.only_creator_start',
-            interaction.locale
+            interaction.locale,
           );
           return interaction.reply({
             content: '❌ ' + errorMsg,
@@ -546,7 +546,7 @@ const triviaCommand = {
         if (session.players.size < 1) {
           const errorMsg = await client.getLocaleText(
             'commands.trivia.messages.need_players',
-            interaction.locale
+            interaction.locale,
           );
           return interaction.reply({
             content: '❌ ' + errorMsg,
@@ -556,7 +556,7 @@ const triviaCommand = {
 
         const startingMsg = await client.getLocaleText(
           'commands.trivia.messages.starting_game',
-          interaction.locale
+          interaction.locale,
         );
         await interaction.update({
           content: startingMsg,
@@ -568,7 +568,7 @@ const triviaCommand = {
         if (interaction.user.id !== session.gameCreator) {
           const errorMsg = await client.getLocaleText(
             'commands.trivia.messages.only_creator_cancel',
-            interaction.locale
+            interaction.locale,
           );
           return interaction.reply({
             content: '❌ ' + errorMsg,
@@ -580,7 +580,7 @@ const triviaCommand = {
 
         const cancelMsg = await client.getLocaleText(
           'commands.trivia.messages.game_cancelled',
-          interaction.locale
+          interaction.locale,
         );
         await interaction.update({
           content: cancelMsg,
@@ -590,7 +590,7 @@ const triviaCommand = {
         if (!session.isActive) {
           const errorMsg = await client.getLocaleText(
             'commands.trivia.messages.no_active_question',
-            interaction.locale
+            interaction.locale,
           );
           return interaction.reply({
             content: errorMsg,
@@ -601,7 +601,7 @@ const triviaCommand = {
         if (interaction.user.id !== session.currentPlayer) {
           const errorMsg = await client.getLocaleText(
             'commands.trivia.messages.not_your_turn',
-            interaction.locale
+            interaction.locale,
           );
           return interaction.reply({
             content: '❌ ' + errorMsg,

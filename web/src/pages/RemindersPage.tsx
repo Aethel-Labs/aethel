@@ -150,7 +150,10 @@ const RemindersPage: React.FC = () => {
           <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">
             Create New Reminder
           </h2>
-          <form onSubmit={handleCreateReminder} className="space-y-4 sm:space-y-6">
+          <form
+            onSubmit={handleCreateReminder}
+            className="space-y-4 sm:space-y-6"
+          >
             <div>
               <label
                 htmlFor="message"

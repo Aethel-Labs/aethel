@@ -33,9 +33,7 @@ export default class MessageCreateEvent {
   }
 
   private async execute(message: Message): Promise<void> {
-    logger.debug(
-      `Message received from ${message.author.username} in channel type: ${message.channel.type}`
-    );
+    logger.debug(`Message received in channel type: ${message.channel.type}`);
 
     if (message.author.bot) {
       logger.debug('Ignoring message from bot');
@@ -48,7 +46,7 @@ export default class MessageCreateEvent {
 
     if (!isDM && !isMentioned) {
       logger.debug(
-        `Ignoring message - not a DM and bot not mentioned (channel type: ${message.channel.type})`
+        `Ignoring message - not a DM and bot not mentioned (channel type: ${message.channel.type})`,
       );
       return;
     }
@@ -56,9 +54,7 @@ export default class MessageCreateEvent {
     logger.info(isDM ? 'Processing DM message...' : 'Processing mention in server...');
 
     try {
-      logger.debug(
-        `DM received from user ${message.author.id} (${message.content.length} characters)`
-      );
+      logger.debug(`DM received (${message.content.length} characters)`);
 
       const conversationKey = isDM ? message.author.id : message.channel.id;
       const conversationManager = isDM ? dmConversations : serverConversations;
@@ -67,7 +63,7 @@ export default class MessageCreateEvent {
       const hasImageAttachments = message.attachments.some(
         (att) =>
           att.contentType?.startsWith('image/') ||
-          att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
+          att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i),
       );
 
       const hasImageUrls = false;
@@ -91,14 +87,14 @@ export default class MessageCreateEvent {
         : userCustomModel || 'moonshotai/kimi-k2';
 
       logger.info(
-        `Using model: ${selectedModel} for message with images: ${hasImages}${userCustomModel ? ' (user custom model)' : ' (default model)'}`
+        `Using model: ${selectedModel} for message with images: ${hasImages}${userCustomModel ? ' (user custom model)' : ' (default model)'}`,
       );
 
       const systemPrompt = buildSystemPrompt(
         isDM,
         this.client,
         selectedModel,
-        message.author.username
+        message.author.username,
       );
 
       let messageContent:
@@ -116,7 +112,7 @@ export default class MessageCreateEvent {
         const imageAttachments = message.attachments.filter(
           (att) =>
             att.contentType?.startsWith('image/') ||
-            att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
+            att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i),
         );
 
         const contentArray: Array<{
@@ -168,11 +164,11 @@ export default class MessageCreateEvent {
       const updatedConversation = buildConversation(
         filteredConversation,
         messageContent,
-        systemPrompt
+        systemPrompt,
       );
 
       const { apiKey: userApiKey, apiUrl: userApiUrl } = await getUserCredentials(
-        message.author.id
+        message.author.id,
       );
       const config = getApiConfiguration(userApiKey ?? null, selectedModel, userApiUrl ?? null);
 
@@ -182,7 +178,7 @@ export default class MessageCreateEvent {
           const allowed = await incrementAndCheckDailyLimit(message.author.id, 10);
           if (!allowed) {
             await message.reply(
-              "❌ You've reached your daily limit of AI requests. Please try again tomorrow or set up your own API key using the `/ai` command."
+              "❌ You've reached your daily limit of AI requests. Please try again tomorrow or set up your own API key using the `/ai` command.",
             );
             return;
           }
@@ -235,13 +231,13 @@ export default class MessageCreateEvent {
         const fallbackConversation = buildConversation(
           cleanedConversation,
           fallbackContent,
-          buildSystemPrompt(isDM, this.client, fallbackModel, message.author.username)
+          buildSystemPrompt(isDM, this.client, fallbackModel, message.author.username),
         );
 
         const fallbackConfig = getApiConfiguration(
           userApiKey ?? null,
           fallbackModel,
-          userApiUrl ?? null
+          userApiUrl ?? null,
         );
         aiResponse = await makeAIRequest(fallbackConfig, fallbackConversation);
 
@@ -252,7 +248,7 @@ export default class MessageCreateEvent {
 
       if (!aiResponse) {
         await message.reply(
-          'Sorry, I encountered an error processing your message. Please try again later.'
+          'Sorry, I encountered an error processing your message. Please try again later.',
         );
         return;
       }
@@ -267,14 +263,15 @@ export default class MessageCreateEvent {
       });
       conversationManager.set(conversationKey, updatedConversation);
 
-      logger.info(
-        `${isDM ? 'DM' : 'Server'} response sent to ${message.author.tag} (${message.author.id})`
-      );
+      logger.info(`${isDM ? 'DM' : 'Server'} response sent successfully`);
     } catch (error) {
-      logger.error(`Error processing DM from ${message.author.tag} (${message.author.id}):`, error);
+      logger.error(
+        `Error processing ${isDM ? 'DM' : 'server message'}:`,
+        error instanceof Error ? error.message : String(error),
+      );
       try {
         await message.reply(
-          'Sorry, I encountered an error processing your message. Please try again later.'
+          'Sorry, I encountered an error processing your message. Please try again later.',
         );
       } catch (replyError) {
         logger.error('Failed to send error message:', replyError);

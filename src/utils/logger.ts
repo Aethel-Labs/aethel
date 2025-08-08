@@ -3,7 +3,21 @@ import { LOG_LEVEL, NODE_ENV } from '@/config/index';
 import path from 'path';
 
 const sanitizeFormat = winston.format((info) => {
-  const sensitiveKeys = ['password', 'token', 'api_key', 'secret', 'authorization'];
+  const sensitiveKeys = [
+    'password',
+    'token',
+    'api_key',
+    'secret',
+    'authorization',
+    'userid',
+    'user_id',
+    'username',
+    'user_tag',
+    'guildid',
+    'guild_id',
+    'channelid',
+    'channel_id',
+  ];
 
   const sanitize = (obj: unknown): unknown => {
     if (typeof obj !== 'object' || obj === null) return obj;
@@ -12,6 +26,8 @@ const sanitizeFormat = winston.format((info) => {
     for (const key in sanitized) {
       if (sensitiveKeys.some((sensitive) => key.toLowerCase().includes(sensitive))) {
         sanitized[key] = '[REDACTED]';
+      } else if (typeof sanitized[key] === 'string') {
+        sanitized[key] = (sanitized[key] as string).replace(/\b\d{17,19}\b/g, '[ID_REDACTED]');
       } else if (typeof sanitized[key] === 'object') {
         sanitized[key] = sanitize(sanitized[key]);
       }
@@ -31,7 +47,7 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     sanitizeFormat(),
     winston.format.splat(),
-    winston.format.json()
+    winston.format.json(),
   ),
   defaultMeta: {
     service: 'Aethel',
@@ -45,7 +61,7 @@ const logger = winston.createLogger({
         winston.format.printf(({ timestamp, level, message, service, ...meta }) => {
           const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
           return `${timestamp} [${service}] ${level}: ${message} ${metaStr}`;
-        })
+        }),
       ),
     }),
   ],
@@ -62,7 +78,7 @@ if (NODE_ENV === 'production') {
       maxsize: 5242880,
       maxFiles: 5,
       format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-    })
+    }),
   );
 
   logger.add(
@@ -71,20 +87,20 @@ if (NODE_ENV === 'production') {
       maxsize: 5242880,
       maxFiles: 5,
       format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-    })
+    }),
   );
 }
 
 logger.exceptions.handle(
   new winston.transports.Console({
     format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
-  })
+  }),
 );
 
 logger.rejections.handle(
   new winston.transports.Console({
     format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
-  })
+  }),
 );
 
 export default logger;

@@ -52,7 +52,7 @@ async function fetchWeatherData(location: string, units = 'metric') {
   const data = (await response.json()) as WeatherAPIResponse;
   if (!response.ok || data.cod !== 200) {
     const error = new Error(
-      (data as WeatherErrorResponse).message ?? 'Failed to fetch weather data'
+      (data as WeatherErrorResponse).message ?? 'Failed to fetch weather data',
     );
     throw error;
   }
@@ -89,7 +89,7 @@ export default {
           'en-US': 'City name (e.g., London, New York, Tokyo)',
         })
         .setRequired(true)
-        .setMaxLength(100)
+        .setMaxLength(100),
     )
     .setContexts([
       InteractionContextType.BotDM,
@@ -104,7 +104,7 @@ export default {
         cooldownManager,
         interaction.user.id,
         client,
-        interaction.locale
+        interaction.locale,
       );
       if (cooldownCheck.onCooldown) {
         return interaction.reply(createCooldownResponse(cooldownCheck.message!));
@@ -188,7 +188,7 @@ export default {
           { name: weatherText, value: description, inline: true },
           { name: humidityText, value: `${data.main.humidity}%`, inline: true },
           { name: windText, value: `${windSpeed} ${windUnit}`, inline: true },
-          { name: pressureText, value: `${data.main.pressure} hPa`, inline: true }
+          { name: pressureText, value: `${data.main.pressure} hPa`, inline: true },
         )
         .setFooter({ text: footer + ' Open Weather' })
         .setTimestamp();

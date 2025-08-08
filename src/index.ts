@@ -37,7 +37,7 @@ app.use(
     allowedHeaders: ['Content-Type', 'X-API-Key', 'Authorization', 'Cache-Control', 'Pragma'],
     credentials: true,
     maxAge: 86400,
-  })
+  }),
 );
 app.set('trust proxy', 1);
 app.use(
@@ -47,7 +47,7 @@ app.use(
     message: { error: 'Too many requests, please try again later.' },
     standardHeaders: true,
     legacyHeaders: false,
-  })
+  }),
 );
 
 app.use(e.json({ limit: '10mb' }));
@@ -65,7 +65,7 @@ app.use((req, res, next) => {
   } else {
     res.setHeader(
       'Content-Security-Policy',
-      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:"
+      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:",
     );
   }
   next();
@@ -94,7 +94,7 @@ setInterval(
   () => {
     resetOldStrikes().catch(console.error);
   },
-  60 * 60 * 1000
+  60 * 60 * 1000,
 );
 
 app.listen(PORT, () => {

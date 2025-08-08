@@ -21,7 +21,7 @@ async function getTodosForUser(userId: string) {
   try {
     const { rows } = await pool.query(
       'SELECT item FROM todos WHERE user_id = $1 AND done = FALSE ORDER BY created_at ASC',
-      [userId]
+      [userId],
     );
     return rows.map((r) => r.item);
   } catch (error) {
@@ -33,7 +33,7 @@ async function getDoneForUser(userId: string) {
   try {
     const { rows } = await pool.query(
       'SELECT item FROM todos WHERE user_id = $1 AND done = TRUE ORDER BY completed_at ASC',
-      [userId]
+      [userId],
     );
     return rows.map((r) => r.item);
   } catch (error) {
@@ -74,8 +74,8 @@ export default {
               'es-ES': 'La tarea a agregar',
               'es-419': 'La tarea a agregar',
             })
-            .setRequired(true)
-        )
+            .setRequired(true),
+        ),
     )
     .addSubcommand((sub) =>
       sub
@@ -98,8 +98,8 @@ export default {
               'es-419': 'Selecciona una tarea para marcar como hecha',
             })
             .setRequired(true)
-            .setAutocomplete(true)
-        )
+            .setAutocomplete(true),
+        ),
     )
     .addSubcommand((sub) =>
       sub
@@ -112,7 +112,7 @@ export default {
         .setDescriptionLocalizations({
           'es-ES': 'Ver tu lista de tareas',
           'es-419': 'Ver tu lista de tareas',
-        })
+        }),
     )
     .setContexts([
       InteractionContextType.BotDM,
@@ -154,7 +154,7 @@ export default {
         try {
           const { rowCount } = await pool.query(
             'UPDATE todos SET done = TRUE, completed_at = NOW() WHERE user_id = $1 AND item = $2 AND done = FALSE',
-            [userId, item]
+            [userId, item],
           );
           if (rowCount === 0) {
             await interaction.reply({

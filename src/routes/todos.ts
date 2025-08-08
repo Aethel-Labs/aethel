@@ -63,7 +63,7 @@ router.post(
       logger.error('Error creating todo:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 );
 
 router.put(
@@ -105,7 +105,7 @@ router.put(
       logger.error('Error updating todo:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 );
 
 router.delete('/:id', async (req, res) => {

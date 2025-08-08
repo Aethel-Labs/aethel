@@ -119,7 +119,10 @@ const TodosPage = () => {
       </div>
 
       <div className="card p-6">
-        <form onSubmit={handleAddTodo} className="flex gap-3">
+        <form
+          onSubmit={handleAddTodo}
+          className="flex gap-3"
+        >
           <input
             type="text"
             value={newTodo}

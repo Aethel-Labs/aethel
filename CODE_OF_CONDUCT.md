@@ -2,7 +2,8 @@
 
 ## Our Pledge
 
-We as members, contributors, and leaders pledge to make participation in our project and our community a harassment-free experience for everyone.
+We as members, contributors, and leaders pledge to make participation in our
+project and our community a harassment-free experience for everyone.
 
 ## Our Standards
 
@@ -21,4 +22,5 @@ Examples of unacceptable behavior:
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the maintainer at scan@scanash.com.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be
+reported by contacting the maintainer at scan@scanash.com.

@@ -64,7 +64,7 @@ export default {
         cooldownManager,
         interaction.user.id,
         client,
-        interaction.locale
+        interaction.locale,
       );
       if (cooldownCheck.onCooldown) {
         return interaction.reply(createCooldownResponse(cooldownCheck.message!));
@@ -94,11 +94,11 @@ export default {
                 ? await client.getLocaleText('reddit.from', interaction.locale, {
                     subreddit: dogData.subreddit,
                   })
-                : ''
-            )
+                : '',
+            ),
           )
           .addMediaGalleryComponents(
-            new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL(dogData.url))
+            new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL(dogData.url)),
           )
           .addActionRowComponents(
             new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
@@ -106,8 +106,8 @@ export default {
                 .setStyle(ButtonStyle.Secondary)
                 .setLabel(refreshLabel)
                 .setEmoji({ name: '🐶' })
-                .setCustomId('refresh_dog')
-            )
+                .setCustomId('refresh_dog'),
+            ),
           );
 
         await interaction.editReply({
@@ -128,7 +128,7 @@ export default {
       const errorMsg = await client.getLocaleText('unexpectederror', interaction.locale);
 
       const errorContainer = new ContainerBuilder().addTextDisplayComponents(
-        new TextDisplayBuilder().setContent(errorMsg)
+        new TextDisplayBuilder().setContent(errorMsg),
       );
 
       if (!interaction.replied && !interaction.deferred) {

@@ -16,7 +16,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 api.interceptors.response.use(
@@ -34,7 +34,7 @@ api.interceptors.response.use(
       toast.error('An unexpected error occurred.');
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

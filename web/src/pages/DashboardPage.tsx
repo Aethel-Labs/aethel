@@ -65,7 +65,7 @@ const DashboardPage = () => {
   const recentTodos = activeTodosForDisplay.slice(0, 5);
   const activeRemindersForDisplay =
     reminders?.filter(
-      (reminder: Reminder) => !reminder.completed && new Date(reminder.expires_at) >= new Date()
+      (reminder: Reminder) => !reminder.completed && new Date(reminder.expires_at) >= new Date(),
     ) || [];
   const recentReminders = activeRemindersForDisplay.slice(0, 5);
 
@@ -194,7 +194,10 @@ const DashboardPage = () => {
             {recentTodos.length > 0 ? (
               <div className="space-y-3">
                 {recentTodos.slice(0, 5).map((todo: Todo) => (
-                  <div key={todo.id} className="stats-card">
+                  <div
+                    key={todo.id}
+                    className="stats-card"
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3 flex-1">
                         <div
@@ -269,12 +272,15 @@ const DashboardPage = () => {
                   const daysOverdue = isOverdue
                     ? Math.ceil(
                         (Date.now() - new Date(reminder.expires_at).getTime()) /
-                          (1000 * 60 * 60 * 24)
+                          (1000 * 60 * 60 * 24),
                       )
                     : 0;
 
                   return (
-                    <div key={reminder.reminder_id} className="stats-card">
+                    <div
+                      key={reminder.reminder_id}
+                      className="stats-card"
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3 flex-1">
                           <div

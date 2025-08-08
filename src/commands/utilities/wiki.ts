@@ -93,7 +93,7 @@ export default {
           'en-US': 'What do you want to search for?',
         })
         .setRequired(true)
-        .setMaxLength(200)
+        .setMaxLength(200),
     )
     .setContexts([
       InteractionContextType.BotDM,
@@ -108,7 +108,7 @@ export default {
         cooldownManager,
         interaction.user.id,
         client,
-        interaction.locale
+        interaction.locale,
       );
       if (cooldownCheck.onCooldown) {
         return interaction.reply(createCooldownResponse(cooldownCheck.message!));
@@ -134,7 +134,7 @@ export default {
         if (extract.length > MAX_EXTRACT_LENGTH) {
           const truncatedText = await client.getLocaleText(
             'commands.wiki.readmoreonwiki',
-            interaction.locale
+            interaction.locale,
           );
           extract =
             extract.substring(0, MAX_EXTRACT_LENGTH - truncatedText.length - 2) +
@@ -144,7 +144,7 @@ export default {
 
         const readMore = await client.getLocaleText(
           'commands.wiki.readmoreonwiki',
-          interaction.locale
+          interaction.locale,
         );
         const title = await client.getLocaleText('commands.wiki.pedia', interaction.locale, {
           article: article.title,
@@ -153,7 +153,7 @@ export default {
         const embed = new EmbedBuilder()
           .setTitle(title)
           .setURL(
-            `https://${wikiLang}.wikipedia.org/wiki/${encodeURIComponent(article.title.replace(/ /g, '_'))}`
+            `https://${wikiLang}.wikipedia.org/wiki/${encodeURIComponent(article.title.replace(/ /g, '_'))}`,
           )
           .setDescription(extract)
           .setColor(0x4285f4)
