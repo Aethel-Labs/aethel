@@ -1,0 +1,35 @@
+services:
+  aethel:
+    image: ghcr.io/aethel-labs/aethel:latest
+    container_name: aethel-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "2020:2020"
+    depends_on:
+      - postgres
+    networks:
+      - aethel_network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: aethel-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aethel
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - aethel_network
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+
+networks:
+  aethel_network:
+    driver: bridge
