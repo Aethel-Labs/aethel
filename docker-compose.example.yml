@@ -1,10 +1,25 @@
 services:
   aethel:
     image: ghcr.io/aethel-labs/aethel:latest
+    build:
+      context: .
+      args:
+        - VITE_BOT_API_URL=${VITE_BOT_API_URL:-https://aethel.xyz}
+        - VITE_STATUS_API_KEY=${STATUS_API_KEY}
+        - VITE_FRONTEND_URL=${VITE_FRONTEND_URL:-https://aethel.xyz}
+        - SOURCE_COMMIT=${SOURCE_COMMIT:-development}
     container_name: aethel-bot
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD", "ps", "aux", "|", "grep", "node", "|", "grep", "-v", "grep"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
     ports:
       - "2020:2020"
     depends_on:

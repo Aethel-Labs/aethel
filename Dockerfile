@@ -73,6 +73,6 @@ USER aethel
 EXPOSE 2020
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:2020/api/status || exit 1
+  CMD ps aux | grep node | grep -v grep || exit 1
 
 CMD ["pnpm", "run", "start"]
