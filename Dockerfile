@@ -1,5 +1,8 @@
 FROM node:20-alpine AS builder
 
+ARG SOURCE_COMMIT
+ENV SOURCE_COMMIT=${SOURCE_COMMIT}
+
 WORKDIR /app
 
 RUN npm install -g pnpm

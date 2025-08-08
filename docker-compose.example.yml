@@ -1,36 +1,14 @@
-version: "3.8"
-
 services:
   aethel:
     image: ghcr.io/aethel-labs/aethel:latest
     container_name: aethel-bot
     restart: unless-stopped
-    environment:
-      TOKEN: your_discord_bot_token_here
-      CLIENT_ID: your_discord_client_id_here
-      DATABASE_URL: postgresql://username:password@postgres:5432/aethel
-      API_KEY_ENCRYPTION_SECRET: your_32_character_encryption_secret_here
-      OPENROUTER_API_KEY: your_openrouter_api_key_here
-      OPENWEATHER_API_KEY: your_openweather_api_key_here
-      ALLOWED_ORIGINS: http://localhost:3000,https://your-frontend-domain.com
-      STATUS_API_KEY: your_status_api_key_here
-      LOG_LEVEL: info
-      NODE_ENV: production
-      PORT: 2020
-      SOURCE_COMMIT: latest
-      RATE_LIMIT_WINDOW_MS: 900000
-      RATE_LIMIT_MAX: 100
-      AI_EXEMPT_USER_ID: your_discord_user_id_for_unlimited_ai
-      JWT_SECRET: your_jwt_secret_key_here
-      DISCORD_CLIENT_SECRET: your_discord_oauth_client_secret
-      DISCORD_REDIRECT_URI: http://localhost:2020/api/auth/discord/callback
-      FRONTEND_URL: http://localhost:3000
+    env_file:
+      - .env
     ports:
       - "2020:2020"
     depends_on:
       - postgres
-    volumes:
-      - aethel_logs:/app/logs
     networks:
       - aethel_network
 
@@ -51,7 +29,6 @@ services:
 
 volumes:
   postgres_data:
-  aethel_logs:
 
 networks:
   aethel_network:
