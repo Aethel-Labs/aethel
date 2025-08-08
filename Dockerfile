@@ -2,10 +2,12 @@ FROM node:20-alpine AS builder
 
 ARG SOURCE_COMMIT
 ENV SOURCE_COMMIT=${SOURCE_COMMIT}
+ENV NODE_ENV=production
 
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-lock.yaml ./
 
