@@ -247,13 +247,15 @@ export default class MessageCreateEvent {
       }
 
       if (!aiResponse) {
-        await message.reply(
-          'Sorry, I encountered an error processing your message. Please try again later.',
-        );
+        await message.reply({
+          content: 'Sorry, I encountered an error processing your message. Please try again later.',
+          allowedMentions: { parse: ['users'] as const },
+        });
         return;
       }
 
       aiResponse.content = processUrls(aiResponse.content);
+      aiResponse.content = aiResponse.content.replace(/@(everyone|here)/gi, '@\u200b$1');
 
       await this.sendResponse(message, aiResponse);
 
@@ -290,15 +292,21 @@ export default class MessageCreateEvent {
 
     const maxLength = 2000;
     if (fullResponse.length <= maxLength) {
-      await message.reply(fullResponse);
+      await message.reply({
+        content: fullResponse,
+        allowedMentions: { parse: ['users'] as const },
+      });
     } else {
       const chunks = splitResponseIntoChunks(fullResponse, maxLength);
 
-      await message.reply(chunks[0]);
+      await message.reply({ content: chunks[0], allowedMentions: { parse: ['users'] as const } });
 
       for (let i = 1; i < chunks.length; i++) {
         if ('send' in message.channel) {
-          await message.channel.send(chunks[i]);
+          await message.channel.send({
+            content: chunks[i],
+            allowedMentions: { parse: ['users'] as const },
+          });
         }
       }
     }
