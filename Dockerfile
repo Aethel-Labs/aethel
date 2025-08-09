@@ -17,7 +17,6 @@ RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-lock.yaml ./
-
 RUN pnpm install --frozen-lockfile
 
 COPY src ./src
@@ -32,8 +31,8 @@ RUN pnpm run build
 WORKDIR /app/web
 
 COPY web/package.json web/pnpm-lock.yaml ./
-
 RUN pnpm install --frozen-lockfile
+
 COPY web/src ./src
 COPY web/public ./public
 COPY web/index.html ./
@@ -47,12 +46,24 @@ RUN pnpm run build
 
 FROM node:20-alpine AS production
 
+ARG SOURCE_COMMIT
+ARG VITE_BOT_API_URL
+ARG VITE_STATUS_API_KEY
+ARG VITE_FRONTEND_URL
+
+ENV SOURCE_COMMIT=${SOURCE_COMMIT}
+ENV NODE_ENV=production
+ENV VITE_BOT_API_URL=${VITE_BOT_API_URL}
+ENV VITE_STATUS_API_KEY=${VITE_STATUS_API_KEY}
+ENV VITE_FRONTEND_URL=${VITE_FRONTEND_URL}
+
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S aethel -u 1001
 
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-lock.yaml ./
 COPY .env* ./
