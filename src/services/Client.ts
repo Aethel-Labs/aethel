@@ -111,7 +111,7 @@ export default class BotClient extends Client {
           const ca = await promises.readFile(rootCertPath, 'utf8');
           ssl = { ca, rejectUnauthorized: true };
         } catch (e) {
-          console.warn(`Failed to read CA certificate from ${rootCertPath}:`, e);
+          console.warn('Failed to read CA certificate: unable to access the specified path.', e);
         }
       }
 
