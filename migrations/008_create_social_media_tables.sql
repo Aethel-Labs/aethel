@@ -9,12 +9,14 @@ CREATE TABLE IF NOT EXISTS server_social_subscriptions (
     last_post_timestamp TIMESTAMPTZ,
     channel_id TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(guild_id, platform, account_handle)
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_server_social_subscriptions_guild ON server_social_subscriptions(guild_id);
 CREATE INDEX IF NOT EXISTS idx_server_social_subscriptions_platform ON server_social_subscriptions(platform);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_server_social_subscriptions_ci
+ON server_social_subscriptions (guild_id, platform, lower(account_handle));
 
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$

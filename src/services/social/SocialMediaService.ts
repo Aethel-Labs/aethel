@@ -32,14 +32,16 @@ export class SocialMediaService {
       throw new Error(`Invalid account handle format for ${platform}`);
     }
 
+    const normalized = this.normalizeAccountHandle(platform, accountHandle);
+
     const result = await this.pool.query(
       `INSERT INTO server_social_subscriptions 
              (guild_id, platform, account_handle, channel_id)
              VALUES ($1, $2::social_platform, $3, $4)
-             ON CONFLICT (guild_id, platform, account_handle) 
+             ON CONFLICT (guild_id, platform, lower(account_handle)) 
              DO UPDATE SET channel_id = $4
              RETURNING *`,
-      [guildId, platform, accountHandle, channelId],
+      [guildId, platform, normalized, channelId],
     );
 
     return this.mapDbToSubscription(result.rows[0]);
@@ -150,7 +152,10 @@ export class SocialMediaService {
 
   private isNewerPost(post: SocialMediaPost, subscription: SocialMediaSubscription): boolean {
     if (!subscription.lastPostTimestamp) return true;
-    return post.timestamp > subscription.lastPostTimestamp;
+    if (post.timestamp > subscription.lastPostTimestamp) return true;
+    if (post.timestamp < subscription.lastPostTimestamp) return false;
+    if (!subscription.lastPostUri) return true;
+    return post.uri !== subscription.lastPostUri;
   }
 
   private mapDbToSubscription(row: {
@@ -175,5 +180,19 @@ export class SocialMediaService {
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
+  }
+
+  private normalizeAccountHandle(platform: SocialPlatform, handle: string): string {
+    let h = handle.trim();
+    if (platform === 'bluesky') {
+      h = h.startsWith('@') ? h.slice(1) : h;
+      h = h.toLowerCase();
+      if (!h.includes('.')) {
+        h = `${h}.bsky.social`;
+      }
+      return h;
+    }
+    h = h.startsWith('@') ? h.slice(1) : h;
+    return h.toLowerCase();
   }
 }

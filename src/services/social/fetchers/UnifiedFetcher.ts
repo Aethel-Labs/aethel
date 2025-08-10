@@ -27,6 +27,21 @@ interface BlueskyFeedItem {
   post?: BlueskyPost;
 }
 
+const DEFAULT_FETCH_TIMEOUT_MS = 10_000;
+async function fetchWithTimeout(
+  input: string,
+  init?: RequestInit,
+  timeoutMs: number = DEFAULT_FETCH_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...(init || {}), signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export class BlueskyFetcher implements SocialMediaFetcher {
   platform: SocialPlatform = 'bluesky';
   private readonly baseUrl = 'https://public.api.bsky.app';
@@ -37,7 +52,7 @@ export class BlueskyFetcher implements SocialMediaFetcher {
     const url = `${this.baseUrl}/xrpc/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(actor)}&limit=1`;
 
     try {
-      const response = await fetch(url);
+      const response = await fetchWithTimeout(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -71,9 +86,9 @@ export class BlueskyFetcher implements SocialMediaFetcher {
   private normalizeHandle(handle: string): string {
     handle = handle.startsWith('@') ? handle.slice(1) : handle;
     if (!handle.includes('.')) {
-      return `${handle}.bsky.social`;
+      return `${handle}.bsky.social`.toLowerCase();
     }
-    return handle;
+    return handle.toLowerCase();
   }
 
   private async resolveActor(account: string): Promise<string> {
@@ -121,7 +136,7 @@ export class BlueskyFetcher implements SocialMediaFetcher {
   ): Promise<{ avatar?: string; displayName?: string } | null> {
     try {
       const url = `${this.baseUrl}/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(actor)}`;
-      const res = await fetch(url);
+      const res = await fetchWithTimeout(url);
       if (!res.ok) return null;
       const data = await res.json();
       const avatar = typeof data?.avatar === 'string' ? data.avatar : undefined;
@@ -192,7 +207,7 @@ export class FediverseFetcher implements SocialMediaFetcher {
     const apiUrl = `https://${domain}/api/v1/accounts/lookup?acct=${username}@${domain}`;
 
     try {
-      const accountResponse = await fetch(apiUrl);
+      const accountResponse = await fetchWithTimeout(apiUrl);
       if (!accountResponse.ok) {
         throw new Error(`Failed to fetch account: ${accountResponse.statusText}`);
       }
@@ -201,7 +216,7 @@ export class FediverseFetcher implements SocialMediaFetcher {
       const accountId = accountData.id;
 
       const statusesUrl = `https://${domain}/api/v1/accounts/${accountId}/statuses?limit=1&exclude_replies=true&exclude_reblogs=true`;
-      const statusResponse = await fetch(statusesUrl);
+      const statusResponse = await fetchWithTimeout(statusesUrl);
 
       if (!statusResponse.ok) {
         throw new Error(`Failed to fetch statuses: ${statusResponse.statusText}`);
@@ -212,7 +227,8 @@ export class FediverseFetcher implements SocialMediaFetcher {
         return null;
       }
 
-      return this.mapToSocialMediaPost(statuses[0], domain);
+      const post = this.mapToSocialMediaPost(statuses[0], domain);
+      return post;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error('Error fetching Fediverse post:', error);
@@ -248,10 +264,13 @@ export class FediverseFetcher implements SocialMediaFetcher {
       .filter((media) => media.type === 'image' || media.type === 'gifv')
       .map((media) => media.url);
 
+    const acct = post.account.acct;
+    const authorAcct = acct.includes('@') ? acct : `${acct}@${domain}`;
+
     return {
       uri: post.uri,
       text: post.content,
-      author: `${post.account.acct}@${domain}`,
+      author: authorAcct,
       timestamp: new Date(post.created_at),
       platform: 'fediverse',
       mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,

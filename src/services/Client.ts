@@ -98,10 +98,47 @@ export default class BotClient extends Client {
   }
   private async setupDatabase() {
     try {
+      const sslMode = (process.env.PGSSLMODE || process.env.DATABASE_SSL || '').toLowerCase();
+      let ssl: false | { rejectUnauthorized?: boolean; ca?: string } = false;
+      const rootCertPath = process.env.PGSSLROOTCERT || process.env.DATABASE_SSL_CA;
+
+      if (sslMode === 'require') {
+        ssl = { rejectUnauthorized: true };
+      }
+
+      if (rootCertPath) {
+        try {
+          const ca = await promises.readFile(rootCertPath, 'utf8');
+          ssl = { ca, rejectUnauthorized: true };
+        } catch (e) {
+          console.warn(`Failed to read CA certificate from ${rootCertPath}:`, e);
+        }
+      }
+
       const pool = new Pool({
         connectionString: process.env.DATABASE_URL,
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        ssl,
       });
+
+      pool.on('error', (err) => {
+        console.error('Unexpected error on idle PostgreSQL client:', err);
+      });
+
+      const shutdown = async (signal?: NodeJS.Signals) => {
+        try {
+          console.log(`Received ${signal ?? 'shutdown'}: closing services and database pool...`);
+          await this.socialMediaManager?.cleanup();
+          await pool.end();
+          console.log('Database pool closed. Exiting.');
+        } catch (e) {
+          console.error('Error during graceful shutdown:', e);
+        } finally {
+          process.exit(0);
+        }
+      };
+
+      process.on('SIGINT', () => shutdown('SIGINT'));
+      process.on('SIGTERM', () => shutdown('SIGTERM'));
 
       this.socialMediaManager = initializeSocialMediaManager(this, pool);
       await this.socialMediaManager.initialize();

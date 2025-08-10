@@ -1,4 +1,4 @@
-import { Client, TextChannel, EmbedBuilder } from 'discord.js';
+import { Client, EmbedBuilder } from 'discord.js';
 import { Pool } from 'pg';
 import { SocialMediaService } from './SocialMediaService';
 import { BlueskyFetcher, FediverseFetcher } from './fetchers/UnifiedFetcher';
@@ -64,9 +64,11 @@ class NotificationService {
     subscription: SocialMediaSubscription,
   ): Promise<void> {
     try {
-      const channel = (await this.client.channels.fetch(subscription.channelId)) as TextChannel;
-      if (!channel) {
-        console.error(`Channel ${subscription.channelId} not found`);
+      const channel = await this.client.channels.fetch(subscription.channelId);
+      if (!this.isTextBasedAndSendable(channel)) {
+        console.error(
+          `Channel ${subscription.channelId} not found or not text-capable. Skipping notification.`,
+        );
         return;
       }
 
@@ -83,10 +85,11 @@ class NotificationService {
       post.authorDisplayName && post.authorDisplayName.trim().length > 0
         ? `${post.authorDisplayName} (${post.author})`
         : post.author;
+    const cleanText = this.stripHtml(post.text ?? '');
     const embed = new EmbedBuilder()
       .setColor(this.getPlatformColor(post.platform))
       .setAuthor({ name: authorName, iconURL: authorIcon })
-      .setDescription(this.truncateText(post.text, 1000))
+      .setDescription(this.truncateText(cleanText, 1000))
       .setTimestamp(post.timestamp)
       .setFooter({
         text: `New post on ${this.formatPlatformName(post.platform)}`,
@@ -144,9 +147,29 @@ class NotificationService {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength - 3) + '...';
   }
+
+  private stripHtml(text: string): string {
+    return text
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private isTextBasedAndSendable(
+    channel: unknown,
+  ): channel is { send: (options: unknown) => Promise<unknown> } & { isTextBased(): boolean } {
+    const maybe = channel as { send?: unknown; isTextBased?: unknown };
+    return (
+      typeof maybe.send === 'function' &&
+      typeof maybe.isTextBased === 'function' &&
+      maybe.isTextBased()
+    );
+  }
 }
+
 class SocialMediaPoller {
   private isRunning = false;
+  private inProgress = false;
   private pollInterval: NodeJS.Timeout | null = null;
   private readonly POLL_INTERVAL_MS = 60 * 1000;
 
@@ -165,14 +188,10 @@ class SocialMediaPoller {
     this.isRunning = true;
     logger.info('Starting social media poller...');
 
-    this.checkForUpdates().catch((error) => {
-      logger.error('Error in initial social media check:', error);
-    });
+    this.safeCheckForUpdates();
 
     this.pollInterval = setInterval(() => {
-      this.checkForUpdates().catch((error) => {
-        logger.error('Error in social media polling:', error);
-      });
+      this.safeCheckForUpdates();
     }, this.POLL_INTERVAL_MS);
   }
 
@@ -196,20 +215,30 @@ class SocialMediaPoller {
     try {
       const newPosts = await this.socialService.checkForUpdates();
       if (newPosts.length > 0) {
-        logger.info(`Found ${newPosts.length} new social media posts`);
         for (const { post, subscription } of newPosts) {
           try {
             await this.notificationService.sendNotification(post, subscription);
-            logger.debug(`Sent notification for ${post.platform} post by ${post.author}`);
           } catch (error) {
-            logger.error(`Error sending notification for ${post.platform} post:`, error);
+            console.error(`Error sending notification for ${post.platform} post:`, error);
           }
         }
-      } else {
-        logger.debug('No new social media posts found');
       }
     } catch (error) {
-      logger.error('Error checking for social media updates:', error);
+      console.error('Error checking for social media updates:', error);
+    }
+  }
+
+  private async safeCheckForUpdates(): Promise<void> {
+    if (!this.isRunning || this.inProgress) {
+      return;
+    }
+    this.inProgress = true;
+    try {
+      await this.checkForUpdates();
+    } catch (error) {
+      logger.error('Error during guarded social media check:', error);
+    } finally {
+      this.inProgress = false;
     }
   }
 }

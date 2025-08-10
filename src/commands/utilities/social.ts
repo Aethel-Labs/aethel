@@ -102,7 +102,7 @@ const command: SocialCommand = {
     const account = interaction.options.getString('account', true);
     const channel = interaction.options.getChannel('channel') || interaction.channel;
 
-    if (!channel || !('send' in channel)) {
+    if (!channel || !('isTextBased' in channel) || !channel.isTextBased()) {
       const msg = await client.getLocaleText(
         'commands.social.invalidChannel',
         interaction.locale || 'en-US',
