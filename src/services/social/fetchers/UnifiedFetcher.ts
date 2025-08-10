@@ -84,16 +84,33 @@ export class BlueskyFetcher implements SocialMediaFetcher {
       return /^did:[a-z0-9]+:[a-zA-Z0-9._:%-]*[a-zA-Z0-9._-]$/.test(account);
     }
 
-    const parts = account.split('@').filter(Boolean);
-    if (parts.length < 2) return false;
+    const normalizedAccount = account.startsWith('@') ? account.slice(1) : account;
 
+    if (normalizedAccount.includes('@')) {
+      const parts = normalizedAccount.split('@').filter(Boolean);
+      if (parts.length < 2) return false;
+
+      const handle = parts[0];
+      const domain = parts[1];
+
+      const isValidHandle = /^[a-zA-Z0-9-]+$/.test(handle);
+      const isValidDomain = /^[a-zA-Z0-9.-]+$/.test(domain);
+
+      return isValidHandle && isValidDomain;
+    }
+
+    const parts = normalizedAccount.split('.');
     const handle = parts[0];
-    const domain = parts.slice(1).join('@');
 
-    const isValidHandle = /^[a-zA-Z0-9-]+$/.test(handle);
-    const isValidDomain = /^[a-zA-Z0-9.-]+$/.test(domain);
+    if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
+      return false;
+    }
 
-    return isValidHandle && isValidDomain;
+    if (parts.length > 1) {
+      return parts.every((part) => /^[a-zA-Z0-9-]+$/.test(part));
+    }
+
+    return true;
   }
 
   private normalizeHandle(handle: string): string {
@@ -102,9 +119,13 @@ export class BlueskyFetcher implements SocialMediaFetcher {
     }
 
     handle = handle.startsWith('@') ? handle.slice(1) : handle;
-    if (!handle.includes('.')) {
+
+    if (handle.includes('@')) {
+      return handle.toLowerCase();
+    } else if (!handle.includes('.')) {
       return `${handle}.bsky.social`.toLowerCase();
     }
+
     return handle.toLowerCase();
   }
 

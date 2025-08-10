@@ -4,6 +4,8 @@ import {
   EmbedBuilder,
   ChatInputCommandInteraction,
   MessageFlags,
+  InteractionContextType,
+  ApplicationIntegrationType,
 } from 'discord.js';
 import { SlashCommandProps } from '@/types/command';
 import BotClient from '@/services/Client';
@@ -40,6 +42,8 @@ const command: SocialCommand = {
     .setDescription('Get notifications of posts from Fediverse and Bluesky accounts')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .setDMPermission(false)
+    .setContexts([InteractionContextType.Guild])
+    .setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
     .addSubcommand((subcommand) =>
       subcommand
         .setName('add')
