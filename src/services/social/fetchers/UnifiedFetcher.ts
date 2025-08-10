@@ -65,7 +65,7 @@ export class BlueskyFetcher implements SocialMediaFetcher {
   isValidAccount(account: string): boolean {
     if (!account) return false;
     const handle = this.normalizeHandle(account);
-    return /^[a-zA-Z0-9.-]+(\.[a-zA-Z0-9.-]+)*$/.test(handle);
+    return /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/.test(handle);
   }
 
   private normalizeHandle(handle: string): string {
