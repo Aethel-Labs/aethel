@@ -244,14 +244,14 @@ export class FediverseFetcher implements SocialMediaFetcher {
 
   private parseAccount(account: string): [string, string | null] {
     const cleanAccount = account.startsWith('@') ? account.slice(1) : account;
-    const parts = cleanAccount.split('@');
+    const firstAt = cleanAccount.indexOf('@');
 
-    if (parts.length < 2) {
+    if (firstAt === -1) {
       return [cleanAccount, null];
     }
 
-    const username = parts[0];
-    const domain = parts[1];
+    const username = cleanAccount.substring(0, firstAt);
+    const domain = cleanAccount.substring(firstAt + 1);
     return [username, domain];
   }
 

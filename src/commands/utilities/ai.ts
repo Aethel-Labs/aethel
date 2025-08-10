@@ -442,13 +442,14 @@ async function processAIRequest(
       `prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
     );
 
-    const { apiKey, model, apiUrl } = await getUserCredentials(interaction.user.id);
+    const invokerId = getInvokerId(interaction);
+    const { apiKey, model, apiUrl } = await getUserCredentials(invokerId);
     const config = getApiConfiguration(apiKey ?? null, model ?? null, apiUrl ?? null);
 
     if (config.usingDefaultKey) {
       const exemptUserId = process.env.AI_EXEMPT_USER_ID;
-      if (interaction.user.id !== exemptUserId) {
-        const allowed = await incrementAndCheckDailyLimit(interaction.user.id, 10);
+      if (invokerId !== exemptUserId) {
+        const allowed = await incrementAndCheckDailyLimit(invokerId, 10);
         if (!allowed) {
           await interaction.editReply(
             '❌ ' +
@@ -464,7 +465,7 @@ async function processAIRequest(
       return;
     }
 
-    const existingConversation = userConversations.get(interaction.user.id) || [];
+    const existingConversation = userConversations.get(invokerId) || [];
     const conversationArray = Array.isArray(existingConversation) ? existingConversation : [];
     const systemPrompt = buildSystemPrompt(
       !!config.usingDefaultKey,
@@ -486,7 +487,7 @@ async function processAIRequest(
     if (updatedConversation.length > 10) {
       updatedConversation.splice(0, updatedConversation.length - 10);
     }
-    userConversations.set(interaction.user.id, updatedConversation);
+    userConversations.set(invokerId, updatedConversation);
 
     await sendAIResponse(interaction, aiResponse, client);
   } catch (error) {
@@ -494,11 +495,11 @@ async function processAIRequest(
       interaction,
       client,
       error: error as Error,
-      userId: interaction.user.id,
+      userId: getInvokerId(interaction),
       username: interaction.user.tag,
     });
   } finally {
-    pendingRequests.delete(interaction.user.id);
+    pendingRequests.delete(getInvokerId(interaction));
   }
 }
 
@@ -594,7 +595,7 @@ export default {
     ),
 
   async execute(client: BotClient, interaction: ChatInputCommandInteraction) {
-    const userId = interaction.user.id;
+    const userId = getInvokerId(interaction);
 
     if (pendingRequests.has(userId)) {
       const pending = pendingRequests.get(userId);
@@ -696,7 +697,7 @@ export default {
       if (interaction.customId === 'apiCredentials') {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-        const userId = interaction.user.id;
+        const userId = getInvokerId(interaction);
         const pendingRequest = pendingRequests.get(userId);
 
         if (!pendingRequest) {
@@ -758,7 +759,14 @@ export default {
         content: await client.getLocaleText('failedrequest', interaction.locale),
       });
     } finally {
-      pendingRequests.delete(interaction.user.id);
+      pendingRequests.delete(getInvokerId(interaction));
     }
   },
 } as unknown as SlashCommandProps;
+
+function getInvokerId(interaction: ChatInputCommandInteraction | ModalSubmitInteraction) {
+  if (interaction.inGuild()) {
+    return `${interaction.guildId}-${interaction.user.id}`;
+  }
+  return interaction.user.id;
+}

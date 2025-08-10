@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS server_social_subscriptions (
     last_post_uri TEXT,
     last_post_timestamp TIMESTAMPTZ,
     channel_id TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_server_social_subscriptions_guild ON server_social_subscriptions(guild_id);

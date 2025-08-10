@@ -52,10 +52,11 @@ export class SocialMediaService {
     platform: SocialPlatform,
     accountHandle: string,
   ): Promise<boolean> {
+    const normalizedHandle = this.normalizeAccountHandle(platform, accountHandle);
     const result = await this.pool.query(
       `DELETE FROM server_social_subscriptions 
              WHERE guild_id = $1 AND platform = $2::social_platform AND account_handle = $3`,
-      [guildId, platform, accountHandle],
+      [guildId, platform, normalizedHandle],
     );
 
     return (result.rowCount || 0) > 0;
@@ -164,18 +165,20 @@ export class SocialMediaService {
     platform: SocialPlatform;
     account_handle: string;
     last_post_uri: string | null;
-    last_post_timestamp: Date | null;
+    last_post_timestamp: string | Date | null;
     channel_id: string;
     created_at: Date;
     updated_at: Date;
   }): SocialMediaSubscription {
+    const lastPostTimestamp = row.last_post_timestamp ? new Date(row.last_post_timestamp) : null;
+
     return {
       id: row.id,
       guildId: row.guild_id,
       platform: row.platform as SocialPlatform,
       accountHandle: row.account_handle,
       lastPostUri: row.last_post_uri ?? undefined,
-      lastPostTimestamp: (row.last_post_timestamp as Date | null) ?? undefined,
+      lastPostTimestamp: lastPostTimestamp ?? undefined,
       channelId: row.channel_id,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
