@@ -173,11 +173,10 @@ export default class MessageCreateEvent {
 
       if (config.usingDefaultKey) {
         const exemptUserId = process.env.AI_EXEMPT_USER_ID;
-        if (
-          conversationKey !== `dm:${exemptUserId}` &&
-          !conversationKey.startsWith(`guild:${exemptUserId}`)
-        ) {
-          const allowed = await incrementAndCheckDailyLimit(conversationKey, 10);
+        const actorId = message.author.id;
+
+        if (actorId !== exemptUserId) {
+          const allowed = await incrementAndCheckDailyLimit(actorId, 10);
           if (!allowed) {
             await message.reply(
               "❌ You've reached your daily limit of AI requests. Please try again tomorrow or set up your own API key using the `/ai` command.",

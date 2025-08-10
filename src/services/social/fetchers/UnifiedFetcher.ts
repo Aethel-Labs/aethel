@@ -77,13 +77,30 @@ export class BlueskyFetcher implements SocialMediaFetcher {
     }
   }
 
-  isValidAccount(account: string): boolean {
+  isValidAccount(account: string | null | undefined): boolean {
     if (!account) return false;
-    const handle = this.normalizeHandle(account);
-    return /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/.test(handle);
+
+    if (account.startsWith('did:')) {
+      return /^did:[a-z0-9]+:[a-zA-Z0-9._:%-]*[a-zA-Z0-9._-]$/.test(account);
+    }
+
+    const parts = account.split('@').filter(Boolean);
+    if (parts.length < 2) return false;
+
+    const handle = parts[0];
+    const domain = parts.slice(1).join('@');
+
+    const isValidHandle = /^[a-zA-Z0-9-]+$/.test(handle);
+    const isValidDomain = /^[a-zA-Z0-9.-]+$/.test(domain);
+
+    return isValidHandle && isValidDomain;
   }
 
   private normalizeHandle(handle: string): string {
+    if (handle.startsWith('did:')) {
+      return handle;
+    }
+
     handle = handle.startsWith('@') ? handle.slice(1) : handle;
     if (!handle.includes('.')) {
       return `${handle}.bsky.social`.toLowerCase();
@@ -198,13 +215,35 @@ interface FediversePost {
 export class FediverseFetcher implements SocialMediaFetcher {
   platform: SocialPlatform = 'fediverse';
 
-  async fetchLatestPost(account: string): Promise<SocialMediaPost | null> {
-    const [username, domain] = this.parseAccount(account);
+  private validateFediverseAccount(username: string, domain: string | null): void {
     if (!domain) {
       throw new Error('Fediverse account must include a domain (e.g., user@instance.social)');
     }
 
-    const apiUrl = `https://${domain}/api/v1/accounts/lookup?acct=${username}@${domain}`;
+    if (/^https?:\/\//i.test(username) || /^https?:\/\//i.test(domain)) {
+      throw new Error('URL schemes (http/https) are not allowed in Fediverse accounts');
+    }
+
+    if (/[?#]/.test(username) || /[?#]/.test(domain)) {
+      throw new Error('URL paths and query parameters are not allowed in Fediverse accounts');
+    }
+
+    const domainStr = domain as string;
+    if (!/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i.test(domainStr)) {
+      throw new Error('Invalid domain format in Fediverse account');
+    }
+
+    if (!/^[a-z0-9_.-]+$/i.test(username)) {
+      throw new Error('Invalid username format in Fediverse account');
+    }
+  }
+
+  async fetchLatestPost(account: string): Promise<SocialMediaPost | null> {
+    const [username, domain] = this.parseAccount(account);
+    this.validateFediverseAccount(username, domain);
+
+    const domainStr = domain as string;
+    const apiUrl = `https://${domainStr}/api/v1/accounts/lookup?acct=${username}@${domainStr}`;
 
     try {
       const accountResponse = await fetchWithTimeout(apiUrl);
@@ -213,9 +252,13 @@ export class FediverseFetcher implements SocialMediaFetcher {
       }
 
       const accountData = await accountResponse.json();
-      const accountId = accountData.id;
 
-      const statusesUrl = `https://${domain}/api/v1/accounts/${accountId}/statuses?limit=1&exclude_replies=true&exclude_reblogs=true`;
+      if (!accountData?.id) {
+        throw new Error('Invalid account data: missing account ID in response');
+      }
+
+      const accountId = accountData.id;
+      const statusesUrl = `https://${domainStr}/api/v1/accounts/${accountId}/statuses?limit=1&exclude_replies=true&exclude_reblogs=true`;
       const statusResponse = await fetchWithTimeout(statusesUrl);
 
       if (!statusResponse.ok) {
@@ -227,7 +270,7 @@ export class FediverseFetcher implements SocialMediaFetcher {
         return null;
       }
 
-      const post = this.mapToSocialMediaPost(statuses[0], domain);
+      const post = this.mapToSocialMediaPost(statuses[0], domainStr);
       return post;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
