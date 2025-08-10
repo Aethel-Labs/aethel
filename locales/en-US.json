@@ -319,6 +319,26 @@
         "fetch_failed": "Failed to fetch trivia questions: {error}",
         "api_error": "Trivia API error: {code}"
       }
+    },
+    "social": {
+      "name": "social",
+      "description": "Get notifications of posts from Fediverse and Bluesky accounts",
+      "invalidChannel": "❌ Invalid channel selected.",
+      "notInitializedThrow": "Social media features are not properly initialized.",
+      "addSuccess": "✅ Now tracking {platform} account {account}. New posts will be posted in {channel}.",
+      "notInitialized": "❌ Social media features are not initialized.",
+      "refreshSuccess": "🔄 Refresh complete. {count} new post(s) notified.",
+      "refreshFailed": "❌ Refresh failed: {message}",
+      "removeSuccess": "✅ Removed {platform} account {account} from tracking.",
+      "removeNotFound": "❌ Could not find a subscription for {platform} account {account}.",
+      "listNone": "No social media accounts are being tracked in this server.",
+      "listTitle": "📱 Tracked Social Media Accounts",
+      "listDescription": "Here are all the social media accounts being tracked in this server:",
+      "channelUnset": "No channel set",
+      "fieldNoAccounts": "No accounts",
+      "guildOnly": "This command can only be used in a server.",
+      "unknownSubcommand": "Unknown subcommand.",
+      "failedAction": "❌ Failed to {action} subscription: {message}"
     }
   },
   "categories": {

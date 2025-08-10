@@ -2,6 +2,8 @@ import * as config from '@/config';
 import initialzeCommands from '@/handlers/initialzeCommands';
 import { SlashCommandProps } from '@/types/command';
 import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
+import { Pool } from 'pg';
+import { initializeSocialMediaManager, SocialMediaManager } from './social/SocialMediaManager';
 import { promises, readdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -17,6 +19,7 @@ export default class BotClient extends Client {
   public commands = new Collection<string, SlashCommandProps>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public t = new Collection<string, any>();
+  public socialMediaManager?: SocialMediaManager;
 
   constructor() {
     super({
@@ -47,6 +50,7 @@ export default class BotClient extends Client {
     await this.setupLocalization();
     await initialzeCommands(this);
     await this.setupEvents();
+    await this.setupDatabase();
     this.login(config.TOKEN);
   }
 
@@ -92,6 +96,21 @@ export default class BotClient extends Client {
       throw new Error('Failed to initialize localization');
     }
   }
+  private async setupDatabase() {
+    try {
+      const pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      });
+
+      this.socialMediaManager = initializeSocialMediaManager(this, pool);
+      await this.socialMediaManager.initialize();
+    } catch (error) {
+      console.error('Failed to initialize database and services:', error);
+      throw error;
+    }
+  }
+
   public async getLocaleText(key: string, locale: string, replaces = {}): Promise<string> {
     const fallbackLocale = 'en-US';
 
