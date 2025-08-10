@@ -14,17 +14,20 @@ import {
 import type { ConversationMessage, AIResponse } from '@/commands/utilities/ai';
 import { createMemoryManager } from '@/utils/memoryManager';
 
-const dmConversations = createMemoryManager<string, ConversationMessage[]>({
-  maxSize: 500,
+const conversations = createMemoryManager<string, ConversationMessage[]>({
+  maxSize: 2000,
   maxAge: 2 * 60 * 60 * 1000,
   cleanupInterval: 10 * 60 * 1000,
 });
 
-const serverConversations = createMemoryManager<string, ConversationMessage[]>({
-  maxSize: 1000,
-  maxAge: 1 * 60 * 60 * 1000,
-  cleanupInterval: 10 * 60 * 1000,
-});
+function getConversationKey(message: Message): string {
+  if (message.channel.type === ChannelType.DM) {
+    return `dm:${message.author.id}`;
+  } else if (message.guildId) {
+    return `guild:${message.guildId}:${message.author.id}`;
+  }
+  return `channel:${message.channelId}`;
+}
 
 export default class MessageCreateEvent {
   constructor(private client: BotClient) {
@@ -56,9 +59,8 @@ export default class MessageCreateEvent {
     try {
       logger.debug(`${isDM ? 'DM' : 'Message'} received (${message.content.length} characters)`);
 
-      const conversationKey = isDM ? message.author.id : message.channel.id;
-      const conversationManager = isDM ? dmConversations : serverConversations;
-      const conversation = conversationManager.get(conversationKey) || [];
+      const conversationKey = getConversationKey(message);
+      const conversation = conversations.get(conversationKey) || [];
 
       const hasImageAttachments = message.attachments.some(
         (att) =>
@@ -79,8 +81,7 @@ export default class MessageCreateEvent {
 
       logger.debug(`hasImageAttachments: ${hasImageAttachments}, hasImageUrls: ${hasImageUrls}`);
       const hasImages = hasImageAttachments;
-
-      const { model: userCustomModel } = await getUserCredentials(message.author.id);
+      const { model: userCustomModel } = await getUserCredentials(conversationKey);
 
       const selectedModel = hasImages
         ? 'google/gemma-3-4b-it'
@@ -167,15 +168,15 @@ export default class MessageCreateEvent {
         systemPrompt,
       );
 
-      const { apiKey: userApiKey, apiUrl: userApiUrl } = await getUserCredentials(
-        message.author.id,
-      );
+      const { apiKey: userApiKey, apiUrl: userApiUrl } = await getUserCredentials(conversationKey);
       const config = getApiConfiguration(userApiKey ?? null, selectedModel, userApiUrl ?? null);
 
       if (config.usingDefaultKey) {
         const exemptUserId = process.env.AI_EXEMPT_USER_ID;
-        if (message.author.id !== exemptUserId) {
-          const allowed = await incrementAndCheckDailyLimit(message.author.id, 10);
+        const actorId = message.author.id;
+
+        if (actorId !== exemptUserId) {
+          const allowed = await incrementAndCheckDailyLimit(actorId, 10);
           if (!allowed) {
             await message.reply(
               "❌ You've reached your daily limit of AI requests. Please try again tomorrow or set up your own API key using the `/ai` command.",
@@ -263,7 +264,7 @@ export default class MessageCreateEvent {
         role: 'assistant',
         content: aiResponse.content,
       });
-      conversationManager.set(conversationKey, updatedConversation);
+      conversations.set(conversationKey, updatedConversation);
 
       logger.info(`${isDM ? 'DM' : 'Server'} response sent successfully`);
     } catch (error) {

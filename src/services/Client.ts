@@ -2,6 +2,8 @@ import * as config from '@/config';
 import initialzeCommands from '@/handlers/initialzeCommands';
 import { SlashCommandProps } from '@/types/command';
 import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
+import { Pool } from 'pg';
+import { initializeSocialMediaManager, SocialMediaManager } from './social/SocialMediaManager';
 import { promises, readdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -17,6 +19,7 @@ export default class BotClient extends Client {
   public commands = new Collection<string, SlashCommandProps>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public t = new Collection<string, any>();
+  public socialMediaManager?: SocialMediaManager;
 
   constructor() {
     super({
@@ -47,6 +50,7 @@ export default class BotClient extends Client {
     await this.setupLocalization();
     await initialzeCommands(this);
     await this.setupEvents();
+    await this.setupDatabase();
     this.login(config.TOKEN);
   }
 
@@ -92,6 +96,58 @@ export default class BotClient extends Client {
       throw new Error('Failed to initialize localization');
     }
   }
+  private async setupDatabase() {
+    try {
+      const sslMode = (process.env.PGSSLMODE || process.env.DATABASE_SSL || '').toLowerCase();
+      let ssl: false | { rejectUnauthorized?: boolean; ca?: string } = false;
+      const rootCertPath = process.env.PGSSLROOTCERT || process.env.DATABASE_SSL_CA;
+
+      if (sslMode === 'require') {
+        ssl = { rejectUnauthorized: true };
+      }
+
+      if (rootCertPath) {
+        try {
+          const ca = await promises.readFile(rootCertPath, 'utf8');
+          ssl = { ca, rejectUnauthorized: true };
+        } catch (e) {
+          console.warn('Failed to read CA certificate: unable to access the specified path.', e);
+        }
+      }
+
+      const pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl,
+      });
+
+      pool.on('error', (err) => {
+        console.error('Unexpected error on idle PostgreSQL client:', err);
+      });
+
+      const shutdown = async (signal?: NodeJS.Signals) => {
+        try {
+          console.log(`Received ${signal ?? 'shutdown'}: closing services and database pool...`);
+          await this.socialMediaManager?.cleanup();
+          await pool.end();
+          console.log('Database pool closed. Exiting.');
+        } catch (e) {
+          console.error('Error during graceful shutdown:', e);
+        } finally {
+          process.exit(0);
+        }
+      };
+
+      process.on('SIGINT', () => shutdown('SIGINT'));
+      process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+      this.socialMediaManager = initializeSocialMediaManager(this, pool);
+      await this.socialMediaManager.initialize();
+    } catch (error) {
+      console.error('Failed to initialize database and services:', error);
+      throw error;
+    }
+  }
+
   public async getLocaleText(key: string, locale: string, replaces = {}): Promise<string> {
     const fallbackLocale = 'en-US';
 
