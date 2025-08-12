@@ -13,16 +13,17 @@ import todosRoutes from './routes/todos';
 import apiKeysRoutes from './routes/apiKeys';
 import remindersRoutes from './routes/reminders';
 import { resetOldStrikes } from './utils/userStrikes';
+import logger from './utils/logger';
 
 config();
 
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+  logger.error('Uncaught Exception:', err);
   process.exit(1);
 });
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('🔥 Unhandled Rejection at:', promise);
-  console.error('📄 Reason:', reason);
+  logger.error('🔥 Unhandled Rejection at:', promise);
+  logger.error('📄 Reason:', reason);
 });
 
 const app = e();
@@ -92,11 +93,11 @@ app.get('*', (req, res) => {
 
 setInterval(
   () => {
-    resetOldStrikes().catch(console.error);
+    resetOldStrikes().catch(logger.error);
   },
   60 * 60 * 1000,
 );
 
 app.listen(PORT, () => {
-  console.log('Aethel is live on', `http://localhost:${PORT}`);
+  logger.debug('Aethel is live on', `http://localhost:${PORT}`);
 });

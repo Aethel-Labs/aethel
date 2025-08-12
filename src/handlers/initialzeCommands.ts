@@ -1,6 +1,7 @@
 import * as config from '@/config';
 import BotClient, { srcDir } from '@/services/Client';
 import { SlashCommandProps, RemindCommandProps } from '@/types/command';
+import logger from '@/utils/logger';
 import { REST, Routes, SlashCommandBuilder, ContextMenuCommandBuilder } from 'discord.js';
 import { readdirSync } from 'fs';
 import path from 'path';
@@ -17,7 +18,7 @@ function buildLocalizations(client: BotClient, commandKey: string, field: 'name'
 }
 
 export default async (c: BotClient) => {
-  console.log('Processing commands...');
+  logger.info('Processing commands...');
   const cmdDir = path.join(srcDir, 'commands');
   const cmdCat = readdirSync(cmdDir);
   const commands: (SlashCommandBuilder | ContextMenuCommandBuilder)[] = [];
@@ -56,9 +57,9 @@ export default async (c: BotClient) => {
   try {
     const rest = new REST({ version: '10' }).setToken(config.TOKEN!);
     await rest.put(Routes.applicationCommands(config.CLIENT_ID!), { body: commands });
-    console.log('✅ All commands registered successfully');
+    logger.info('All commands registered successfully');
   } catch (error) {
-    console.error('Error on deploying commands:', error);
-    console.log('Bot will continue running with existing commands');
+    logger.error('Error on deploying commands:', error);
+    logger.info('Bot will continue running with existing commands');
   }
 };

@@ -21,6 +21,12 @@ interface BlueskyPost {
       alt: string;
     }>;
   };
+  labels?: Array<{
+    src: string;
+    uri: string;
+    val: string;
+    cts?: string;
+  }>;
 }
 
 interface BlueskyFeedItem {
@@ -157,8 +163,10 @@ export class BlueskyFetcher implements SocialMediaFetcher {
     const createdAt = post.record?.createdAt ?? new Date().toISOString();
     const author = post.author?.handle ?? 'unknown';
 
+    const postUri = post.uri;
+
     return {
-      uri: post.uri,
+      uri: postUri,
       text,
       author,
       timestamp: new Date(createdAt),
@@ -166,6 +174,7 @@ export class BlueskyFetcher implements SocialMediaFetcher {
       mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,
       authorAvatarUrl,
       authorDisplayName,
+      labels: post.labels,
     };
   }
 
@@ -340,6 +349,8 @@ export class FediverseFetcher implements SocialMediaFetcher {
       mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,
       authorAvatarUrl: post.account.avatar,
       authorDisplayName: post.account.display_name,
+      sensitive: post.sensitive,
+      spoiler_text: post.spoiler_text,
     };
   }
 }
