@@ -80,22 +80,30 @@ export class SocialMediaService {
     for (const sub of subscriptions) {
       try {
         const fetcher = this.fetchers.get(sub.platform as SocialPlatform);
-        if (!fetcher) continue;
+        if (!fetcher) {
+          console.warn(`No fetcher found for platform: ${sub.platform}`);
+          continue;
+        }
 
         const latestPost = await fetcher.fetchLatestPost(sub.accountHandle);
-        if (latestPost) {
-          if (!sub.lastPostTimestamp) {
-            await this.updateLastPost(sub.id, latestPost.uri, latestPost.timestamp);
-            continue;
-          }
+        if (!latestPost) {
+          console.debug(`No posts found for ${sub.platform} account ${sub.accountHandle}`);
+          continue;
+        }
 
-          if (this.isNewerPost(latestPost, sub)) {
-            await this.updateLastPost(sub.id, latestPost.uri, latestPost.timestamp);
-            newPosts.push({
-              post: latestPost,
-              subscription: sub,
-            });
-          }
+        const normalizedUri = this.normalizeUri(latestPost.uri);
+
+        if (!sub.lastPostTimestamp) {
+          await this.updateLastPost(sub.id, normalizedUri, latestPost.timestamp);
+          continue;
+        }
+
+        if (this.isNewerPostWithLogging(latestPost, sub, normalizedUri)) {
+          await this.updateLastPost(sub.id, normalizedUri, latestPost.timestamp);
+          newPosts.push({
+            post: { ...latestPost, uri: normalizedUri },
+            subscription: sub,
+          });
         }
       } catch (error) {
         console.error(
@@ -159,6 +167,92 @@ export class SocialMediaService {
     return post.uri !== subscription.lastPostUri;
   }
 
+  private isNewerPostWithLogging(
+    post: SocialMediaPost,
+    subscription: SocialMediaSubscription,
+    normalizedUri: string,
+  ): boolean {
+    if (!subscription.lastPostTimestamp) return false;
+
+    const isNewer =
+      post.timestamp > subscription.lastPostTimestamp ||
+      (post.timestamp.getTime() === subscription.lastPostTimestamp?.getTime() &&
+        normalizedUri !== subscription.lastPostUri);
+
+    return isNewer;
+  }
+
+  private normalizeUri(uri: string): string {
+    return uri.trim().toLowerCase();
+  }
+
+  public async debugSubscription(
+    guildId: string,
+    platform: SocialPlatform,
+    accountHandle: string,
+  ): Promise<{
+    subscription: SocialMediaSubscription | null;
+    latestPost: SocialMediaPost | null;
+    wouldAnnounce: boolean;
+    reason: string;
+  }> {
+    const normalizedHandle = this.normalizeAccountHandle(platform, accountHandle);
+    const result = await this.pool.query(
+      `SELECT * FROM server_social_subscriptions WHERE guild_id = $1 AND platform = $2::social_platform AND account_handle = $3`,
+      [guildId, platform, normalizedHandle],
+    );
+
+    if (result.rows.length === 0) {
+      return {
+        subscription: null,
+        latestPost: null,
+        wouldAnnounce: false,
+        reason: 'No subscription found',
+      };
+    }
+
+    const subscription = this.mapDbToSubscription(result.rows[0]);
+    const fetcher = this.fetchers.get(platform);
+
+    if (!fetcher) {
+      return {
+        subscription,
+        latestPost: null,
+        wouldAnnounce: false,
+        reason: 'No fetcher available',
+      };
+    }
+
+    try {
+      const latestPost = await fetcher.fetchLatestPost(accountHandle);
+      if (!latestPost) {
+        return {
+          subscription,
+          latestPost: null,
+          wouldAnnounce: false,
+          reason: 'No posts found',
+        };
+      }
+
+      const normalizedUri = this.normalizeUri(latestPost.uri);
+      const wouldAnnounce = this.isNewerPostWithLogging(latestPost, subscription, normalizedUri);
+
+      return {
+        subscription,
+        latestPost,
+        wouldAnnounce,
+        reason: wouldAnnounce ? 'New post detected' : 'Post already announced',
+      };
+    } catch (error) {
+      return {
+        subscription,
+        latestPost: null,
+        wouldAnnounce: false,
+        reason: `Error fetching post: ${error}`,
+      };
+    }
+  }
+
   private mapDbToSubscription(row: {
     id: number;
     guild_id: string;
@@ -188,6 +282,9 @@ export class SocialMediaService {
   private normalizeAccountHandle(platform: SocialPlatform, handle: string): string {
     let h = handle.trim();
     if (platform === 'bluesky') {
+      if (h.startsWith('did:')) {
+        return h;
+      }
       h = h.startsWith('@') ? h.slice(1) : h;
       h = h.toLowerCase();
       if (!h.includes('.')) {

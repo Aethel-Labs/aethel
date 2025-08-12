@@ -21,6 +21,9 @@ export interface SocialMediaPost {
   mediaUrls?: string[];
   authorAvatarUrl?: string;
   authorDisplayName?: string;
+  sensitive?: boolean;
+  spoiler_text?: string;
+  labels?: Array<{ val: string; src?: string }>;
 }
 
 export interface SocialMediaFetcher {

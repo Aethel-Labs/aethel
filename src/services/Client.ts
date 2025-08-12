@@ -8,6 +8,7 @@ import { promises, readdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import logger from '@/utils/logger';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -71,7 +72,7 @@ export default class BotClient extends Client {
   }
 
   private async setupLocalization() {
-    console.log('Loading localization files...');
+    logger.info('Loading localization files...');
     const localesDir = path.join(srcDir, '..', 'locales');
 
     try {
@@ -83,16 +84,16 @@ export default class BotClient extends Client {
           const data = await promises.readFile(localeFile, { encoding: 'utf8' });
           const localeKey = locale.split('.')[0];
           this.t.set(localeKey, JSON.parse(data));
-          console.log(`Loaded locale: ${localeKey}`);
+          logger.debug(`Loaded locale: ${localeKey}`);
         } catch (error) {
-          console.error(`Failed to load locale file ${locale}:`, error);
+          logger.error(`Failed to load locale file ${locale}:`, error);
         }
       });
 
       await Promise.all(localePromises);
-      console.log(`Loaded ${this.t.size} locale(s)`);
+      logger.info(`Loaded ${this.t.size} locale(s)`);
     } catch (error) {
-      console.error('Failed to read locales directory:', error);
+      logger.error('Failed to read locales directory:', error);
       throw new Error('Failed to initialize localization');
     }
   }

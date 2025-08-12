@@ -57,7 +57,9 @@ export default class MessageCreateEvent {
     logger.info(isDM ? 'Processing DM message...' : 'Processing mention in server...');
 
     try {
-      logger.debug(`${isDM ? 'DM' : 'Message'} received (${message.content.length} characters)`);
+      logger.debug(
+        `${isDM ? 'DM' : 'Message'} received (${message.content.length} characters) - content hidden for privacy`,
+      );
 
       const conversationKey = getConversationKey(message);
       const conversation = conversations.get(conversationKey) || [];
@@ -257,6 +259,18 @@ export default class MessageCreateEvent {
 
       aiResponse.content = processUrls(aiResponse.content);
       aiResponse.content = aiResponse.content.replace(/@(everyone|here)/gi, '@\u200b$1');
+
+      const { getUnallowedWordCategory } = await import('@/utils/validation');
+      const category = getUnallowedWordCategory(aiResponse.content);
+      if (category) {
+        logger.warn(`AI response contained unallowed words in category: ${category}`);
+        await message.reply({
+          content:
+            'Sorry, I cannot provide that response as it contains prohibited content. Please try a different prompt.',
+          allowedMentions: { parse: ['users'] as const },
+        });
+        return;
+      }
 
       await this.sendResponse(message, aiResponse);
 

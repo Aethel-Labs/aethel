@@ -439,7 +439,7 @@ async function processAIRequest(
     const prompt = interaction.options.getString('prompt')!;
     commandLogger.logFromInteraction(
       interaction,
-      `prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
+      `AI command executed - prompt content hidden for privacy`,
     );
 
     const invokerId = getInvokerId(interaction);
@@ -479,6 +479,16 @@ async function processAIRequest(
     const aiResponse = await makeAIRequest(config, conversation);
     if (!aiResponse) return;
 
+    const { getUnallowedWordCategory } = await import('@/utils/validation');
+    const category = getUnallowedWordCategory(aiResponse.content);
+    if (category) {
+      logger.warn(`AI response contained unallowed words in category: ${category}`);
+      await interaction.editReply(
+        'Sorry, I cannot provide that response as it contains prohibited content. Please try a different prompt.',
+      );
+      return;
+    }
+
     const updatedConversation = [
       ...conversation.filter((msg) => msg.role !== 'system'),
       { role: 'assistant', content: aiResponse.content },
@@ -515,6 +525,16 @@ async function sendAIResponse(
   }
 
   fullResponse += aiResponse.content;
+
+  const { getUnallowedWordCategory } = await import('@/utils/validation');
+  const category = getUnallowedWordCategory(fullResponse);
+  if (category) {
+    logger.warn(`AI response contained unallowed words in category: ${category}`);
+    await interaction.editReply(
+      'Sorry, I cannot provide that response as it contains prohibited content. Please try a different prompt.',
+    );
+    return;
+  }
 
   const urlProcessedResponse = processUrls(fullResponse);
   const chunks = splitResponseIntoChunks(urlProcessedResponse);
