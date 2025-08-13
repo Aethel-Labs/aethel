@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
   const envWebPath = path.resolve(__dirname, '..', '.env.web');
   const envPath = path.resolve(__dirname, '..', '.env');
 
