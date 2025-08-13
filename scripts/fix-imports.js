@@ -25,6 +25,13 @@ function fixImports(dir) {
         return `from '${normalizedPath.replace(/\\/g, '/')}.js'`;
       });
 
+      content = content.replace(/import\(['"]@\/([^'"]+)['"]\)/g, (match, importPath) => {
+        const targetPath = path.join('dist', importPath);
+        const relativePath = path.relative(path.dirname(filePath), targetPath);
+        const normalizedPath = relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
+        return `import('${normalizedPath.replace(/\\/g, '/')}.js')`;
+      });
+
       content = content.replace(/from ['"]\.\/([^'"]+)['"]/g, (match, importPath) => {
         if (importPath.endsWith('.js')) {
           return match;
