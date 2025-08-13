@@ -4,11 +4,10 @@ services:
     build:
       context: .
       args:
-        - VITE_BOT_API_URL=${BOT_API_URL:-https://aethel.xyz}
-        - VITE_STATUS_API_KEY=${STATUS_API_KEY}
-        - VITE_FRONTEND_URL=${FRONTEND_URL:-https://aethel.xyz}
-        - VITE_DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
-        - VITE_STATUS_API_KEY=${STATUS_API_KEY}
+        - VITE_BOT_API_URL=${VITE_BOT_API_URL:-https://aethel.xyz}
+        - VITE_STATUS_API_KEY=${VITE_STATUS_API_KEY}
+        - VITE_FRONTEND_URL=${VITE_FRONTEND_URL:-https://aethel.xyz}
+        - VITE_DISCORD_CLIENT_ID=${VITE_DISCORD_CLIENT_ID}
         - STATUS_API_KEY=${STATUS_API_KEY}
         - SOURCE_COMMIT=${SOURCE_COMMIT:-development}
     container_name: aethel-bot
