@@ -19,8 +19,10 @@ function fixImports(dir) {
       let content = fs.readFileSync(filePath, 'utf8');
 
       content = content.replace(/from ['"]@\/([^'"]+)['"]/g, (match, importPath) => {
-        const relativePath = path.relative(path.dirname(filePath), path.join('dist', importPath));
-        return `from '${relativePath.replace(/\\/g, '/')}.js'`;
+        const targetPath = path.join('dist', importPath);
+        const relativePath = path.relative(path.dirname(filePath), targetPath);
+        const normalizedPath = relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
+        return `from '${normalizedPath.replace(/\\/g, '/')}.js'`;
       });
 
       content = content.replace(/from ['"]\.\/([^'"]+)['"]/g, (match, importPath) => {
