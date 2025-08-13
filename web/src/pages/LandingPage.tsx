@@ -133,7 +133,7 @@ export default function Home() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3 md:gap-4">
             <a
-              href="https://discord.com/oauth2/authorize?client_id=1371031984230371369&scope=bot%20applications.commands"
+              href={`https://discord.com/oauth2/authorize?client_id=${import.meta.env.VITE_DISCORD_CLIENT_ID}`}
               className="btn btn-discord"
               target="_blank"
               rel="noopener noreferrer"

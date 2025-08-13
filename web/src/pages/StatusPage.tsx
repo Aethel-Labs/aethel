@@ -3,14 +3,16 @@ import { Link } from 'react-router-dom';
 
 async function getGitCommitHash() {
   try {
-    const response = await fetch(
-      `${import.meta.env.VITE_BOT_API_URL || 'https://bot-api.pur.cat'}/api/status`,
-      {
-        headers: {
-          'X-API-Key': import.meta.env.VITE_STATUS_API_KEY || '',
-        },
+    const apiUrl = import.meta.env.VITE_BOT_API_URL;
+    if (!apiUrl) {
+      console.error('VITE_BOT_API_URL is not defined');
+      return null;
+    }
+    const response = await fetch(`${apiUrl}/api/status`, {
+      headers: {
+        'X-API-Key': import.meta.env.VITE_STATUS_API_KEY || '',
       },
-    );
+    });
 
     if (!response.ok) {
       if (import.meta.env.NODE_ENV !== 'production') {
@@ -31,7 +33,16 @@ async function getGitCommitHash() {
 
 async function getBotStatus() {
   try {
-    const baseUrl = import.meta.env.VITE_BOT_API_URL || 'http://localhost:3000';
+    const baseUrl = import.meta.env.VITE_BOT_API_URL;
+    if (!baseUrl) {
+      console.error('VITE_BOT_API_URL is not defined');
+      return {
+        status: 'offline',
+        botStatus: 'disconnected',
+        error: 'VITE_BOT_API_URL environment variable is not configured',
+        lastChecked: new Date().toISOString(),
+      };
+    }
     const url = `${baseUrl}/api/status`;
 
     const controller = new AbortController();
