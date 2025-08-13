@@ -4,9 +4,12 @@ services:
     build:
       context: .
       args:
-        - VITE_BOT_API_URL=${VITE_BOT_API_URL:-https://aethel.xyz}
+        - VITE_BOT_API_URL=${BOT_API_URL:-https://aethel.xyz}
         - VITE_STATUS_API_KEY=${STATUS_API_KEY}
-        - VITE_FRONTEND_URL=${VITE_FRONTEND_URL:-https://aethel.xyz}
+        - VITE_FRONTEND_URL=${FRONTEND_URL:-https://aethel.xyz}
+        - VITE_DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+        - VITE_STATUS_API_KEY=${STATUS_API_KEY}
+        - STATUS_API_KEY=${STATUS_API_KEY}
         - SOURCE_COMMIT=${SOURCE_COMMIT:-development}
     container_name: aethel-bot
     restart: unless-stopped
@@ -14,6 +17,16 @@ services:
       - .env
     environment:
       NODE_ENV: production
+      TOKEN: ${TOKEN}
+      CLIENT_ID: ${CLIENT_ID}
+      DATABASE_URL: ${DATABASE_URL}
+      API_KEY_ENCRYPTION_SECRET: ${API_KEY_ENCRYPTION_SECRET}
+      STATUS_API_KEY: ${STATUS_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SOURCE_COMMIT: ${SOURCE_COMMIT}
     healthcheck:
       test: ["CMD", "ps", "aux", "|", "grep", "node", "|", "grep", "-v", "grep"]
       interval: 30s
@@ -32,9 +45,9 @@ services:
     container_name: aethel-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: aethel
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
