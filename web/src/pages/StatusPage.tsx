@@ -8,14 +8,11 @@ async function getGitCommitHash() {
       console.error('VITE_BOT_API_URL is not defined');
       return null;
     }
-    const response = await fetch(
-      `${apiUrl}/api/status`,
-      {
-        headers: {
-          'X-API-Key': import.meta.env.VITE_STATUS_API_KEY || '',
-        },
+    const response = await fetch(`${apiUrl}/api/status`, {
+      headers: {
+        'X-API-Key': import.meta.env.VITE_STATUS_API_KEY || '',
       },
-    );
+    });
 
     if (!response.ok) {
       if (import.meta.env.NODE_ENV !== 'production') {
