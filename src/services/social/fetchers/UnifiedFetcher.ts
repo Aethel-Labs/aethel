@@ -54,13 +54,24 @@ export class BlueskyFetcher implements SocialMediaFetcher {
   private readonly handleResolver = new HandleResolver();
 
   async fetchLatestPost(account: string): Promise<SocialMediaPost | null> {
-    const actor = await this.resolveActor(account);
-    const url = `${this.baseUrl}/xrpc/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(actor)}&limit=1`;
-
     try {
+      const actor = await this.resolveActor(account);
+      const url = `${this.baseUrl}/xrpc/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(actor)}&limit=1`;
+
       const response = await fetchWithTimeout(url);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.status >= 500) {
+          console.warn(`Bluesky API returned server error ${response.status}, skipping...`);
+          return null;
+        }
+
+        if (response.status === 404 || response.status === 400) {
+          console.warn(`Bluesky account ${account} not found or invalid`);
+          return null;
+        }
+
+        console.warn(`Bluesky API error for ${account}: ${response.status} ${response.statusText}`);
+        return null;
       }
 
       const data = await response.json();
@@ -77,9 +88,18 @@ export class BlueskyFetcher implements SocialMediaFetcher {
 
       return this.mapToSocialMediaPost(post, avatarUrl || undefined, displayName);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error fetching Bluesky post:', error);
-      throw new Error(`Failed to fetch post from Bluesky: ${errorMessage}`);
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          console.warn(`Bluesky request timeout for ${account}`);
+        } else if (error.message.includes('Failed to fetch')) {
+          console.warn(`Network error fetching Bluesky account ${account}: ${error.message}`);
+        } else {
+          console.warn(`Error fetching Bluesky post for ${account}: ${error.message}`);
+        }
+      } else {
+        console.warn(`Unknown error fetching Bluesky post for ${account}`);
+      }
+      return null;
     }
   }
 
@@ -184,12 +204,30 @@ export class BlueskyFetcher implements SocialMediaFetcher {
     try {
       const url = `${this.baseUrl}/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(actor)}`;
       const res = await fetchWithTimeout(url);
-      if (!res.ok) return null;
+      if (!res.ok) {
+        if (res.status >= 500) {
+          console.warn(`Bluesky API returned server error ${res.status} for profile lookup`);
+        } else if (res.status === 404) {
+          console.warn(`Bluesky profile not found for actor ${actor}`);
+        } else {
+          console.warn(`Bluesky profile API error for ${actor}: ${res.status} ${res.statusText}`);
+        }
+        return null;
+      }
       const data = await res.json();
       const avatar = typeof data?.avatar === 'string' ? data.avatar : undefined;
       const displayName = typeof data?.displayName === 'string' ? data.displayName : undefined;
       return { avatar, displayName };
-    } catch {
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          console.warn(`Bluesky profile request timeout for ${actor}`);
+        } else {
+          console.warn(`Error fetching Bluesky profile for ${actor}: ${error.message}`);
+        }
+      } else {
+        console.warn(`Unknown error fetching Bluesky profile for ${actor}`);
+      }
       return null;
     }
   }
@@ -273,18 +311,35 @@ export class FediverseFetcher implements SocialMediaFetcher {
     this.validateFediverseAccount(username, domain);
 
     const domainStr = domain as string;
-    const apiUrl = `https://${domainStr}/api/v1/accounts/lookup?acct=${username}@${domainStr}`;
 
     try {
+      const apiUrl = `https://${domainStr}/api/v1/accounts/lookup?acct=${username}@${domainStr}`;
       const accountResponse = await fetchWithTimeout(apiUrl);
+
       if (!accountResponse.ok) {
-        throw new Error(`Failed to fetch account: ${accountResponse.statusText}`);
+        if (accountResponse.status >= 500) {
+          console.warn(
+            `Fediverse instance ${domainStr} returned server error ${accountResponse.status}, skipping...`,
+          );
+          return null;
+        }
+
+        if (accountResponse.status === 404) {
+          console.warn(`Fediverse account ${account} not found on ${domainStr}`);
+          return null;
+        }
+
+        console.warn(
+          `Fediverse API error for ${account}: ${accountResponse.status} ${accountResponse.statusText}`,
+        );
+        return null;
       }
 
       const accountData = await accountResponse.json();
 
       if (!accountData?.id) {
-        throw new Error('Invalid account data: missing account ID in response');
+        console.warn(`Invalid account data for ${account}: missing account ID`);
+        return null;
       }
 
       const accountId = accountData.id;
@@ -292,20 +347,39 @@ export class FediverseFetcher implements SocialMediaFetcher {
       const statusResponse = await fetchWithTimeout(statusesUrl);
 
       if (!statusResponse.ok) {
-        throw new Error(`Failed to fetch statuses: ${statusResponse.statusText}`);
+        if (statusResponse.status >= 500) {
+          console.warn(
+            `Fediverse instance ${domainStr} returned server error ${statusResponse.status} for statuses, skipping...`,
+          );
+          return null;
+        }
+
+        console.warn(
+          `Fediverse statuses API error for ${account}: ${statusResponse.status} ${statusResponse.statusText}`,
+        );
+        return null;
       }
 
       const statuses = (await statusResponse.json()) as FediversePost[];
-      if (!statuses || statuses.length === 0) {
+      if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
         return null;
       }
 
       const post = this.mapToSocialMediaPost(statuses[0], domainStr);
       return post;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error fetching Fediverse post:', error);
-      throw new Error(`Failed to fetch post from Fediverse: ${errorMessage}`);
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          console.warn(`Fediverse request timeout for ${account}@${domainStr}`);
+        } else if (error.message.includes('Failed to fetch')) {
+          console.warn(`Network error fetching Fediverse account ${account}: ${error.message}`);
+        } else {
+          console.warn(`Error fetching Fediverse post for ${account}: ${error.message}`);
+        }
+      } else {
+        console.warn(`Unknown error fetching Fediverse post for ${account}`);
+      }
+      return null;
     }
   }
 
@@ -326,6 +400,48 @@ export class FediverseFetcher implements SocialMediaFetcher {
     const username = cleanAccount.substring(0, firstAt);
     const domain = cleanAccount.substring(firstAt + 1);
     return [username, domain];
+  }
+
+  private async fetchFediverseProfile(
+    account: string,
+  ): Promise<{ displayName?: string; avatar?: string } | null> {
+    const [username, instance] = account.split('@');
+    if (!username || !instance) return null;
+
+    const url = `https://${instance}/api/v1/accounts/lookup?acct=${username}`;
+
+    try {
+      const response = await fetchWithTimeout(url);
+      if (!response.ok) {
+        if (response.status >= 500) {
+          console.warn(`Fediverse instance ${instance} returned server error ${response.status}`);
+        } else if (response.status === 404) {
+          console.warn(`Fediverse account ${account} not found`);
+        } else {
+          console.warn(
+            `Fediverse API error for ${account}: ${response.status} ${response.statusText}`,
+          );
+        }
+        return null;
+      }
+
+      const data = await response.json();
+      return {
+        displayName: data.display_name || data.username,
+        avatar: data.avatar_static || data.avatar,
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          console.warn(`Fediverse request timeout for ${account}`);
+        } else {
+          console.warn(`Error fetching Fediverse profile for ${account}: ${error.message}`);
+        }
+      } else {
+        console.warn(`Unknown error fetching Fediverse profile for ${account}`);
+      }
+      return null;
+    }
   }
 
   private mapToSocialMediaPost(post: FediversePost, domain: string): SocialMediaPost {

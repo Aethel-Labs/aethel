@@ -321,9 +321,14 @@ class SocialMediaPoller {
             this.notificationService.sendNotification(post, subscription),
           ),
         );
+      } else {
+        logger.debug('Social media polling completed - no new posts found');
       }
     } catch (error) {
-      logger.error('Error during polling:', error);
+      logger.error(
+        'Error during social media update check:',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
     } finally {
       this.inProgress = false;
     }

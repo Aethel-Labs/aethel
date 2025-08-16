@@ -76,8 +76,15 @@ export class SocialMediaService {
   > {
     const subscriptions = await this.getAllActiveSubscriptions();
     const newPosts: { post: SocialMediaPost; subscription: SocialMediaSubscription }[] = [];
+    const failedAccounts = new Set<string>();
 
     for (const sub of subscriptions) {
+      const accountKey = `${sub.platform}:${sub.accountHandle}`;
+
+      if (failedAccounts.has(accountKey)) {
+        continue;
+      }
+
       try {
         const fetcher = this.fetchers.get(sub.platform as SocialPlatform);
         if (!fetcher) {
@@ -87,7 +94,6 @@ export class SocialMediaService {
 
         const latestPost = await fetcher.fetchLatestPost(sub.accountHandle);
         if (!latestPost) {
-          console.debug(`No posts found for ${sub.platform} account ${sub.accountHandle}`);
           continue;
         }
 
@@ -95,6 +101,7 @@ export class SocialMediaService {
 
         if (!sub.lastPostTimestamp) {
           await this.updateLastPost(sub.id, normalizedUri, latestPost.timestamp);
+          console.debug(`Initialized tracking for ${sub.platform} account ${sub.accountHandle}`);
           continue;
         }
 
@@ -104,13 +111,22 @@ export class SocialMediaService {
             post: { ...latestPost, uri: normalizedUri },
             subscription: sub,
           });
+          console.debug(`New post detected for ${sub.platform} account ${sub.accountHandle}`);
         }
       } catch (error) {
-        console.error(
-          `Error checking updates for ${sub.platform} account ${sub.accountHandle}:`,
-          error,
+        console.warn(
+          `Failed to check ${sub.platform} account ${sub.accountHandle}:`,
+          error instanceof Error ? error.message : 'Unknown error',
         );
+
+        failedAccounts.add(accountKey);
       }
+    }
+
+    if (newPosts.length > 0) {
+      console.info(
+        `Found ${newPosts.length} new social media posts across ${subscriptions.length} subscriptions`,
+      );
     }
 
     return newPosts;
