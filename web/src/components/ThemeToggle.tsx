@@ -12,9 +12,7 @@ export default function ThemeToggle({ className = '' }: ThemeToggleProps) {
     <button
       onClick={toggleTheme}
       className={`p-3 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-        isDarkMode
-          ? 'text-yellow-400'
-          : 'text-gray-700'
+        isDarkMode ? 'text-yellow-400' : 'text-gray-700'
       } ${className}`}
       aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
     >

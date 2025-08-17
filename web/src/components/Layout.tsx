@@ -30,7 +30,7 @@ const Layout = ({ children }: LayoutProps) => {
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-black text-gray-900 dark:text-gray-100 font-inter transition-colors duration-300">
       <div className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full blur-xl md:blur-3xl opacity-30 bg-gradient-to-tr from-pink-400 to-purple-500 dark:opacity-20" />
       <div className="pointer-events-none absolute -bottom-32 -left-32 h-[28rem] w-[28rem] rounded-full blur-xl md:blur-3xl opacity-30 bg-gradient-to-tr from-indigo-400 to-sky-500 dark:opacity-20" />
-      
+
       <div
         className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-200 ${
           mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
