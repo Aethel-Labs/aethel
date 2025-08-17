@@ -9,28 +9,31 @@ interface LegalLayoutProps {
 
 export function LegalLayout({ title, lastUpdated, children }: LegalLayoutProps) {
   return (
-    <div className="min-h-screen p-8">
-      <main className="max-w-4xl mx-auto">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-black transition-colors duration-300 p-8">
+      <div className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full blur-xl md:blur-3xl opacity-30 bg-gradient-to-tr from-pink-400 to-purple-500 dark:opacity-20" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 h-[28rem] w-[28rem] rounded-full blur-xl md:blur-3xl opacity-30 bg-gradient-to-tr from-indigo-400 to-sky-500 dark:opacity-20" />
+      
+      <main className="max-w-4xl mx-auto relative">
         <div className="text-center mb-16 pt-8">
           <img
             src="/bot_icon.png"
             alt="Aethel Bot Logo"
             width={160}
             height={160}
-            className="mx-auto mb-8 pixel-art rounded-2xl w-40 h-40 object-cover"
+            className="mx-auto mb-8 w-40 h-40 rounded-2xl object-contain shadow-xl ring-1 ring-black/5 dark:ring-white/10"
             style={{ imageRendering: 'auto' }}
           />
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 text-gray-900 dark:text-gray-100">
             {title}
           </h1>
           <div className="w-24 h-1 bg-pink-500 mx-auto my-4 rounded-full"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
             Last Updated: {lastUpdated}
           </p>
 
           <Link
             to="/"
-            className="inline-flex items-center px-6 py-3 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium rounded-full shadow-md hover:shadow-lg transition-all mb-8"
+            className="inline-flex items-center px-6 py-3 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium rounded-full shadow-md hover:shadow-lg transition-all mb-8 backdrop-blur-sm"
           >
             <svg
               className="w-4 h-4 mr-2"

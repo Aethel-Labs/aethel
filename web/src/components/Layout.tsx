@@ -27,7 +27,10 @@ const Layout = ({ children }: LayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen text-gray-900 dark:text-gray-100 font-inter transition-colors duration-300">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-black text-gray-900 dark:text-gray-100 font-inter transition-colors duration-300">
+      <div className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full blur-xl md:blur-3xl opacity-30 bg-gradient-to-tr from-pink-400 to-purple-500 dark:opacity-20" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 h-[28rem] w-[28rem] rounded-full blur-xl md:blur-3xl opacity-30 bg-gradient-to-tr from-indigo-400 to-sky-500 dark:opacity-20" />
+      
       <div
         className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-200 ${
           mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -38,7 +41,7 @@ const Layout = ({ children }: LayoutProps) => {
           onClick={() => setMobileMenuOpen(false)}
         />
         <div
-          className={`fixed inset-y-0 left-0 flex w-72 flex-col bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-xl transform transition-transform duration-200 ease-out ${
+          className={`fixed inset-y-0 left-0 flex w-72 flex-col bg-white dark:bg-gray-800 backdrop-blur-md shadow-xl transform transition-transform duration-200 ease-out ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
@@ -93,7 +96,7 @@ const Layout = ({ children }: LayoutProps) => {
           </nav>
 
           <div className="border-t border-gray-200 dark:border-gray-700 p-4">
-            <div className="flex items-center mb-4 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
+            <div className="flex items-center mb-4 p-3 rounded-xl">
               <div className="flex-shrink-0">
                 {user?.avatar ? (
                   <img
@@ -127,7 +130,7 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
       </div>
 
-      <header className="fixed top-4 left-8 right-8 lg:left-16 lg:right-16 xl:left-32 xl:right-32 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 shadow-lg rounded-2xl transition-colors duration-300">
+      <header className="fixed top-4 left-8 right-8 lg:left-16 lg:right-16 xl:left-32 xl:right-32 z-40 bg-white dark:bg-gray-800 backdrop-blur-xl border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl transition-colors duration-300">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -177,7 +180,7 @@ const Layout = ({ children }: LayoutProps) => {
             </nav>
 
             <div className="flex items-center space-x-4">
-              <div className="hidden lg:flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
+              <div className="hidden lg:flex items-center space-x-3 px-3 py-2 rounded-xl">
                 <div className="flex-shrink-0">
                   {user?.avatar ? (
                     <img
