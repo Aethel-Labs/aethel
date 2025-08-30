@@ -20,7 +20,7 @@ WORKDIR /app
 RUN corepack enable
 RUN corepack prepare bun@latest --activate
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 COPY src ./src
@@ -34,7 +34,7 @@ RUN bun run build
 
 WORKDIR /app/web
 
-COPY web/package.json web/pnpm-lock.yaml ./
+COPY web/package.json web/bun.lock ./
 RUN bun install --frozen-lockfile
 
 COPY web/src ./src
@@ -72,7 +72,7 @@ WORKDIR /app
 RUN corepack enable
 RUN corepack prepare bun@latest --activate
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json bun.lock ./
 COPY .env* ./
 
 RUN bun install --frozen-lockfile --prod && \
@@ -93,4 +93,4 @@ EXPOSE 2020
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD ps aux | grep node | grep -v grep || exit 1
 
-CMD ["pnpm", "run", "start"]
+CMD ["bun", "run", "start"]
