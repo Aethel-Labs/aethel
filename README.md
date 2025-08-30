@@ -31,7 +31,7 @@ and robust security best practices.
 ```sh
 git clone https://github.com/aethel-labs/aethel.git
 cd bot
-pnpm i
+bun i
 ```
 
 ### 2. Environment Variables
@@ -51,14 +51,14 @@ Copy `.env.example` to `.env` and fill in the required values:
 Run all SQL migrations:
 
 ```sh
-pnpm run scripts/run-migration.js # or node scripts/run-migration.js
+bun run scripts/run-migration.js # or node scripts/run-migration.js
 ```
 
 ---
 
 ## Usage
 
-- Start the bot: `pnpm start`
+- Start the bot: `bun start`
 - Add the bot to your account and use `/ai`, `/remind`, etc.
 - Use `/ai use_custom_api:true` to set your own API key (encrypted)
 
@@ -89,7 +89,7 @@ See [LICENSE](LICENSE) for details.
 
 7. Start the bot:
    ```bash
-   pnpm start
+   bun start
    ```
 
 ## Usage

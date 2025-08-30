@@ -18,10 +18,10 @@ ENV STATUS_API_KEY=${STATUS_API_KEY}
 WORKDIR /app
 
 RUN corepack enable
-RUN corepack prepare pnpm@latest --activate
+RUN corepack prepare bun@latest --activate
 
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN bun install --frozen-lockfile
 
 COPY src ./src
 COPY scripts ./scripts
@@ -30,12 +30,12 @@ COPY migrations ./migrations
 COPY tsconfig.json ./
 COPY .env* ./
 
-RUN pnpm run build
+RUN bun run build
 
 WORKDIR /app/web
 
 COPY web/package.json web/pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN bun install --frozen-lockfile
 
 COPY web/src ./src
 COPY web/public ./public
@@ -46,7 +46,7 @@ COPY web/tsconfig.node.json ./
 COPY web/tailwind.config.js ./
 COPY web/postcss.config.js ./
 
-RUN pnpm run build
+RUN bun run build
 
 FROM node:20-alpine AS production
 
@@ -70,13 +70,13 @@ RUN addgroup -g 1001 -S nodejs && \
 WORKDIR /app
 
 RUN corepack enable
-RUN corepack prepare pnpm@latest --activate
+RUN corepack prepare bun@latest --activate
 
 COPY package.json pnpm-lock.yaml ./
 COPY .env* ./
 
-RUN pnpm install --frozen-lockfile --prod && \
-    pnpm store prune
+RUN bun install --frozen-lockfile --prod && \
+    bun store prune
 
 COPY --from=builder --chown=aethel:nodejs /app/dist ./dist
 COPY --from=builder --chown=aethel:nodejs /app/locales ./locales
