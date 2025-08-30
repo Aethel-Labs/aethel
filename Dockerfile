@@ -18,7 +18,8 @@ ENV STATUS_API_KEY=${STATUS_API_KEY}
 WORKDIR /app
 
 RUN corepack enable
-RUN corepack prepare bun@latest --activate
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:${PATH}"
 
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
@@ -70,7 +71,8 @@ RUN addgroup -g 1001 -S nodejs && \
 WORKDIR /app
 
 RUN corepack enable
-RUN corepack prepare bun@latest --activate
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:${PATH}"
 
 COPY package.json bun.lock ./
 COPY .env* ./
