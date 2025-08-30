@@ -73,8 +73,7 @@ WORKDIR /app
 COPY package.json bun.lock ./
 COPY .env* ./
 
-RUN bun install --frozen-lockfile --prod && \
-    bun store prune
+RUN bun install --frozen-lockfile --production
 
 COPY --from=builder --chown=aethel:nodejs /app/dist ./dist
 COPY --from=builder --chown=aethel:nodejs /app/locales ./locales
