@@ -2,7 +2,7 @@ name: Pull Request Checks
 
 on:
   pull_request:
-    branches: [ main, dev ]
+    branches: [main, dev]
     types: [opened, synchronize, reopened]
 
 jobs:
@@ -13,103 +13,91 @@ jobs:
       contents: read
       pull-requests: read
       statuses: write
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        
-    - name: Setup pnpm
-      run: |
-        npm install --global corepack@latest
-        corepack enable
-        corepack prepare pnpm@latest --activate
-        
-    - name: Install backend dependencies
-      run: pnpm install --frozen-lockfile
-      
-    - name: Install frontend dependencies
-      run: |
-        cd web
-        pnpm install --frozen-lockfile
-        
-    - name: Check backend build
-      run: pnpm run build
-      
-    - name: TypeScript check frontend
-      run: |
-        cd web
-        npx tsc --noEmit
-        
-    - name: Check frontend build
-      run: |
-        cd web
-        pnpm run build
-        
-    - name: Run backend linting
-      run: pnpm run lint
-        
-    - name: Check code formatting
-      run: pnpm run format:check
-      
-    - name: Validate PR title
-      uses: amannn/action-semantic-pull-request@v5
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        types: |
-          feat
-          fix
-          docs
-          style
-          refactor
-          perf
-          test
-          chore
-        requireScope: false
-        
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install backend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install frontend dependencies
+        run: |
+          cd web
+          bun install --frozen-lockfile
+
+      - name: Check backend build
+        run: bun run build
+
+      - name: TypeScript check frontend
+        run: |
+          cd web
+          bunx tsc --noEmit
+
+      - name: Check frontend build
+        run: |
+          cd web
+          bun run build
+
+      - name: Run backend linting
+        run: bun run lint
+
+      - name: Check code formatting
+        run: bun run format:check
+
+      - name: Validate PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            chore
+          requireScope: false
+
   size-check:
     name: Bundle Size Check
     runs-on: self-hosted
     permissions:
       contents: read
       pull-requests: read
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        
-    - name: Setup pnpm
-      run: |
-        npm install --global corepack@latest
-        corepack enable
-        corepack prepare pnpm@latest --activate
-        
-    - name: Install frontend dependencies
-      run: |
-        cd web
-        pnpm install --frozen-lockfile
-        
-    - name: Build frontend for size check
-      run: |
-        cd web
-        pnpm run build
-        
-    - name: Check bundle size
-      run: |
-        cd web
-        echo "Frontend build size:"
-        du -sh dist/
-        echo "Individual asset sizes:"
-        find dist/ -name "*.js" -o -name "*.css" | xargs ls -lh
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install frontend dependencies
+        run: |
+          cd web
+          bun install --frozen-lockfile
+
+      - name: Build frontend for size check
+        run: |
+          cd web
+          bun run build
+
+      - name: Check bundle size
+        run: |
+          cd web
+          echo "Frontend build size:"
+          du -sh dist/
+          echo "Individual asset sizes:"
+          find dist/ -name "*.js" -o -name "*.css" | xargs ls -lh

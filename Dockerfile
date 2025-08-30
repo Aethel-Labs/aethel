@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM oven/bun:latest-alpine AS builder
 
 ARG SOURCE_COMMIT
 ARG VITE_BOT_API_URL
@@ -17,9 +17,7 @@ ENV STATUS_API_KEY=${STATUS_API_KEY}
 
 WORKDIR /app
 
-RUN corepack enable
-RUN curl -fsSL https://bun.sh/install | bash
-ENV PATH="/root/.bun/bin:${PATH}"
+
 
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
@@ -49,7 +47,7 @@ COPY web/postcss.config.js ./
 
 RUN bun run build
 
-FROM node:20-alpine AS production
+FROM oven/bun:1-alpine AS production
 
 ARG SOURCE_COMMIT
 ARG VITE_BOT_API_URL
@@ -70,9 +68,7 @@ RUN addgroup -g 1001 -S nodejs && \
 
 WORKDIR /app
 
-RUN corepack enable
-RUN curl -fsSL https://bun.sh/install | bash
-ENV PATH="/root/.bun/bin:${PATH}"
+
 
 COPY package.json bun.lock ./
 COPY .env* ./

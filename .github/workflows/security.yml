@@ -2,11 +2,11 @@ name: Security & Dependencies
 
 on:
   schedule:
-    - cron: '0 2 * * 1'
+    - cron: "0 2 * * 1"
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   security-audit:
@@ -16,43 +16,37 @@ jobs:
       contents: read
       security-events: write
       actions: read
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        
-    - name: Setup pnpm
-      run: |
-        npm install --global corepack@latest
-        corepack enable
-        corepack prepare pnpm@latest --activate
-        
-    - name: Audit backend dependencies
-      run: pnpm audit --audit-level moderate
-      continue-on-error: true
-      
-    - name: Audit frontend dependencies
-      run: |
-        cd web
-        pnpm audit --audit-level moderate
-      continue-on-error: true
-      
-    - name: Run CodeQL Analysis
-      uses: github/codeql-action/init@v3
-      with:
-        languages: javascript, typescript
-        
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
-      
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Audit backend dependencies
+        run: bun audit
+        continue-on-error: true
+
+      - name: Audit frontend dependencies
+        run: |
+          cd web
+          bun audit
+        continue-on-error: true
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
   dependency-review:
     name: Dependency Review
     runs-on: self-hosted
@@ -60,13 +54,13 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Dependency Review
-      uses: actions/dependency-review-action@v4
-      with:
-        fail-on-severity: moderate
-        allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
