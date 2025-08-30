@@ -47,10 +47,10 @@ jobs:
           bun run build
 
       - name: Run backend linting
-        run: bunx eslint ./src ./web/src --ext .ts,.tsx
+        run: bunx --bun eslint ./src ./web/src --ext .ts,.tsx
 
       - name: Check code formatting
-        run: bunx prettier --check "**/*.{js,json,md,ts,tsx}" --ignore-path .prettierignore
+        run: bunx --bun prettier --check "**/*.{js,json,md,ts,tsx}" --ignore-path .prettierignore
 
       - name: Validate PR title
         uses: amannn/action-semantic-pull-request@v5
