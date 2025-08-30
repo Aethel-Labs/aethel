@@ -63,7 +63,8 @@ ENV VITE_STATUS_API_KEY=${VITE_STATUS_API_KEY}
 ENV VITE_FRONTEND_URL=${VITE_FRONTEND_URL}
 ENV VITE_DISCORD_CLIENT_ID=${VITE_DISCORD_CLIENT_ID}
 
-RUN groupadd -g 1001 nodejs && \
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* && \
+    groupadd -g 1001 nodejs && \
     useradd -r -u 1001 -g nodejs aethel
 
 WORKDIR /app
@@ -88,6 +89,6 @@ USER aethel
 EXPOSE 2020
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD ps aux | grep node | grep -v grep || exit 1
+  CMD curl -f http://localhost:2020/health || exit 1
 
 CMD ["bun", "run", "start"]

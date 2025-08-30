@@ -82,6 +82,10 @@ app.use('/api/reminders', remindersRoutes);
 
 app.use('/api/status', authenticateApiKey, status(bot));
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.use(e.static('web/dist'));
 
 app.get('*', (req, res) => {
