@@ -1,4 +1,4 @@
-FROM oven/bun:latest-alpine AS builder
+FROM oven/bun:1 AS builder
 
 ARG SOURCE_COMMIT
 ARG VITE_BOT_API_URL
@@ -47,7 +47,7 @@ COPY web/postcss.config.js ./
 
 RUN bun run build
 
-FROM oven/bun:1-alpine AS production
+FROM oven/bun:1 AS production
 
 ARG SOURCE_COMMIT
 ARG VITE_BOT_API_URL
