@@ -8,25 +8,46 @@ import {
   buildConversation,
   getUserCredentials,
   incrementAndCheckDailyLimit,
+  incrementAndCheckServerDailyLimit,
   splitResponseIntoChunks,
   processUrls,
 } from '@/commands/utilities/ai';
 import type { ConversationMessage, AIResponse } from '@/commands/utilities/ai';
+
+type ApiConfiguration = ReturnType<typeof getApiConfiguration>;
 import { createMemoryManager } from '@/utils/memoryManager';
 
-const conversations = createMemoryManager<string, ConversationMessage[]>({
+const serverConversations = createMemoryManager<string, ConversationMessage[]>({
+  maxSize: 1000,
+  maxAge: 2 * 60 * 60 * 1000,
+  cleanupInterval: 10 * 60 * 1000,
+});
+
+const serverMessageContext = createMemoryManager<
+  string,
+  Array<{
+    username: string;
+    content: string;
+    timestamp: number;
+  }>
+>({
+  maxSize: 1000,
+  maxAge: 2 * 60 * 60 * 1000,
+  cleanupInterval: 10 * 60 * 1000,
+});
+
+const userConversations = createMemoryManager<string, ConversationMessage[]>({
   maxSize: 2000,
   maxAge: 2 * 60 * 60 * 1000,
   cleanupInterval: 10 * 60 * 1000,
 });
 
-function getConversationKey(message: Message): string {
-  if (message.channel.type === ChannelType.DM) {
-    return `dm:${message.author.id}`;
-  } else if (message.guildId) {
-    return `guild:${message.guildId}:${message.author.id}`;
-  }
-  return `channel:${message.channelId}`;
+function getServerConversationKey(guildId: string): string {
+  return `server:${guildId}`;
+}
+
+function getUserConversationKey(userId: string): string {
+  return `dm:${userId}`;
 }
 
 export default class MessageCreateEvent {
@@ -47,9 +68,23 @@ export default class MessageCreateEvent {
     const isMentioned =
       message.mentions.users.has(this.client.user!.id) && !message.mentions.everyone;
 
+    if (!isDM && message.guildId) {
+      const contextKey = getServerConversationKey(message.guildId);
+      const existingContext = serverMessageContext.get(contextKey) || [];
+
+      const newMessage = {
+        username: message.author.username,
+        content: message.content,
+        timestamp: Date.now(),
+      };
+
+      const updatedContext = [...existingContext, newMessage].slice(-10);
+      serverMessageContext.set(contextKey, updatedContext);
+    }
+
     if (!isDM && !isMentioned) {
       logger.debug(
-        `Ignoring message - not a DM and bot not mentioned (channel type: ${message.channel.type})`,
+        `Storing message for context but not responding - not a DM and bot not mentioned (channel type: ${message.channel.type})`,
       );
       return;
     }
@@ -61,43 +96,52 @@ export default class MessageCreateEvent {
         `${isDM ? 'DM' : 'Message'} received (${message.content.length} characters) - content hidden for privacy`,
       );
 
-      const conversationKey = getConversationKey(message);
-      const conversation = conversations.get(conversationKey) || [];
-
       const hasImageAttachments = message.attachments.some(
         (att) =>
           att.contentType?.startsWith('image/') ||
           att.name?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i),
       );
 
-      const hasImageUrls = false;
+      logger.debug(`hasImageAttachments: ${hasImageAttachments}`);
+      const hasImages = hasImageAttachments;
 
-      if (message.attachments.size > 0) {
-        logger.debug(`Found ${message.attachments.size} attachment(s)`);
-        message.attachments.forEach((att) => {
-          logger.debug(`Attachment: type=${att.contentType}, size=${att.size}bytes`);
-        });
+      let selectedModel: string;
+      let config: ApiConfiguration;
+      let usingDefaultKey = true;
+
+      if (isDM) {
+        const {
+          model: userCustomModel,
+          apiKey: userApiKey,
+          apiUrl: userApiUrl,
+        } = await getUserCredentials(`user:${message.author.id}`);
+
+        selectedModel = hasImages
+          ? 'google/gemma-3-4b-it'
+          : userCustomModel || 'moonshotai/kimi-k2';
+
+        config = getApiConfiguration(userApiKey ?? null, selectedModel, userApiUrl ?? null);
+        usingDefaultKey = config.usingDefaultKey;
       } else {
-        logger.debug('No attachments found in message');
+        selectedModel = hasImages ? 'google/gemma-3-4b-it' : 'google/gemini-2.5-flash-lite';
+
+        config = getApiConfiguration(null, selectedModel, null);
       }
 
-      logger.debug(`hasImageAttachments: ${hasImageAttachments}, hasImageUrls: ${hasImageUrls}`);
-      const hasImages = hasImageAttachments;
-      const { model: userCustomModel } = await getUserCredentials(conversationKey);
-
-      const selectedModel = hasImages
-        ? 'google/gemma-3-4b-it'
-        : userCustomModel || 'moonshotai/kimi-k2';
-
       logger.info(
-        `Using model: ${selectedModel} for message with images: ${hasImages}${userCustomModel ? ' (user custom model)' : ' (default model)'}`,
+        `Using model: ${selectedModel} for message with images: ${hasImages}${
+          isDM && !usingDefaultKey ? ' (user custom model)' : ' (default model)'
+        }`,
       );
 
       const systemPrompt = buildSystemPrompt(
-        isDM,
+        usingDefaultKey,
         this.client,
         selectedModel,
         message.author.username,
+        undefined,
+        !isDM,
+        !isDM ? message.guild?.name : undefined,
       );
 
       let messageContent:
@@ -150,6 +194,40 @@ export default class MessageCreateEvent {
         messageContent = contentArray;
       }
 
+      let conversation: ConversationMessage[] = [];
+
+      if (isDM) {
+        const conversationKey = getUserConversationKey(message.author.id);
+        conversation = userConversations.get(conversationKey) || [];
+      } else {
+        const serverKey = getServerConversationKey(message.guildId!);
+        const serverConversation = serverConversations.get(serverKey) || [];
+        const recentMessages = serverMessageContext.get(serverKey) || [];
+
+        const contextMessages = recentMessages.slice(-6, -1).map((msg) => ({
+          role: 'user' as const,
+          content: `**${msg.username}**: ${msg.content}`,
+          username: msg.username,
+        }));
+
+        const aiHistory = serverConversation.slice(-3);
+
+        const formattedAiHistory = aiHistory.map((msg) => {
+          if (msg.role === 'user' && msg.username) {
+            const content = Array.isArray(msg.content)
+              ? msg.content.map((c) => (c.type === 'text' ? c.text : '[Image]')).join(' ')
+              : msg.content;
+            return {
+              ...msg,
+              content: `**${msg.username}**: ${content}`,
+            };
+          }
+          return msg;
+        });
+
+        conversation = [...contextMessages, ...formattedAiHistory];
+      }
+
       let filteredConversation = conversation;
       if (selectedModel === 'moonshotai/kimi-k2') {
         filteredConversation = conversation.map((msg) => {
@@ -170,20 +248,27 @@ export default class MessageCreateEvent {
         systemPrompt,
       );
 
-      const { apiKey: userApiKey, apiUrl: userApiUrl } = await getUserCredentials(conversationKey);
-      const config = getApiConfiguration(userApiKey ?? null, selectedModel, userApiUrl ?? null);
-
       if (config.usingDefaultKey) {
         const exemptUserId = process.env.AI_EXEMPT_USER_ID;
         const actorId = message.author.id;
 
         if (actorId !== exemptUserId) {
-          const allowed = await incrementAndCheckDailyLimit(actorId, 10);
-          if (!allowed) {
-            await message.reply(
-              "❌ You've reached your daily limit of AI requests. Please try again tomorrow or set up your own API key using the `/ai` command.",
-            );
-            return;
+          if (isDM) {
+            const allowed = await incrementAndCheckDailyLimit(actorId, 10);
+            if (!allowed) {
+              await message.reply(
+                "❌ You've reached your daily limit of AI requests. Please try again tomorrow or set up your own API key using the `/ai` command.",
+              );
+              return;
+            }
+          } else {
+            const serverAllowed = await incrementAndCheckServerDailyLimit(message.guildId!, 150);
+            if (!serverAllowed) {
+              await message.reply(
+                '❌ This server has reached its daily limit of 150 AI requests. Please try again tomorrow or have someone set up their own API key using the `/ai` command.',
+              );
+              return;
+            }
           }
         }
       } else if (!config.finalApiKey) {
@@ -229,19 +314,28 @@ export default class MessageCreateEvent {
           return msg;
         });
 
-        const fallbackModel = userCustomModel || 'moonshotai/kimi-k2';
+        const fallbackModel =
+          isDM && !usingDefaultKey
+            ? 'moonshotai/kimi-k2'
+            : isDM
+              ? 'moonshotai/kimi-k2'
+              : 'google/gemini-2.5-flash-lite';
 
         const fallbackConversation = buildConversation(
           cleanedConversation,
           fallbackContent,
-          buildSystemPrompt(isDM, this.client, fallbackModel, message.author.username),
+          buildSystemPrompt(
+            usingDefaultKey,
+            this.client,
+            fallbackModel,
+            message.author.username,
+            undefined,
+            !isDM,
+            !isDM ? message.guild?.name : undefined,
+          ),
         );
 
-        const fallbackConfig = getApiConfiguration(
-          userApiKey ?? null,
-          fallbackModel,
-          userApiUrl ?? null,
-        );
+        const fallbackConfig = isDM ? config : getApiConfiguration(null, fallbackModel, null);
         aiResponse = await makeAIRequest(fallbackConfig, fallbackConversation);
 
         if (aiResponse) {
@@ -274,11 +368,26 @@ export default class MessageCreateEvent {
 
       await this.sendResponse(message, aiResponse);
 
-      updatedConversation.push({
+      const userMessage: ConversationMessage = {
+        role: 'user',
+        content: messageContent,
+        username: message.author.username,
+      };
+      const assistantMessage: ConversationMessage = {
         role: 'assistant',
         content: aiResponse.content,
-      });
-      conversations.set(conversationKey, updatedConversation);
+      };
+
+      if (isDM) {
+        const conversationKey = getUserConversationKey(message.author.id);
+        const newConversation = [...filteredConversation, userMessage, assistantMessage];
+        userConversations.set(conversationKey, newConversation);
+      } else {
+        const serverKey = getServerConversationKey(message.guildId!);
+        const serverConversation = serverConversations.get(serverKey) || [];
+        const newServerConversation = [...serverConversation, userMessage, assistantMessage];
+        serverConversations.set(serverKey, newServerConversation);
+      }
 
       logger.info(`${isDM ? 'DM' : 'Server'} response sent successfully`);
     } catch (error) {

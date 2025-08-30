@@ -34,6 +34,7 @@ interface ConversationMessage {
           detail?: 'low' | 'high' | 'auto';
         };
       }>;
+  username?: string;
 }
 
 interface AIResponse {
@@ -139,6 +140,8 @@ function buildSystemPrompt(
   model?: string,
   username?: string,
   interaction?: ChatInputCommandInteraction,
+  isServer?: boolean,
+  serverName?: string,
 ): string {
   const now = new Date();
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -171,7 +174,25 @@ function buildSystemPrompt(
 
   const currentModel = model || (usingDefaultKey ? 'moonshotai/kimi-k2 (default)' : 'custom model');
 
+  const contextInfo = isServer
+    ? `**CONTEXT:**
+- You are responding in the Discord server: "${serverName || 'Unknown Server'}"
+- CURRENT USER TALKING TO YOU: ${username || 'Discord User'}
+- IMPORTANT: This is a SERVER conversation where MULTIPLE DIFFERENT USERS can talk to you
+- Previous messages may be from different users - always check the username before each message
+- When you see "**Username**: message", that means a different user said that message
+- The current message is from ${username || 'Discord User'} specifically
+- Always be aware of WHO is talking to you in each message
+- If you reference previous messages, make sure you know which user said what
+- Users may respond to your messages or ping you to continue conversations
+- When users reply to your previous responses, treat it as part of the ongoing conversation`
+    : `**CONTEXT:**
+- You are in a direct message conversation
+- User: ${username || 'Discord User'}`;
+
   const baseInstructions = `You are a helpful, accurate, and privacy-respecting AI assistant for the /ai command of the Aethel Discord User Bot. Your primary goal is to provide clear, concise, and friendly answers to user questions, adapting your tone to be conversational and approachable.
+
+${contextInfo}
 
 **USER INFORMATION:**
 - Username: ${username || 'Discord User'}
@@ -190,6 +211,9 @@ function buildSystemPrompt(
 - NEVER format, modify, or alter URLs in any way. Leave them exactly as they are.
 - Format your responses using Discord markdown where appropriate, but NEVER format URLs.
 - Only greet the user at the start of a new conversation, not in every message.
+- DO NOT hallucinate, make up facts, or provide false information. If you don't know something, say so clearly.
+- Be accurate and truthful in all responses. Do not invent details, statistics, or information that you're not certain about.
+- If asked about current events, real-time data, or information beyond your knowledge cutoff, clearly state your limitations.
 
 **BOT FACTS (use only if asked about the bot):**
 - Name: Aethel
@@ -289,7 +313,7 @@ async function setUserApiKey(
     await pool.query(
       `INSERT INTO users (user_id, api_key_encrypted, custom_model, custom_api_url, updated_at)
        VALUES ($1, $2, $3, $4, now())
-       ON CONFLICT (user_id) DO UPDATE SET 
+       ON CONFLICT (user_id) DO UPDATE SET
          api_key_encrypted = $2, custom_model = $3, custom_api_url = $4, updated_at = now()`,
       [userId, encrypted, model?.trim() || null, apiUrl?.trim() || null],
     );
@@ -352,6 +376,26 @@ async function incrementAndCheckDailyLimit(userId: string, limit = 20): Promise<
       `INSERT INTO ai_usage (user_id, usage_date, count) VALUES ($1, $2, 1)
        ON CONFLICT (user_id, usage_date) DO UPDATE SET count = ai_usage.count + 1 RETURNING count`,
       [userId, today],
+    );
+    await client.query('COMMIT');
+    return res.rows[0].count <= limit;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function incrementAndCheckServerDailyLimit(serverId: string, limit = 20): Promise<boolean> {
+  const today = new Date().toISOString().slice(0, 10);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const res = await client.query(
+      `INSERT INTO server_ai_usage (server_id, usage_date, count) VALUES ($1, $2, 1)
+       ON CONFLICT (server_id, usage_date) DO UPDATE SET count = server_ai_usage.count + 1 RETURNING count`,
+      [serverId, today],
     );
     await client.query('COMMIT');
     return res.rows[0].count <= limit;
@@ -566,6 +610,7 @@ export {
   sendAIResponse,
   getUserCredentials,
   incrementAndCheckDailyLimit,
+  incrementAndCheckServerDailyLimit,
   splitResponseIntoChunks,
 };
 
