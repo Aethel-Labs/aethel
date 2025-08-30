@@ -63,8 +63,8 @@ ENV VITE_STATUS_API_KEY=${VITE_STATUS_API_KEY}
 ENV VITE_FRONTEND_URL=${VITE_FRONTEND_URL}
 ENV VITE_DISCORD_CLIENT_ID=${VITE_DISCORD_CLIENT_ID}
 
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S aethel -u 1001
+RUN groupadd -g 1001 nodejs && \
+    useradd -r -u 1001 -g nodejs aethel
 
 WORKDIR /app
 
