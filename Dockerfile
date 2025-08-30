@@ -1,4 +1,4 @@
-FROM oven/bun:1 AS builder
+FROM oven/bun:latest AS builder
 
 ARG SOURCE_COMMIT
 ARG VITE_BOT_API_URL
