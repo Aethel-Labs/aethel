@@ -271,9 +271,9 @@ class NotificationService {
     return text
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
+      .replace(/&amp;/g, '&')
       .replace(/[ \t]+/g, ' ')
       .replace(/\r\n/g, '\n')
       .replace(/\r/g, '\n')
