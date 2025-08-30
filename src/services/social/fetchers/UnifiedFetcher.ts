@@ -603,13 +603,14 @@ export class FediverseFetcher implements SocialMediaFetcher {
   }
 
   private convertHtmlToText(html: string): string {
-    // Remove all HTML tags and then decode HTML entities
     const sanitized = sanitizeHtml(html, {
       allowedTags: [],
       allowedAttributes: {},
     });
-    // Decode HTML entities to plain text
-    return he.decode(sanitized).replace(/\n{3,}/g, '\n\n').trim();
+    return he
+      .decode(sanitized)
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
   }
 }
 
