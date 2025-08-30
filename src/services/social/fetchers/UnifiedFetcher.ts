@@ -2,7 +2,8 @@ import { SocialMediaFetcher, SocialMediaPost, SocialPlatform } from '../../../ty
 import { HandleResolver } from '@atproto/identity';
 import { lookupWebFinger } from '@fedify/fedify';
 import { extractFirstUrlMetadata } from '../../../utils/opengraph';
-
+import sanitizeHtml from 'sanitize-html';
+import he from 'he';
 interface BlueskyPost {
   uri: string;
   cid: string;
@@ -602,20 +603,13 @@ export class FediverseFetcher implements SocialMediaFetcher {
   }
 
   private convertHtmlToText(html: string): string {
-    return html
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/p>/gi, '\n\n')
-      .replace(/<p[^>]*>/gi, '')
-      .replace(/<\/div>/gi, '\n')
-      .replace(/<div[^>]*>/gi, '')
-      .replace(/<[^>]*>/g, '')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
+    // Remove all HTML tags and then decode HTML entities
+    const sanitized = sanitizeHtml(html, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+    // Decode HTML entities to plain text
+    return he.decode(sanitized).replace(/\n{3,}/g, '\n\n').trim();
   }
 }
 
