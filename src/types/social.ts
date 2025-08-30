@@ -12,6 +12,16 @@ export interface SocialMediaSubscription {
   updatedAt: Date;
 }
 
+export interface OpenGraphData {
+  title?: string;
+  description?: string;
+  image?: string;
+  url?: string;
+  siteName?: string;
+  type?: string;
+  sourceUrl?: string;
+}
+
 export interface SocialMediaPost {
   uri: string;
   text: string;
@@ -24,6 +34,7 @@ export interface SocialMediaPost {
   sensitive?: boolean;
   spoiler_text?: string;
   labels?: Array<{ val: string; src?: string }>;
+  openGraphData?: OpenGraphData;
 }
 
 export interface SocialMediaFetcher {

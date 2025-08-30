@@ -35,10 +35,10 @@ export class SocialMediaService {
     const normalized = this.normalizeAccountHandle(platform, accountHandle);
 
     const result = await this.pool.query(
-      `INSERT INTO server_social_subscriptions 
+      `INSERT INTO server_social_subscriptions
              (guild_id, platform, account_handle, channel_id)
              VALUES ($1, $2::social_platform, $3, $4)
-             ON CONFLICT (guild_id, platform, lower(account_handle)) 
+             ON CONFLICT (guild_id, platform, lower(account_handle))
              DO UPDATE SET channel_id = $4
              RETURNING *`,
       [guildId, platform, normalized, channelId],
@@ -54,7 +54,7 @@ export class SocialMediaService {
   ): Promise<boolean> {
     const normalizedHandle = this.normalizeAccountHandle(platform, accountHandle);
     const result = await this.pool.query(
-      `DELETE FROM server_social_subscriptions 
+      `DELETE FROM server_social_subscriptions
              WHERE guild_id = $1 AND platform = $2::social_platform AND account_handle = $3`,
       [guildId, platform, normalizedHandle],
     );
@@ -101,7 +101,6 @@ export class SocialMediaService {
 
         if (!sub.lastPostTimestamp) {
           await this.updateLastPost(sub.id, normalizedUri, latestPost.timestamp);
-          console.debug(`Initialized tracking for ${sub.platform} account ${sub.accountHandle}`);
           continue;
         }
 
@@ -111,7 +110,6 @@ export class SocialMediaService {
             post: { ...latestPost, uri: normalizedUri },
             subscription: sub,
           });
-          console.debug(`New post detected for ${sub.platform} account ${sub.accountHandle}`);
         }
       } catch (error) {
         console.warn(
@@ -168,7 +166,7 @@ export class SocialMediaService {
     postTimestamp: Date,
   ): Promise<void> {
     await this.pool.query(
-      `UPDATE server_social_subscriptions 
+      `UPDATE server_social_subscriptions
              SET last_post_uri = $1, last_post_timestamp = $2
              WHERE id = $3`,
       [postUri, postTimestamp, subscriptionId],

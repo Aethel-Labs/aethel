@@ -1,9 +1,9 @@
-import { Client, EmbedBuilder } from 'discord.js';
+import { Client, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { Pool } from 'pg';
 import { SocialMediaService } from './SocialMediaService';
 import { BlueskyFetcher, FediverseFetcher } from './fetchers/UnifiedFetcher';
 import { SocialMediaFetcher } from '../../types/social';
-import { SocialMediaPost, SocialMediaSubscription } from '../../types/social';
+import { SocialMediaPost, SocialMediaSubscription, OpenGraphData } from '../../types/social';
 import logger from '../../utils/logger';
 
 export class SocialMediaManager {
@@ -73,7 +73,7 @@ class NotificationService {
 
       const guild = this.client.guilds.cache.get(subscription.guildId);
       if (!guild) {
-        console.warn(
+        logger.info(
           `Bot is not in guild ${subscription.guildId}. Skipping notification for ${post.platform} post.`,
         );
         return;
@@ -81,14 +81,14 @@ class NotificationService {
 
       const channel = await this.client.channels.fetch(subscription.channelId);
       if (!channel) {
-        console.warn(
+        logger.info(
           `Channel ${subscription.channelId} not found. Bot may not have access. Skipping notification.`,
         );
         return;
       }
 
       if (!this.isTextBasedAndSendable(channel)) {
-        console.error(
+        logger.info(
           `Channel ${subscription.channelId} is not text-capable. Skipping notification.`,
         );
         return;
@@ -96,19 +96,20 @@ class NotificationService {
 
       const isGuildChannel = 'guild' in channel && channel.guild !== null;
       if (isGuildChannel && channel.guild.id !== subscription.guildId) {
-        console.warn(
+        logger.info(
           `Channel ${subscription.channelId} does not belong to guild ${subscription.guildId}. Skipping notification.`,
         );
         return;
       }
 
       const embed = this.createEmbed(post);
-      await channel.send({ embeds: [embed] });
-      console.info(
+      const button = this.createViewPostButton(post);
+      await channel.send({ embeds: [embed], components: [button] });
+      logger.info(
         `Successfully sent notification for ${post.platform} post in guild ${subscription.guildId}`,
       );
     } catch (error) {
-      console.error('Error sending notification:', error);
+      logger.error('Error sending notification:', error);
     }
   }
 
@@ -163,21 +164,36 @@ class NotificationService {
       post.authorDisplayName && post.authorDisplayName.trim().length > 0
         ? `${post.authorDisplayName} (${post.author})`
         : post.author;
-    const cleanText = this.stripHtml(post.text ?? '');
+    const cleanText = this.processPostText(post.text ?? '', post.openGraphData);
+
     const embed = new EmbedBuilder()
       .setColor(this.getPlatformColor(post.platform))
       .setAuthor({ name: authorName, iconURL: authorIcon })
-      .setDescription(this.truncateText(cleanText, 1000))
       .setTimestamp(post.timestamp)
       .setFooter({
         text: `New post on ${this.formatPlatformName(post.platform)}`,
         iconURL: this.getPlatformIcon(post.platform),
       });
 
-    if (post.mediaUrls && post.mediaUrls.length > 0) embed.setImage(post.mediaUrls[0]);
-    embed.addFields([
-      { name: 'View Post', value: `[Open in Browser](${this.getPostUrl(post)})`, inline: true },
-    ]);
+    if (cleanText && cleanText.trim().length > 0) {
+      embed.setDescription(this.truncateText(cleanText, 1000));
+    }
+
+    if (post.openGraphData) {
+      this.addOpenGraphFields(embed, post.openGraphData);
+      logger.debug('Added OpenGraph data to embed:', {
+        platform: post.platform,
+        author: post.author,
+        ogTitle: post.openGraphData.title,
+      });
+    }
+
+    if (post.openGraphData?.image && this.isValidImageUrl(post.openGraphData.image)) {
+      embed.setImage(post.openGraphData.image);
+    } else if (post.mediaUrls && post.mediaUrls.length > 0) {
+      embed.setImage(post.mediaUrls[0]);
+    }
+
     return embed;
   }
 
@@ -207,6 +223,15 @@ class NotificationService {
     return platform.charAt(0).toUpperCase() + platform.slice(1);
   }
 
+  private createViewPostButton(post: SocialMediaPost) {
+    const button = new ButtonBuilder()
+      .setLabel('🔗 View Post')
+      .setStyle(ButtonStyle.Link)
+      .setURL(this.getPostUrl(post));
+
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+  }
+
   private getPostUrl(post: SocialMediaPost): string {
     switch (post.platform) {
       case 'bluesky': {
@@ -226,11 +251,153 @@ class NotificationService {
     return text.substring(0, maxLength - 3) + '...';
   }
 
-  private stripHtml(text: string): string {
+  private processPostText(text: string, openGraphData?: OpenGraphData): string {
+    let processedText = this.preserveSpacing(text);
+
+    if (openGraphData && openGraphData.sourceUrl) {
+      processedText = this.removeSpecificUrlFromText(processedText, openGraphData.sourceUrl);
+
+      if (!processedText || processedText.trim().length === 0) {
+        processedText = 'Shared a link';
+      }
+    } else {
+      processedText = this.addProtocolToUrls(processedText);
+    }
+
+    return processedText;
+  }
+
+  private preserveSpacing(text: string): string {
     return text
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/\s+/g, ' ')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .replace(/^\s+/gm, '')
+      .replace(/\s+$/gm, '')
+      .replace(/\n{3,}/g, '\n\n')
       .trim();
+  }
+
+  private removeSpecificUrlFromText(text: string, sourceUrl: string): string {
+    const urlWithoutProtocol = sourceUrl.replace(/^https?:\/\//, '');
+    const escapedUrlWithoutProtocol = urlWithoutProtocol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const lines = text.split('\n');
+    const processedLines = lines.map((line) => {
+      const isUrlOnlyLine = new RegExp(
+        `^\\s*(?:https?:\\/\\/)?${escapedUrlWithoutProtocol}\\s*$`,
+        'i',
+      ).test(line);
+
+      const isUrlAtLineEnd = new RegExp(
+        `\\s+(?:https?:\\/\\/)?${escapedUrlWithoutProtocol}\\s*$`,
+        'i',
+      ).test(line);
+
+      if (isUrlOnlyLine) {
+        return '';
+      } else if (isUrlAtLineEnd) {
+        return line.replace(
+          new RegExp(`\\s+(?:https?:\\/\\/)?${escapedUrlWithoutProtocol}\\s*$`, 'i'),
+          '',
+        );
+      }
+
+      return line;
+    });
+
+    const result = processedLines
+      .filter((line) => line.trim().length > 0)
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+
+    return result.length > 0 ? result : text;
+  }
+
+  private addProtocolToUrls(text: string): string {
+    const protocolLessUrlRegex =
+      /(?<!https?:\/\/)(?<![\w.-])([a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]*\.(?:com|org|net|edu|gov|mil|int|xyz|io|co|me|ly|app|dev|tech|info|biz|name|tv|cc|uk|de|fr|jp|cn|au|us|ca|nl|be|it|es|ru|in|br|mx|ch|se|no|dk|fi|pl|cz|hu|ro|bg|hr|sk|si|ee|lv|lt|gr|pt|ie|at|lu)(?:\/[^\s<>]*)?)\b/g;
+
+    return text.replace(protocolLessUrlRegex, (match, url) => {
+      if (text.indexOf('@' + url) !== -1) {
+        return match;
+      }
+      return 'https://' + url;
+    });
+  }
+
+  private isValidImageUrl(url: string): boolean {
+    try {
+      const parsed = new URL(url);
+      return ['http:', 'https:'].includes(parsed.protocol);
+    } catch {
+      return false;
+    }
+  }
+
+  private extractUrlsFromText(text: string): string[] {
+    const urlRegex =
+      /https?:\/\/[^\s<>]+|(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]*\.(?:com|org|net|edu|gov|mil|int|xyz|io|co|me|ly|app|dev|tech|info|biz|name|tv|cc|uk|de|fr|jp|cn|au|us|ca|nl|be|it|es|ru|in|br|mx|ch|se|no|dk|fi|pl|cz|hu|ro|bg|hr|sk|si|ee|lv|lt|gr|pt|ie|at|lu)\b(?:\/[^\s<>]*)?/g;
+    const matches = text.match(urlRegex);
+    if (!matches) return [];
+
+    return matches
+      .map((url) => {
+        let cleanUrl = url.replace(/[.,;:!?)\]}>'"]*$/, '');
+
+        if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+          cleanUrl = 'https://' + cleanUrl;
+        }
+
+        return cleanUrl;
+      })
+      .filter((url) => {
+        try {
+          const parsed = new URL(url);
+          const hostname = parsed.hostname.toLowerCase();
+          return hostname.includes('.') && !hostname.endsWith('.') && !hostname.startsWith('.');
+        } catch {
+          return false;
+        }
+      })
+      .slice(0, 2);
+  }
+
+  private addOpenGraphFields(embed: EmbedBuilder, ogData: OpenGraphData): void {
+    if (ogData.title || ogData.description) {
+      let linkTitle = ogData.title || 'Link Preview';
+      let linkDescription = ogData.description || 'No description available';
+
+      if (linkTitle.length > 100) {
+        linkTitle = linkTitle.substring(0, 97) + '...';
+      }
+
+      if (linkDescription.length > 200) {
+        linkDescription = linkDescription.substring(0, 197) + '...';
+      }
+
+      const titleWithLink = ogData.url ? `[${linkTitle}](${ogData.url})` : linkTitle;
+
+      const siteName = ogData.siteName ? ` • ${ogData.siteName}` : '';
+      const quotedContent = `> **${titleWithLink}**${siteName}\n> ${linkDescription}`;
+
+      const finalContent =
+        quotedContent.length > 1020 ? quotedContent.substring(0, 1017) + '...' : quotedContent;
+
+      embed.addFields([
+        {
+          name: '\u200b',
+          value: finalContent,
+          inline: false,
+        },
+      ]);
+    }
   }
 
   private isTextBasedAndSendable(
@@ -249,7 +416,7 @@ class SocialMediaPoller {
   private isRunning = false;
   private inProgress = false;
   private pollInterval: NodeJS.Timeout | null = null;
-  private readonly POLL_INTERVAL_MS = 30 * 1000;
+  private readonly POLL_INTERVAL_MS = 20 * 1000;
 
   constructor(
     private readonly client: Client,
@@ -276,6 +443,7 @@ class SocialMediaPoller {
   public stop(): void {
     if (!this.isRunning) return;
     logger.info('Stopping social media poller...');
+
     if (this.pollInterval) {
       clearInterval(this.pollInterval);
       this.pollInterval = null;
@@ -297,12 +465,12 @@ class SocialMediaPoller {
           try {
             await this.notificationService.sendNotification(post, subscription);
           } catch (error) {
-            console.error(`Error sending notification for ${post.platform} post:`, error);
+            logger.error(`Error sending notification for ${post.platform} post:`, error);
           }
         }
       }
     } catch (error) {
-      console.error('Error checking for social media updates:', error);
+      logger.error('Error checking for social media updates:', error);
     }
   }
 
@@ -311,11 +479,14 @@ class SocialMediaPoller {
       logger.debug('Poll already in progress, skipping...');
       return;
     }
+
     this.inProgress = true;
     try {
       const updates = await this.socialService.checkForUpdates();
       if (updates.length > 0) {
-        logger.info(`Found ${updates.length} new social media posts`);
+        logger.info(
+          `Found ${updates.length} new social media posts across ${updates.length} subscriptions`,
+        );
         await Promise.allSettled(
           updates.map(({ post, subscription }) =>
             this.notificationService.sendNotification(post, subscription),

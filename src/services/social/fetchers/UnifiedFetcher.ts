@@ -1,5 +1,7 @@
 import { SocialMediaFetcher, SocialMediaPost, SocialPlatform } from '../../../types/social';
 import { HandleResolver } from '@atproto/identity';
+import { lookupWebFinger } from '@fedify/fedify';
+import { extractFirstUrlMetadata } from '../../../utils/opengraph';
 
 interface BlueskyPost {
   uri: string;
@@ -13,14 +15,30 @@ interface BlueskyPost {
     text: string;
     createdAt: string;
   };
-  embed?: {
-    $type: string;
-    images?: Array<{
-      thumb: string;
-      fullsize: string;
-      alt: string;
-    }>;
-  };
+  embed?:
+    | {
+        $type: string;
+        images?: Array<{
+          thumb: string;
+          fullsize: string;
+          alt: string;
+        }>;
+        external?: {
+          uri: string;
+          title: string;
+          description: string;
+          thumb?: string;
+        };
+      }
+    | {
+        $type: 'app.bsky.embed.external#view';
+        external: {
+          uri: string;
+          title: string;
+          description: string;
+          thumb?: string;
+        };
+      };
   labels?: Array<{
     src: string;
     uri: string;
@@ -33,7 +51,13 @@ interface BlueskyFeedItem {
   post?: BlueskyPost;
 }
 
+interface CachedResult {
+  post: SocialMediaPost | null;
+  timestamp: number;
+}
+
 const DEFAULT_FETCH_TIMEOUT_MS = 10_000;
+
 async function fetchWithTimeout(
   input: string,
   init?: RequestInit,
@@ -52,54 +76,76 @@ export class BlueskyFetcher implements SocialMediaFetcher {
   platform: SocialPlatform = 'bluesky';
   private readonly baseUrl = 'https://public.api.bsky.app';
   private readonly handleResolver = new HandleResolver();
+  private cache = new Map<string, CachedResult>();
+  private lastRequest = 0;
+  private readonly CACHE_TTL = 15 * 1000;
+  private readonly MIN_REQUEST_INTERVAL = 1000;
 
   async fetchLatestPost(account: string): Promise<SocialMediaPost | null> {
     try {
+      const cached = this.cache.get(account);
+      if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+        return cached.post;
+      }
+
+      const now = Date.now();
+      const timeSinceLastRequest = now - this.lastRequest;
+      if (timeSinceLastRequest < this.MIN_REQUEST_INTERVAL) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, this.MIN_REQUEST_INTERVAL - timeSinceLastRequest),
+        );
+      }
+      this.lastRequest = Date.now();
+
       const actor = await this.resolveActor(account);
       const url = `${this.baseUrl}/xrpc/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(actor)}&limit=1`;
 
       const response = await fetchWithTimeout(url);
       if (!response.ok) {
-        if (response.status >= 500) {
-          console.warn(`Bluesky API returned server error ${response.status}, skipping...`);
-          return null;
-        }
-
-        if (response.status === 404 || response.status === 400) {
-          console.warn(`Bluesky account ${account} not found or invalid`);
-          return null;
-        }
-
-        console.warn(`Bluesky API error for ${account}: ${response.status} ${response.statusText}`);
+        this.cacheResult(account, null);
         return null;
       }
 
       const data = await response.json();
       const items = (data?.feed as BlueskyFeedItem[]) || [];
-      if (!Array.isArray(items) || items.length === 0) return null;
+      if (!Array.isArray(items) || items.length === 0) {
+        this.cacheResult(account, null);
+        return null;
+      }
 
       const post = items[0]?.post;
-      if (!post || !post.record) return null;
+      if (!post || !post.record) {
+        this.cacheResult(account, null);
+        return null;
+      }
 
       const actorId = post.author?.did || actor;
       const profile = await this.fetchBlueskyProfile(actorId);
       const avatarUrl = profile?.avatar ?? null;
       const displayName = profile?.displayName ?? post.author?.displayName;
 
-      return this.mapToSocialMediaPost(post, avatarUrl || undefined, displayName);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          console.warn(`Bluesky request timeout for ${account}`);
-        } else if (error.message.includes('Failed to fetch')) {
-          console.warn(`Network error fetching Bluesky account ${account}: ${error.message}`);
-        } else {
-          console.warn(`Error fetching Bluesky post for ${account}: ${error.message}`);
-        }
-      } else {
-        console.warn(`Unknown error fetching Bluesky post for ${account}`);
-      }
+      const socialPost = await this.mapToSocialMediaPost(post, avatarUrl || undefined, displayName);
+      this.cacheResult(account, socialPost);
+      return socialPost;
+    } catch {
+      this.cacheResult(account, null);
       return null;
+    }
+  }
+
+  private cacheResult(account: string, post: SocialMediaPost | null): void {
+    this.cache.set(account, {
+      post,
+      timestamp: Date.now(),
+    });
+
+    if (Math.random() < 0.1) {
+      const cutoff = Date.now() - this.CACHE_TTL * 3;
+      for (const [key, value] of this.cache.entries()) {
+        if (value.timestamp < cutoff) {
+          this.cache.delete(key);
+        }
+      }
     }
   }
 
@@ -162,17 +208,17 @@ export class BlueskyFetcher implements SocialMediaFetcher {
       if (typeof did === 'string' && did.startsWith('did:')) {
         return did;
       }
-    } catch (_error) {
-      void 0;
+    } catch {
+      /* empty */
     }
     return normalized;
   }
 
-  private mapToSocialMediaPost(
+  private async mapToSocialMediaPost(
     post: BlueskyPost,
     authorAvatarUrl?: string,
     authorDisplayName?: string,
-  ): SocialMediaPost {
+  ): Promise<SocialMediaPost> {
     const mediaUrls: string[] = [];
 
     if (post.embed?.$type === 'app.bsky.embed.images#view' && post.embed.images) {
@@ -183,10 +229,8 @@ export class BlueskyFetcher implements SocialMediaFetcher {
     const createdAt = post.record?.createdAt ?? new Date().toISOString();
     const author = post.author?.handle ?? 'unknown';
 
-    const postUri = post.uri;
-
-    return {
-      uri: postUri,
+    const socialPost: SocialMediaPost = {
+      uri: post.uri,
       text,
       author,
       timestamp: new Date(createdAt),
@@ -196,6 +240,51 @@ export class BlueskyFetcher implements SocialMediaFetcher {
       authorDisplayName,
       labels: post.labels,
     };
+
+    if (post.embed?.$type === 'app.bsky.embed.external#view') {
+      const external = (
+        post.embed as {
+          external: { uri: string; title: string; description: string; thumb?: string };
+        }
+      ).external;
+      if (external) {
+        socialPost.openGraphData = {
+          title: external.title,
+          description: external.description,
+          image: external.thumb,
+          url: external.uri,
+          sourceUrl: external.uri,
+        };
+      }
+    } else {
+      try {
+        const urlRegex =
+          /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]*\.(?:com|org|net|edu|gov|mil|int|xyz|io|co|me|ly|app|dev|tech|info|biz|name|tv|cc|uk|de|fr|jp|cn|au|us|ca|nl|be|it|es|ru|in|br|mx|ch|se|no|dk|fi|pl|cz|hu|ro|bg|hr|sk|si|ee|lv|lt|gr|pt|ie|at|lu)\b(?:\/[^\s<>]*)?/g;
+        const matches = text.match(urlRegex);
+
+        if (matches && matches.length > 0) {
+          const originalUrl = matches[0].replace(/[.,;:!?)\]}>'"]*$/, '');
+          let cleanUrl = originalUrl;
+
+          if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+            cleanUrl = 'https://' + cleanUrl;
+          }
+
+          const { fetchOpenGraphData } = await import('../../../utils/opengraph');
+          const ogData = await fetchOpenGraphData(cleanUrl);
+          if (ogData) {
+            socialPost.openGraphData = {
+              ...ogData,
+              sourceUrl: originalUrl,
+            };
+          }
+        }
+      } catch (_error) {
+        /* empty */
+      }
+    }
+
+    return socialPost;
   }
 
   private async fetchBlueskyProfile(
@@ -205,188 +294,89 @@ export class BlueskyFetcher implements SocialMediaFetcher {
       const url = `${this.baseUrl}/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(actor)}`;
       const res = await fetchWithTimeout(url);
       if (!res.ok) {
-        if (res.status >= 500) {
-          console.warn(`Bluesky API returned server error ${res.status} for profile lookup`);
-        } else if (res.status === 404) {
-          console.warn(`Bluesky profile not found for actor ${actor}`);
-        } else {
-          console.warn(`Bluesky profile API error for ${actor}: ${res.status} ${res.statusText}`);
-        }
         return null;
       }
       const data = await res.json();
       const avatar = typeof data?.avatar === 'string' ? data.avatar : undefined;
       const displayName = typeof data?.displayName === 'string' ? data.displayName : undefined;
       return { avatar, displayName };
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          console.warn(`Bluesky profile request timeout for ${actor}`);
-        } else {
-          console.warn(`Error fetching Bluesky profile for ${actor}: ${error.message}`);
-        }
-      } else {
-        console.warn(`Unknown error fetching Bluesky profile for ${actor}`);
-      }
+    } catch {
       return null;
     }
   }
-}
-
-interface FediverseAccount {
-  username: string;
-  acct: string;
-  display_name: string;
-  avatar: string;
-}
-
-interface FediverseAttachment {
-  id: string;
-  type: 'image' | 'video' | 'gifv' | 'audio' | 'unknown';
-  url: string;
-  preview_url: string;
-  description?: string;
-}
-
-interface FediversePost {
-  id: string;
-  uri: string;
-  url: string;
-  in_reply_to_id: string | null;
-  in_reply_to_account_id: string | null;
-  account: FediverseAccount;
-  content: string;
-  created_at: string;
-  reblogs_count: number;
-  favourites_count: number;
-  reblogged: boolean;
-  favourited: boolean;
-  sensitive: boolean;
-  spoiler_text: string;
-  visibility: 'public' | 'unlisted' | 'private' | 'direct';
-  media_attachments: FediverseAttachment[];
-  mentions: Array<{
-    id: string;
-    username: string;
-    url: string;
-    acct: string;
-  }>;
-  tags: Array<{ name: string; url: string }>;
-  application?: {
-    name: string;
-    website?: string;
-  };
-  language: string | null;
-  reblog: FediversePost | null;
 }
 
 export class FediverseFetcher implements SocialMediaFetcher {
   platform: SocialPlatform = 'fediverse';
+  private cache = new Map<string, CachedResult>();
+  private domainRequests = new Map<string, number>();
+  private readonly CACHE_TTL = 15 * 1000;
+  private readonly MIN_DOMAIN_INTERVAL = 3 * 1000;
+  private readonly timeout = 10000;
+  private readonly userAgent = 'Aethel/2.0 (+https://aethel.xyz)';
 
-  private validateFediverseAccount(username: string, domain: string | null): void {
-    if (!domain) {
-      throw new Error('Fediverse account must include a domain (e.g., user@instance.social)');
-    }
-
-    if (/^https?:\/\//i.test(username) || /^https?:\/\//i.test(domain)) {
-      throw new Error('URL schemes (http/https) are not allowed in Fediverse accounts');
-    }
-
-    if (/[?#]/.test(username) || /[?#]/.test(domain)) {
-      throw new Error('URL paths and query parameters are not allowed in Fediverse accounts');
-    }
-
-    const domainStr = domain as string;
-    if (!/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i.test(domainStr)) {
-      throw new Error('Invalid domain format in Fediverse account');
-    }
-
-    if (!/^[a-z0-9_.-]+$/i.test(username)) {
-      throw new Error('Invalid username format in Fediverse account');
-    }
+  constructor() {
+    /* empty */
   }
 
   async fetchLatestPost(account: string): Promise<SocialMediaPost | null> {
-    const [username, domain] = this.parseAccount(account);
-    this.validateFediverseAccount(username, domain);
-
-    const domainStr = domain as string;
-
     try {
-      const apiUrl = `https://${domainStr}/api/v1/accounts/lookup?acct=${username}@${domainStr}`;
-      const accountResponse = await fetchWithTimeout(apiUrl);
+      const cached = this.cache.get(account);
+      if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+        return cached.post;
+      }
 
-      if (!accountResponse.ok) {
-        if (accountResponse.status >= 500) {
-          console.warn(
-            `Fediverse instance ${domainStr} returned server error ${accountResponse.status}, skipping...`,
-          );
-          return null;
-        }
+      const [username, domain] = this.parseAccount(account);
+      if (!domain) {
+        this.cacheResult(account, null);
+        return null;
+      }
 
-        if (accountResponse.status === 404) {
-          console.warn(`Fediverse account ${account} not found on ${domainStr}`);
-          return null;
-        }
-
-        console.warn(
-          `Fediverse API error for ${account}: ${accountResponse.status} ${accountResponse.statusText}`,
+      const now = Date.now();
+      const lastRequest = this.domainRequests.get(domain) || 0;
+      const timeSinceLast = now - lastRequest;
+      if (timeSinceLast < this.MIN_DOMAIN_INTERVAL) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, this.MIN_DOMAIN_INTERVAL - timeSinceLast),
         );
+      }
+      this.domainRequests.set(domain, Date.now());
+
+      const actorUri = await this.resolveActor(username, domain);
+      if (!actorUri) {
+        this.cacheResult(account, null);
         return null;
       }
 
-      const accountData = await accountResponse.json();
-
-      if (!accountData?.id) {
-        console.warn(`Invalid account data for ${account}: missing account ID`);
-        return null;
-      }
-
-      const accountId = accountData.id;
-      const statusesUrl = `https://${domainStr}/api/v1/accounts/${accountId}/statuses?limit=1&exclude_replies=true&exclude_reblogs=true`;
-      const statusResponse = await fetchWithTimeout(statusesUrl);
-
-      if (!statusResponse.ok) {
-        if (statusResponse.status >= 500) {
-          console.warn(
-            `Fediverse instance ${domainStr} returned server error ${statusResponse.status} for statuses, skipping...`,
-          );
-          return null;
-        }
-
-        console.warn(
-          `Fediverse statuses API error for ${account}: ${statusResponse.status} ${statusResponse.statusText}`,
-        );
-        return null;
-      }
-
-      const statuses = (await statusResponse.json()) as FediversePost[];
-      if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
-        return null;
-      }
-
-      const post = this.mapToSocialMediaPost(statuses[0], domainStr);
+      const post = await this.fetchLatestPostFromActor(actorUri, domain);
+      this.cacheResult(account, post);
       return post;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          console.warn(`Fediverse request timeout for ${account}@${domainStr}`);
-        } else if (error.message.includes('Failed to fetch')) {
-          console.warn(`Network error fetching Fediverse account ${account}: ${error.message}`);
-        } else {
-          console.warn(`Error fetching Fediverse post for ${account}: ${error.message}`);
-        }
-      } else {
-        console.warn(`Unknown error fetching Fediverse post for ${account}`);
-      }
+    } catch {
+      this.cacheResult(account, null);
       return null;
+    }
+  }
+
+  private cacheResult(account: string, post: SocialMediaPost | null): void {
+    this.cache.set(account, {
+      post,
+      timestamp: Date.now(),
+    });
+
+    if (Math.random() < 0.1) {
+      const cutoff = Date.now() - this.CACHE_TTL * 3;
+      for (const [key, value] of this.cache.entries()) {
+        if (value.timestamp < cutoff) {
+          this.cache.delete(key);
+        }
+      }
     }
   }
 
   isValidAccount(account: string): boolean {
     if (!account) return false;
-    const parts = account.split('@').filter(Boolean);
-    return parts.length >= 2 && parts.every((part) => part.length > 0);
+    const [username, domain] = this.parseAccount(account);
+    return !!(username && domain);
   }
 
   private parseAccount(account: string): [string, string | null] {
@@ -402,71 +392,379 @@ export class FediverseFetcher implements SocialMediaFetcher {
     return [username, domain];
   }
 
-  private async fetchFediverseProfile(
-    account: string,
-  ): Promise<{ displayName?: string; avatar?: string } | null> {
-    const [username, instance] = account.split('@');
-    if (!username || !instance) return null;
-
-    const url = `https://${instance}/api/v1/accounts/lookup?acct=${username}`;
-
+  private async resolveActor(username: string, domain: string): Promise<string | null> {
     try {
-      const response = await fetchWithTimeout(url);
-      if (!response.ok) {
-        if (response.status >= 500) {
-          console.warn(`Fediverse instance ${instance} returned server error ${response.status}`);
-        } else if (response.status === 404) {
-          console.warn(`Fediverse account ${account} not found`);
-        } else {
-          console.warn(
-            `Fediverse API error for ${account}: ${response.status} ${response.statusText}`,
-          );
-        }
-        return null;
-      }
+      const resource = `acct:${username}@${domain}`;
+      const webfingerResult = await lookupWebFinger(resource);
 
-      const data = await response.json();
-      return {
-        displayName: data.display_name || data.username,
-        avatar: data.avatar_static || data.avatar,
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          console.warn(`Fediverse request timeout for ${account}`);
-        } else {
-          console.warn(`Error fetching Fediverse profile for ${account}: ${error.message}`);
-        }
-      } else {
-        console.warn(`Unknown error fetching Fediverse profile for ${account}`);
-      }
+      const actorLink = webfingerResult?.links?.find(
+        (link) => link.rel === 'self' && link.type === 'application/activity+json',
+      );
+
+      return actorLink?.href || null;
+    } catch {
       return null;
     }
   }
 
-  private mapToSocialMediaPost(post: FediversePost, domain: string): SocialMediaPost {
-    if (post.reblog) {
-      return this.mapToSocialMediaPost(post.reblog, domain);
+  private async fetchLatestPostFromActor(
+    actorUri: string,
+    domain: string,
+  ): Promise<SocialMediaPost | null> {
+    try {
+      const actor = await this.fetchActivityPubObject(actorUri);
+
+      if (!actor || (actor.type !== 'Person' && actor.type !== 'Service')) return null;
+
+      const outboxUrl = actor.outbox;
+      if (!outboxUrl || typeof outboxUrl !== 'string') return null;
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const outbox = await this.fetchActivityPubObject(outboxUrl);
+
+      if (!outbox || (outbox.type !== 'OrderedCollection' && outbox.type !== 'Collection')) {
+        return null;
+      }
+
+      let items: Record<string, unknown>[] = [];
+      if (outbox.orderedItems && Array.isArray(outbox.orderedItems)) {
+        items = outbox.orderedItems.slice(0, 5);
+      } else if (outbox.first) {
+        const firstPageUrl =
+          typeof outbox.first === 'string' ? outbox.first : (outbox.first as string);
+        if (firstPageUrl && typeof firstPageUrl === 'string') {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          const firstPage = await this.fetchActivityPubObject(firstPageUrl);
+          if (firstPage && firstPage.orderedItems && Array.isArray(firstPage.orderedItems)) {
+            items = firstPage.orderedItems.slice(0, 5);
+          }
+        }
+      }
+
+      for (const item of items) {
+        if (item.type === 'Create' && item.object) {
+          const postObject = item.object as Record<string, unknown>;
+          if (
+            typeof postObject === 'object' &&
+            postObject &&
+            'type' in postObject &&
+            (postObject.type === 'Note' || postObject.type === 'Article') &&
+            !('inReplyTo' in postObject && postObject.inReplyTo)
+          ) {
+            return await this.mapActivityPubPostToSocialMediaPost(postObject, actor, domain);
+          }
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.warn(`Failed to fetch ActivityPub content from ${actorUri}:`, error);
+      return null;
+    }
+  }
+
+  private async fetchActivityPubObject(url: string): Promise<Record<string, unknown> | null> {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), this.timeout);
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            Accept: 'application/activity+json, application/ld+json, application/json',
+            'User-Agent': this.userAgent,
+          },
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          return null;
+        }
+
+        return await response.json();
+      } finally {
+        clearTimeout(timer);
+      }
+    } catch {
+      return null;
+    }
+  }
+
+  private async mapActivityPubPostToSocialMediaPost(
+    post: Record<string, unknown>,
+    actor: Record<string, unknown>,
+    domain: string,
+  ): Promise<SocialMediaPost> {
+    let content = '';
+    if (post.content) {
+      if (typeof post.content === 'string') {
+        content = this.convertHtmlToText(post.content);
+      } else if (Array.isArray(post.content)) {
+        content = this.convertHtmlToText(post.content.join(' '));
+      } else if (
+        typeof post.content === 'object' &&
+        post.content &&
+        'value' in post.content &&
+        typeof (post.content as { value: string }).value === 'string'
+      ) {
+        content = this.convertHtmlToText((post.content as { value: string }).value);
+      }
     }
 
-    const mediaUrls = post.media_attachments
-      .filter((media) => media.type === 'image' || media.type === 'gifv')
-      .map((media) => media.url);
+    if (!content && post.summary) {
+      const summaryText =
+        typeof post.summary === 'string'
+          ? post.summary
+          : post.summary &&
+              typeof post.summary === 'object' &&
+              'value' in post.summary &&
+              typeof (post.summary as { value: string }).value === 'string'
+            ? (post.summary as { value: string }).value
+            : '';
+      content = this.convertHtmlToText(summaryText);
+    }
 
-    const acct = post.account.acct;
-    const authorAcct = acct.includes('@') ? acct : `${acct}@${domain}`;
+    const mediaUrls: string[] = [];
+    if (post.attachment && Array.isArray(post.attachment)) {
+      for (const attachment of post.attachment) {
+        if (attachment.type === 'Document' && attachment.url) {
+          mediaUrls.push(attachment.url);
+        }
+      }
+    }
 
-    return {
-      uri: post.uri,
-      text: post.content,
-      author: authorAcct,
-      timestamp: new Date(post.created_at),
+    let authorHandle: string;
+    if (actor.preferredUsername && domain) {
+      authorHandle = `${actor.preferredUsername}@${domain}`;
+    } else {
+      authorHandle = `unknown@${domain}`;
+    }
+
+    let authorAvatarUrl: string | undefined;
+    if (actor.icon) {
+      if (typeof actor.icon === 'string') {
+        authorAvatarUrl = actor.icon;
+      } else if (
+        typeof actor.icon === 'object' &&
+        actor.icon &&
+        'url' in actor.icon &&
+        typeof (actor.icon as { url: string }).url === 'string'
+      ) {
+        authorAvatarUrl = (actor.icon as { url: string }).url;
+      }
+    }
+
+    const socialPost: SocialMediaPost = {
+      uri: (typeof post.id === 'string' ? post.id : null) || `unknown-${Date.now()}`,
+      text: content,
+      author: authorHandle,
+      timestamp:
+        post.published && typeof post.published === 'string'
+          ? new Date(post.published)
+          : new Date(),
       platform: 'fediverse',
       mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,
-      authorAvatarUrl: post.account.avatar,
-      authorDisplayName: post.account.display_name,
-      sensitive: post.sensitive,
-      spoiler_text: post.spoiler_text,
+      authorAvatarUrl,
+      authorDisplayName:
+        (typeof actor.name === 'string' ? actor.name : null) ||
+        (typeof actor.displayName === 'string' ? actor.displayName : undefined),
+      sensitive: post.sensitive === true,
+      spoiler_text: typeof post.summary === 'string' ? post.summary : undefined,
+    };
+
+    try {
+      const urlRegex =
+        /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]*\.(?:com|org|net|edu|gov|mil|int|xyz|io|co|me|ly|app|dev|tech|info|biz|name|tv|cc|uk|de|fr|jp|cn|au|us|ca|nl|be|it|es|ru|in|br|mx|ch|se|no|dk|fi|pl|cz|hu|ro|bg|hr|sk|si|ee|lv|lt|gr|pt|ie|at|lu)\b(?:\/[^\s<>]*)?/g;
+      const matches = content.match(urlRegex);
+
+      if (matches && matches.length > 0) {
+        const originalUrl = matches[0].replace(/[.,;:!?)\]}>'"]*$/, '');
+        let cleanUrl = originalUrl;
+
+        if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+          cleanUrl = 'https://' + cleanUrl;
+        }
+
+        const ogData = await extractFirstUrlMetadata(cleanUrl);
+        if (ogData) {
+          socialPost.openGraphData = {
+            ...ogData,
+            sourceUrl: originalUrl,
+          };
+        }
+      }
+    } catch (_error) {
+      /* empty */
+    }
+
+    return socialPost;
+  }
+
+  private convertHtmlToText(html: string): string {
+    return html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<p[^>]*>/gi, '')
+      .replace(/<\/div>/gi, '\n')
+      .replace(/<div[^>]*>/gi, '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+}
+
+export class UnifiedFetcher implements SocialMediaFetcher {
+  platform: SocialPlatform = 'bluesky';
+  private blueskyFetcher: BlueskyFetcher;
+  private fediverseFetcher: FediverseFetcher;
+  private cache = new Map<string, CachedResult>();
+  private readonly CACHE_TTL = 15 * 1000;
+
+  constructor() {
+    this.blueskyFetcher = new BlueskyFetcher();
+    this.fediverseFetcher = new FediverseFetcher();
+  }
+
+  async fetchLatestPost(account: string): Promise<SocialMediaPost | null> {
+    try {
+      const cached = this.cache.get(account);
+      if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+        return cached.post;
+      }
+
+      const platform = this.detectPlatform(account);
+      let post: SocialMediaPost | null = null;
+
+      switch (platform) {
+        case 'bluesky':
+          post = await this.blueskyFetcher.fetchLatestPost(account);
+          break;
+        case 'fediverse':
+          post = await this.fediverseFetcher.fetchLatestPost(account);
+          break;
+        default:
+          post = await this.tryBothPlatforms(account);
+          break;
+      }
+
+      this.cacheResult(account, post);
+      return post;
+    } catch (error) {
+      console.warn(`UnifiedFetcher: Failed to fetch post for ${account}:`, error);
+      this.cacheResult(account, null);
+      return null;
+    }
+  }
+
+  isValidAccount(account: string): boolean {
+    if (!account) return false;
+
+    return (
+      this.blueskyFetcher.isValidAccount(account) || this.fediverseFetcher.isValidAccount(account)
+    );
+  }
+
+  private detectPlatform(account: string): SocialPlatform | 'unknown' {
+    const cleanAccount = account.startsWith('@') ? account.slice(1) : account;
+
+    if (cleanAccount.startsWith('did:')) {
+      return 'bluesky';
+    }
+
+    const atIndex = cleanAccount.indexOf('@');
+    if (atIndex !== -1) {
+      const domain = cleanAccount.substring(atIndex + 1);
+
+      if (domain === 'bsky.social' || domain === 'bsky.app') {
+        return 'bluesky';
+      }
+
+      return 'fediverse';
+    }
+
+    if (!cleanAccount.includes('.')) {
+      return 'bluesky';
+    }
+
+    return 'bluesky';
+  }
+
+  private async tryBothPlatforms(account: string): Promise<SocialMediaPost | null> {
+    try {
+      if (this.blueskyFetcher.isValidAccount(account)) {
+        const blueskyPost = await this.blueskyFetcher.fetchLatestPost(account);
+        if (blueskyPost) {
+          return blueskyPost;
+        }
+      }
+    } catch (error) {
+      console.warn(`UnifiedFetcher: Bluesky attempt failed for ${account}:`, error);
+    }
+
+    try {
+      if (this.fediverseFetcher.isValidAccount(account)) {
+        return await this.fediverseFetcher.fetchLatestPost(account);
+      }
+    } catch (error) {
+      console.warn(`UnifiedFetcher: Fediverse attempt failed for ${account}:`, error);
+    }
+
+    return null;
+  }
+
+  private cacheResult(account: string, post: SocialMediaPost | null): void {
+    this.cache.set(account, {
+      post,
+      timestamp: Date.now(),
+    });
+
+    if (Math.random() < 0.1) {
+      const cutoff = Date.now() - this.CACHE_TTL * 3;
+      for (const [key, value] of this.cache.entries()) {
+        if (value.timestamp < cutoff) {
+          this.cache.delete(key);
+        }
+      }
+    }
+  }
+
+  getFetcherForPlatform(platform: SocialPlatform): SocialMediaFetcher {
+    switch (platform) {
+      case 'bluesky':
+        return this.blueskyFetcher;
+      case 'fediverse':
+        return this.fediverseFetcher;
+      default:
+        throw new Error(`Unknown platform: ${platform}`);
+    }
+  }
+
+  clearCache(account?: string): void {
+    if (account) {
+      this.cache.delete(account);
+    } else {
+      this.cache.clear();
+    }
+  }
+
+  getCacheStats(): { size: number; platforms: Record<string, number> } {
+    const platforms: Record<string, number> = { bluesky: 0, fediverse: 0 };
+
+    for (const [, cached] of this.cache) {
+      if (cached.post) {
+        platforms[cached.post.platform] = (platforms[cached.post.platform] || 0) + 1;
+      }
+    }
+
+    return {
+      size: this.cache.size,
+      platforms,
     };
   }
 }
