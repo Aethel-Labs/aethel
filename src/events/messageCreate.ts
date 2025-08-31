@@ -262,12 +262,34 @@ export default class MessageCreateEvent {
               return;
             }
           } else {
-            const serverAllowed = await incrementAndCheckServerDailyLimit(message.guildId!, 150);
-            if (!serverAllowed) {
-              await message.reply(
-                '❌ This server has reached its daily limit of 150 AI requests. Please try again tomorrow or have someone set up their own API key using the `/ai` command.',
+            let serverLimit = 30;
+            try {
+              const memberCount = message.guild?.memberCount || 0;
+              if (memberCount >= 1000) {
+                serverLimit = 500;
+              } else if (memberCount >= 100) {
+                serverLimit = 150;
+              }
+
+              const serverAllowed = await incrementAndCheckServerDailyLimit(
+                message.guildId!,
+                serverLimit,
               );
-              return;
+              if (!serverAllowed) {
+                await message.reply(
+                  `❌ This server has reached its daily limit of ${serverLimit} AI requests. Please try again tomorrow.`,
+                );
+                return;
+              }
+            } catch (error) {
+              logger.error('Error checking server member count:', error);
+              const serverAllowed = await incrementAndCheckServerDailyLimit(message.guildId!, 30);
+              if (!serverAllowed) {
+                await message.reply(
+                  '❌ This server has reached its daily limit of AI requests. Please try again tomorrow.',
+                );
+                return;
+              }
             }
           }
         }

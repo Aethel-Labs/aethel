@@ -27,6 +27,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 const app = e();
+const startTime = Date.now();
 
 app.use(helmet());
 app.use(
@@ -102,6 +103,25 @@ setInterval(
   60 * 60 * 1000,
 );
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   logger.debug('Aethel is live on', `http://localhost:${PORT}`);
+
+  const { sendDeploymentNotification } = await import('./utils/sendDeploymentNotification');
+  await sendDeploymentNotification(startTime);
+});
+
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    logger.info('Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  logger.info('SIGINT received. Shutting down gracefully...');
+  server.close(() => {
+    logger.info('Server closed');
+    process.exit(0);
+  });
 });

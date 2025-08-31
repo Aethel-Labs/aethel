@@ -453,13 +453,20 @@ async function makeAIRequest(
       max_tokens: maxTokens,
     });
 
-    const content = completion.choices[0]?.message?.content;
-    if (!content) {
+    const message = completion.choices[0]?.message;
+    if (!message?.content) {
       logger.error('No valid response content from AI API');
       return null;
     }
 
-    const reasoning = (completion.choices[0]?.message as OpenAIMessageWithReasoning)?.reasoning;
+    let content = message.content;
+    let reasoning = (message as OpenAIMessageWithReasoning)?.reasoning;
+
+    const reasoningMatch = content.match(/```(?:reasoning|thoughts?|thinking)[\s\S]*?```/i);
+    if (reasoningMatch && !reasoning) {
+      reasoning = reasoningMatch[0].replace(/```(?:reasoning|thoughts?|thinking)?/gi, '').trim();
+      content = content.replace(reasoningMatch[0], '').trim();
+    }
 
     return {
       content,
@@ -517,6 +524,8 @@ async function processAIRequest(
       config.finalModel,
       interaction.user.tag,
       interaction,
+      interaction.inGuild(),
+      interaction.inGuild() ? interaction.guild?.name : undefined,
     );
     const conversation = buildConversation(conversationArray, prompt, systemPrompt);
 
@@ -565,7 +574,19 @@ async function sendAIResponse(
   let fullResponse = '';
 
   if (aiResponse.reasoning) {
-    fullResponse += `> ${aiResponse.reasoning}\n\n`;
+    const cleanedReasoning = aiResponse.reasoning
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line)
+      .join('\n');
+
+    const formattedReasoning = cleanedReasoning
+      .split('\n')
+      .map((line) => `> ${line}`)
+      .join('\n');
+
+    fullResponse = `${formattedReasoning}\n\n${aiResponse.content}`;
+    aiResponse.content = '';
   }
 
   fullResponse += aiResponse.content;
