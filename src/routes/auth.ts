@@ -6,12 +6,11 @@ import { authenticateToken } from '../middlewares/auth';
 
 const router = Router();
 
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const DISCORD_REDIRECT_URI =
-  process.env.DISCORD_REDIRECT_URI || 'http://localhost:8080/api/auth/discord/callback';
+const DISCORD_CLIENT_ID = process.env.CLIENT_ID;
+const DISCORD_CLIENT_SECRET = process.env.CLIENT_SECRET;
+const DISCORD_REDIRECT_URI = process.env.REDIRECT_URI;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:2020';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 interface DiscordUser {
   id: string;
@@ -22,7 +21,7 @@ interface DiscordUser {
 }
 
 router.get('/discord', (req, res) => {
-  const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=code&scope=identify`;
+  const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI!)}&response_type=code&scope=identify`;
   res.redirect(discordAuthUrl);
 });
 
@@ -50,7 +49,7 @@ router.get('/discord/callback', async (req, res) => {
         client_secret: DISCORD_CLIENT_SECRET!,
         grant_type: 'authorization_code',
         code: code as string,
-        redirect_uri: DISCORD_REDIRECT_URI,
+        redirect_uri: DISCORD_REDIRECT_URI!,
       }),
     });
 

@@ -6,8 +6,6 @@ services:
       args:
         - VITE_BOT_API_URL=${VITE_BOT_API_URL:-https://aethel.xyz}
         - VITE_STATUS_API_KEY=${VITE_STATUS_API_KEY}
-        - VITE_FRONTEND_URL=${VITE_FRONTEND_URL:-https://aethel.xyz}
-        - VITE_DISCORD_CLIENT_ID=${VITE_DISCORD_CLIENT_ID}
         - STATUS_API_KEY=${STATUS_API_KEY}
         - SOURCE_COMMIT=${SOURCE_COMMIT:-development}
     container_name: aethel-bot
@@ -18,6 +16,8 @@ services:
       NODE_ENV: production
       TOKEN: ${TOKEN}
       CLIENT_ID: ${CLIENT_ID}
+      CLIENT_SECRET: ${CLIENT_SECRET}
+      REDIRECT_URI: ${REDIRECT_URI}
       DATABASE_URL: ${DATABASE_URL}
       API_KEY_ENCRYPTION_SECRET: ${API_KEY_ENCRYPTION_SECRET}
       STATUS_API_KEY: ${STATUS_API_KEY}
