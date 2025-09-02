@@ -87,11 +87,6 @@ This project is licensed under the MIT License.
 
 See [LICENSE](LICENSE) for details.
 
-7. Start the bot:
-   ```bash
-   bun start
-   ```
-
 ## Usage
 
 - Use `/ai` for AI chat, with optional custom API key for private usage
