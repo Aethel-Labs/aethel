@@ -77,7 +77,11 @@ const bot = new BotClient();
 bot.init();
 
 app.use(async (req, res, next) => {
-  logger.info(`API [${req.method}] ${req.path}`); // log the api request
+  const start = process.hrtime.bigint();
+  res.on("finish", () => {
+    const durMs = Number(process.hrtime.bigint() - start) / 1e6;
+    logger.info(`API [${req.method}] ${req.originalUrl} ${res.statusCode} ${durMs.toFixed(1)}ms`); // log the api request
+  })
   next();
 })
 
