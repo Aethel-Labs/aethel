@@ -51,7 +51,7 @@ Copy `.env.example` to `.env` and fill in the required values:
 Run all SQL migrations:
 
 ```sh
-bun run scripts/run-migration.js # or node scripts/run-migration.js
+bun run scripts/run-migrations.js # or node scripts/run-migrations.js
 ```
 
 ---
