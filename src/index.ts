@@ -78,12 +78,12 @@ bot.init();
 
 app.use(async (req, res, next) => {
   const start = process.hrtime.bigint();
-  res.on("finish", () => {
+  res.on('finish', () => {
     const durMs = Number(process.hrtime.bigint() - start) / 1e6;
     logger.info(`API [${req.method}] ${req.originalUrl} ${res.statusCode} ${durMs.toFixed(1)}ms`); // log the api request
-  })
+  });
   next();
-})
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/todos', todosRoutes);
@@ -96,9 +96,8 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-
 app.get('*', (req, res) => {
-  return res.status(404).json({ status: 404, message: "Not Found" });
+  return res.status(404).json({ status: 404, message: 'Not Found' });
 });
 
 setInterval(

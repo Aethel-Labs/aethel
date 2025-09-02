@@ -8,7 +8,7 @@ const requiredEnvVars = {
   DATABASE_URL: process.env.DATABASE_URL,
   API_KEY_ENCRYPTION_SECRET: process.env.API_KEY_ENCRYPTION_SECRET,
   CLIENT_SECRET: process.env.CLIENT_SECRET,
-  REDIRECT_URI: process.env.REDIRECT_URI
+  REDIRECT_URI: process.env.REDIRECT_URI,
 };
 
 for (const [key, value] of Object.entries(requiredEnvVars)) {
