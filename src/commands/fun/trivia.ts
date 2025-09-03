@@ -40,6 +40,7 @@ interface GameSession {
   queueOpen: boolean;
   originalQuestionCount: number;
   currentShuffledAnswers: string[];
+  messageId?: string;
 }
 
 const gameManager = createMemoryManager<string, GameSession>({
@@ -50,6 +51,11 @@ const gameManager = createMemoryManager<string, GameSession>({
 
 const commandLogger = createCommandLogger('trivia');
 const errorHandler = createErrorHandler('trivia');
+
+function saveSession(session: GameSession) {
+  gameManager.set(session.channelId, session);
+  if (session.messageId) gameManager.set(session.messageId, session);
+}
 
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
@@ -269,6 +275,7 @@ async function startTriviaGame(
     session.queueOpen = false;
     session.currentQuestionIndex = 0;
     session.currentPlayer = Array.from(session.players)[0];
+    saveSession(session);
 
     await askQuestion(interaction, session, client);
   } catch {
@@ -324,6 +331,7 @@ async function askQuestion(
   const question = session.questions[session.currentQuestionIndex];
   const answers = shuffleArray([question.correct_answer, ...question.incorrect_answers]);
   session.currentShuffledAnswers = answers;
+  saveSession(session);
   const questionId = `${session.channelId}_${session.currentQuestionIndex}`;
 
   const playerMention = `<@${session.currentPlayer}>`;
@@ -392,6 +400,7 @@ async function endGame(
   });
 
   gameManager.delete(session.channelId);
+  if (session.messageId) gameManager.delete(session.messageId);
 }
 
 const triviaCommand = {
@@ -475,7 +484,31 @@ const triviaCommand = {
   ) => {
     try {
       const channelId = interaction.channelId;
-      const session = gameManager.get(channelId);
+      const clickMessageId = interaction.message?.id;
+      let session = (clickMessageId && gameManager.get(clickMessageId)) || gameManager.get(channelId);
+      const customId = interaction.customId;
+
+      if (!session && clickMessageId) {
+        for (const [key, s] of gameManager.entries()) {
+          if (s.messageId === clickMessageId) {
+            session = s;
+            break;
+          }
+        }
+      }
+
+      if (customId.startsWith('trivia_answer_')) {
+        const parts = customId.split('_');
+        if (parts.length >= 5) {
+          const embeddedChannelId = parts[2];
+          if (embeddedChannelId && (!session || session.channelId !== embeddedChannelId)) {
+            const byEmbedded = gameManager.get(embeddedChannelId);
+            if (byEmbedded) {
+              session = byEmbedded;
+            }
+          }
+        }
+      }
 
       if (!session) {
         const errorMsg = await client.getLocaleText(
@@ -488,7 +521,16 @@ const triviaCommand = {
         });
       }
 
-      const customId = interaction.customId;
+      if (!session) {
+        const parts = customId.split('_');
+        const embeddedChannelId = parts.length >= 5 ? parts[2] : 'n/a';
+        const errorMsg = await client.getLocaleText(
+          'commands.trivia.messages.no_active_game',
+          interaction.locale,
+        );
+        const diag = `\n[diag] ch:${channelId} emb:${embeddedChannelId} msg:${clickMessageId ?? 'n/a'}`;
+        return interaction.reply({ content: errorMsg + diag, flags: MessageFlags.Ephemeral });
+      }
 
       if (customId === 'trivia_join') {
         if (!session.queueOpen) {
@@ -515,6 +557,7 @@ const triviaCommand = {
 
         session.players.add(interaction.user.id);
         session.scores.set(interaction.user.id, 0);
+        saveSession(session);
 
         const playersList = Array.from(session.players)
           .map((id) => `• <@${id}>`)
@@ -577,6 +620,7 @@ const triviaCommand = {
         }
 
         gameManager.delete(channelId);
+        if (session.messageId) gameManager.delete(session.messageId);
 
         const cancelMsg = await client.getLocaleText(
           'commands.trivia.messages.game_cancelled',
@@ -587,6 +631,7 @@ const triviaCommand = {
           components: [],
         });
       } else if (customId.startsWith('trivia_answer_')) {
+        const parts = customId.split('_');
         if (!session.isActive) {
           const errorMsg = await client.getLocaleText(
             'commands.trivia.messages.no_active_question',
@@ -609,7 +654,6 @@ const triviaCommand = {
           });
         }
 
-        const parts = customId.split('_');
         const answerIndex = parseInt(parts[parts.length - 1]);
 
         const question = session.questions[session.currentQuestionIndex];
@@ -620,6 +664,7 @@ const triviaCommand = {
           const currentScore = session.scores.get(session.currentPlayer) || 0;
           session.scores.set(session.currentPlayer, currentScore + 1);
         }
+        saveSession(session);
 
         const [correctText, incorrectText, resultFormatText, preparingText] = await Promise.all([
           client.getLocaleText('commands.trivia.answer.correct', interaction.locale),
@@ -643,6 +688,7 @@ const triviaCommand = {
         setTimeout(async () => {
           session.currentQuestionIndex++;
           session.currentPlayer = getNextPlayer(session);
+          saveSession(session);
 
           await askQuestion(interaction, session, client);
         }, 3000);
