@@ -4,17 +4,98 @@ import logger from './logger';
 
 function getGitInfo() {
   try {
-    const commitHash =
-      process.env.SOURCE_COMMIT || execSync('git rev-parse HEAD').toString().trim();
-    const commitMessage = execSync('git log -1 --pretty=%B').toString().trim();
+    try {
+      execSync('git rev-parse --is-inside-work-tree');
+
+      try {
+        execSync('git remote get-url origin');
+      } catch {
+        execSync('git remote add origin https://github.com/aethel/aethel-labs');
+      }
+
+      try {
+        execSync('git fetch --depth=100 origin');
+      } catch (e) {
+        logger.debug('git fetch failed or unnecessary; continuing', {
+          error: (e as Error).message,
+        });
+      }
+    } catch (e) {
+      logger.debug('Not a git repository; initializing temporary repo for metadata', {
+        error: (e as Error).message,
+      });
+      try {
+        execSync('git init');
+        try {
+          execSync('git remote add origin https://github.com/aethel/aethel-labs');
+        } catch (e) {
+          logger.debug('origin remote already exists or cannot be added', {
+            error: (e as Error).message,
+          });
+        }
+        const sourceCommit = process.env.SOURCE_COMMIT;
+        if (sourceCommit) {
+          try {
+            execSync(`git fetch --depth=1 origin ${sourceCommit}`);
+          } catch (err) {
+            logger.debug('Failed to fetch SOURCE_COMMIT from origin', {
+              error: (err as Error).message,
+            });
+          }
+        } else {
+          try {
+            const remoteHead = execSync('git ls-remote origin HEAD').toString().split('\t')[0];
+            if (remoteHead) {
+              execSync(`git fetch --depth=1 origin ${remoteHead}`);
+              process.env.SOURCE_COMMIT = remoteHead;
+            }
+          } catch (err) {
+            logger.debug('Failed to resolve remote HEAD', { error: (err as Error).message });
+          }
+        }
+      } catch (err) {
+        logger.debug('Failed to bootstrap temporary git repo', { error: (err as Error).message });
+      }
+    }
+
+    let commitHash: string | null = null;
+    try {
+      commitHash = process.env.SOURCE_COMMIT || execSync('git rev-parse HEAD').toString().trim();
+    } catch {
+      try {
+        const remoteHead = execSync('git ls-remote origin HEAD').toString().split('\t')[0];
+        commitHash = remoteHead || null;
+      } catch (e) {
+        logger.debug('Failed to resolve remote HEAD for commit hash', {
+          error: (e as Error).message,
+        });
+      }
+    }
+
+    const shortHash = commitHash ? commitHash.substring(0, 7) : 'unknown';
+    let commitMessage = 'No commit message';
+    try {
+      commitMessage = commitHash
+        ? execSync(`git log -1 --pretty=%B ${commitHash}`).toString().trim()
+        : commitMessage;
+    } catch (e) {
+      logger.debug('Failed to resolve commit message', { error: (e as Error).message });
+    }
     const branch =
       process.env.GIT_BRANCH ||
       process.env.VERCEL_GIT_COMMIT_REF ||
       process.env.COOLIFY_BRANCH ||
-      execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+      (() => {
+        try {
+          return execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+        } catch (e) {
+          logger.debug('Failed to resolve branch', { error: (e as Error).message });
+          return 'unknown';
+        }
+      })();
 
     return {
-      commitHash: commitHash.substring(0, 7),
+      commitHash: shortHash,
       commitMessage,
       branch,
     };
