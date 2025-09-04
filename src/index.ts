@@ -2,6 +2,8 @@ import { config } from 'dotenv';
 import e from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import BotClient from './services/Client';
 import { ALLOWED_ORIGINS, PORT, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX } from './config';
@@ -28,6 +30,9 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const app = e();
 const startTime = Date.now();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const distPath = path.resolve(__dirname, '../web/dist');
 
 app.use(helmet());
 app.use(
@@ -80,7 +85,8 @@ app.use(async (req, res, next) => {
   const start = process.hrtime.bigint();
   res.on('finish', () => {
     const durMs = Number(process.hrtime.bigint() - start) / 1e6;
-    logger.info(`API [${req.method}] ${req.originalUrl} ${res.statusCode} ${durMs.toFixed(1)}ms`); // log the api request
+    const safePath = req.baseUrl ? `${req.baseUrl}${req.path}` : req.path;
+    logger.info(`API [${req.method}] ${safePath} ${res.statusCode} ${durMs.toFixed(1)}ms`);
   });
   next();
 });
@@ -96,7 +102,13 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.get('*', (req, res) => {
+app.use(e.static(distPath, { index: false, maxAge: '1h' }));
+
+app.get(/^\/(?!api\/).*/, (req, res) => {
+  return res.sendFile(path.join(distPath, 'index.html'));
+});
+
+app.use((req, res) => {
   return res.status(404).json({ status: 404, message: 'Not Found' });
 });
 
@@ -110,7 +122,7 @@ setInterval(
 const server = app.listen(PORT, async () => {
   logger.debug('Aethel is live on', `http://localhost:${PORT}`);
 
-  const { sendDeploymentNotification } = await import('./utils/sendDeploymentNotification');
+  const { sendDeploymentNotification } = await import('./utils/sendDeploymentNotification.js');
   await sendDeploymentNotification(startTime);
 });
 

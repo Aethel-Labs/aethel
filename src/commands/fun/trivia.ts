@@ -485,11 +485,12 @@ const triviaCommand = {
     try {
       const channelId = interaction.channelId;
       const clickMessageId = interaction.message?.id;
-      let session = (clickMessageId && gameManager.get(clickMessageId)) || gameManager.get(channelId);
+      let session =
+        (clickMessageId && gameManager.get(clickMessageId)) || gameManager.get(channelId);
       const customId = interaction.customId;
 
       if (!session && clickMessageId) {
-        for (const [key, s] of gameManager.entries()) {
+        for (const [, s] of gameManager.entries()) {
           if (s.messageId === clickMessageId) {
             session = s;
             break;
