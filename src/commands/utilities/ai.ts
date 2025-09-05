@@ -122,7 +122,7 @@ function getApiConfiguration(apiKey: string | null, model: string | null, apiUrl
   const usingCustomApi = !!apiKey;
   const finalApiUrl = apiUrl || 'https://openrouter.ai/api/v1';
   const finalApiKey = apiKey || process.env.OPENROUTER_API_KEY;
-  const finalModel = model || (usingCustomApi ? 'openai/gpt-4o-mini' : 'openai/gpt-oss-20b');
+  const finalModel = model || (usingCustomApi ? 'openai/gpt-4o-mini' : 'moonshotai/kimi-k2');
   const usingDefaultKey = !usingCustomApi && !!process.env.OPENROUTER_API_KEY;
 
   return {
@@ -172,7 +172,7 @@ function buildSystemPrompt(
       .join('\n');
   }
 
-  const currentModel = model || (usingDefaultKey ? 'openai/gpt-oss-20b (default)' : 'custom model');
+  const currentModel = model || (usingDefaultKey ? 'moonshotai/kimi-k2 (default)' : 'custom model');
 
   const contextInfo = isServer
     ? `**CONTEXT:**
