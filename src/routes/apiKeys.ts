@@ -11,6 +11,9 @@ const ALLOWED_API_HOSTS = [
   'openrouter.ai',
   'generativelanguage.googleapis.com',
   'api.anthropic.com',
+  'api.deepseek.com',
+  'api.moonshot.ai',
+  'api.perplexity.ai'
 ];
 
 function getOpenAIClient(apiKey: string, baseURL?: string): OpenAI {
