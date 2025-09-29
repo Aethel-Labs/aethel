@@ -29,7 +29,7 @@ const cooldownManager = createCooldownManager('cat', 3000);
 const commandLogger = createCommandLogger('cat');
 const errorHandler = createErrorHandler('cat');
 
-async function fetchCatImage(): Promise<RandomReddit> {
+export async function fetchCatImage(): Promise<RandomReddit> {
   const response = await fetch('https://api.pur.cat/random-cat'); //cat
   if (!response.ok) {
     throw new Error(`API request failed with status ${response.status}`);

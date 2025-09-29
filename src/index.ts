@@ -5,6 +5,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import './utils/djsModalPatch';
 import BotClient from './services/Client';
 import { ALLOWED_ORIGINS, PORT, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX } from './config';
 import rateLimit from 'express-rate-limit';

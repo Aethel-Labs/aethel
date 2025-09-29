@@ -4,7 +4,7 @@ import { loadActiveReminders } from '@/commands/utilities/remind';
 
 export default class ReadyEvent {
   constructor(c: BotClient) {
-    c.once('ready', () => this.readyEvent(c));
+    c.once('clientReady', () => this.readyEvent(c));
   }
 
   private async readyEvent(client: BotClient) {

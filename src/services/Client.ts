@@ -21,6 +21,8 @@ export default class BotClient extends Client {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public t = new Collection<string, any>();
   public socialMediaManager?: SocialMediaManager;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public lastModalRawByUser: Map<string, any> = new Map();
 
   constructor() {
     super({
@@ -41,6 +43,42 @@ export default class BotClient extends Client {
       },
     });
     BotClient.instance = this;
+
+    interface RawPacket {
+      t: string;
+      d?: {
+        type: number;
+        member?: {
+          user: {
+            id: string;
+          };
+        };
+        user?: {
+          id: string;
+        };
+      };
+    }
+
+    this.on('raw', (packet: RawPacket) => {
+      try {
+        if (packet?.t !== 'INTERACTION_CREATE') return;
+        const d = packet.d;
+        if (d?.type !== 5) return;
+        const userId = d?.member?.user?.id || d?.user?.id;
+        if (!userId) return;
+        this.lastModalRawByUser.set(userId, d);
+        setTimeout(
+          () => {
+            if (this.lastModalRawByUser.get(userId) === d) {
+              this.lastModalRawByUser.delete(userId);
+            }
+          },
+          5 * 60 * 1000,
+        );
+      } catch (e) {
+        logger.warn('Failed to capture raw modal payload', e);
+      }
+    });
   }
 
   public static getInstance(): BotClient | null {

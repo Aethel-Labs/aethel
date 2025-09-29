@@ -89,7 +89,7 @@ export default class InteractionCreateEvent {
         if (remind && remind.handleModal) {
           await remind.handleModal(this.client, i);
         }
-      } else if (i.customId === 'apiCredentials') {
+      } else if (i.customId.startsWith('apiCredentials')) {
         const ai = this.client.commands.get('ai');
         if (ai && 'handleModal' in ai) {
           await (ai as unknown as RemindCommandProps).handleModal(this.client, i);

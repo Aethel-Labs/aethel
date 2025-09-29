@@ -31,12 +31,13 @@ const cooldownManager = createCooldownManager('dog', 3000);
 const commandLogger = createCommandLogger('dog');
 const errorHandler = createErrorHandler('dog');
 
-async function fetchDogImage(): Promise<RandomReddit> {
+export async function fetchDogImage(): Promise<RandomReddit> {
   const response = await fetch('https://api.erm.dog/random-dog', { headers: browserHeaders });
   if (!response.ok) {
     throw new Error(`API request failed with status ${response.status}`);
   }
-  return (await response.json()) as RandomReddit;
+  const data = (await response.json()) as RandomReddit;
+  return data;
 }
 
 export default {
@@ -58,7 +59,7 @@ export default {
     ])
     .setIntegrationTypes(ApplicationIntegrationType.UserInstall),
 
-  async execute(client, interaction) {
+  execute: async (client, interaction) => {
     try {
       const cooldownCheck = await checkCooldown(
         cooldownManager,
@@ -110,10 +111,15 @@ export default {
             ),
           );
 
-        await interaction.editReply({
-          components: [container],
-          flags: MessageFlags.IsComponentsV2,
-        });
+        try {
+          await interaction.editReply({
+            components: [container],
+            flags: MessageFlags.IsComponentsV2,
+          });
+        } catch (replyError) {
+          logger.error('Failed to send reply:', replyError);
+          throw replyError;
+        }
       } catch (error) {
         await errorHandler({
           interaction,

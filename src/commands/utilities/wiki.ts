@@ -24,7 +24,7 @@ const errorHandler = createErrorHandler('wiki');
 
 const MAX_EXTRACT_LENGTH = 2000;
 
-async function searchWikipedia(query: string, locale = 'en') {
+export async function searchWikipedia(query: string, locale = 'en') {
   const wikiLang = locale.startsWith('es') ? 'es' : 'en';
   const searchUrl = `https://${wikiLang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=1`;
 
@@ -46,7 +46,7 @@ async function searchWikipedia(query: string, locale = 'en') {
   };
 }
 
-async function getArticleSummary(pageId: number, wikiLang = 'en') {
+export async function getArticleSummary(pageId: number, wikiLang = 'en') {
   const summaryUrl = `https://${wikiLang}.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro&explaintext&format=json&pithumbsize=300&pageids=${pageId}`;
   const response = await fetch(summaryUrl);
 
