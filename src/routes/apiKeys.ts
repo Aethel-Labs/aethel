@@ -260,7 +260,7 @@ router.post(
         });
       }
 
-      const isGemini = fullApiUrl.includes('generativelanguage.googleapis.com');
+      const isGemini = parsedUrl.hostname === 'generativelanguage.googleapis.com';
 
       if (isGemini) {
         const listModelsUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
