@@ -410,7 +410,9 @@ const ApiKeysPage = () => {
                     DeepInfra (api.deepinfra.com/v1/openai)
                   </option>
                   <option value="https://api.x.ai/v1">xAI (api.x.ai/v1)</option>
-                  <option value="https://api.moonshot.ai/v1">Moonshot AI (api.moonshot.ai/v1)</option>
+                  <option value="https://api.moonshot.ai/v1">
+                    Moonshot AI (api.moonshot.ai/v1)
+                  </option>
                 </select>
               </div>
 
