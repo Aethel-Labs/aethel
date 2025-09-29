@@ -1,7 +1,7 @@
 import Module from 'module';
 import path from 'path';
 
-class SafeModalSubmitFields {
+export class SafeModalSubmitFields {
   public components: unknown[] = [];
 
   public fields: {
