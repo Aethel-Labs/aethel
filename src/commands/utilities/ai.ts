@@ -47,6 +47,7 @@ const ALLOWED_API_HOSTS = [
   'api.openai.com',
   'openrouter.ai',
   'generativelanguage.googleapis.com',
+  'api.anthropic.com',
   'api.deepseek.com',
   'api.moonshot.ai',
   'api.perplexity.ai',
@@ -1465,6 +1466,8 @@ const aiCommand: AICommand = {
           else if (m.startsWith('pplx') || m.includes('perplexity')) providerValue = 'perplexity';
           else if (m.startsWith('deepseek')) providerValue = 'deepseek';
           else if (m.startsWith('moonshot') || m.includes('kimi')) providerValue = 'moonshot';
+          else if (m.startsWith('anthropic') || m.includes('anthropic'))
+            providerValue = 'anthropic';
           else if (m.includes('/')) providerValue = 'openrouter';
           else providerValue = 'openai';
         }

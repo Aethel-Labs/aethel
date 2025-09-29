@@ -83,6 +83,7 @@ export function buildProviderModal(customId: string, title: string): V2ModalPayl
           placeholder: 'Choose provider',
           options: [
             { label: 'OpenAI', value: 'openai', description: 'api.openai.com' },
+            { label: 'Anthropic', value: 'anthropic', description: 'api.anthropic.com' },
             { label: 'OpenRouter', value: 'openrouter', description: 'openrouter.ai' },
             {
               label: 'Google Gemini',
@@ -214,6 +215,7 @@ export function parseV2ModalSubmission(raw: RawModalSubmission): V2SubmissionVal
 
 export const PROVIDER_TO_URL: Record<string, string> = {
   openai: 'https://api.openai.com/v1',
+  anthropic: 'https://api.anthropic.com/v1',
   openrouter: 'https://openrouter.ai/api/v1',
   gemini: 'https://generativelanguage.googleapis.com',
   deepseek: 'https://api.deepseek.com',
