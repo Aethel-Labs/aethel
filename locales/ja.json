@@ -153,14 +153,14 @@
       "modal": {
         "title": "API認証情報を入力してください",
         "apikey": "APIキー",
-        "apikeyplaceholder": "キーの使用をやめるには: /ai use_custom_api false",
-        "apiurl": "APIのURL",
+        "apikeyplaceholder": "キーの使用をやめるには: /ai custom_setup:false",
         "apiurlplaceholder": "あなたのAPIのURL",
         "model": "モデル",
-        "modelplaceholder": "モデル名（例: gpt-4）"
+        "modelplaceholder": "モデル名（例: gpt-4)",
+        "customsetup": "カスタム設定"
       },
       "nopendingrequest": "保留中のリクエストが見つかりません。もう一度コマンドをお試しください。",
-      "apicredssaved": "API認証情報が保存されました。これで再入力せずに`/ai`コマンドを使えます。キーの使用をやめるには `/ai use_custom_api false` を使ってください",
+      "apicredssaved": "API認証情報が保存されました。これで認証情報を再入力することなく`/ai`コマンドを使用できます。キーの使用をやめるには、`/ai custom_setup:false`を実行してください",
       "process": {
         "dailylimit": "AIリクエストの1日上限に達しました",
         "noapikey": "まずAPIキーを設定してください"

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import axios from 'axios';
 import pool from '../utils/pgClient';
 import logger from '../utils/logger';
 import { authenticateToken } from '../middlewares/auth';
@@ -11,9 +12,15 @@ const ALLOWED_API_HOSTS = [
   'openrouter.ai',
   'generativelanguage.googleapis.com',
   'api.anthropic.com',
+  'api.mistral.ai',
   'api.deepseek.com',
-  'api.moonshot.ai',
+  'api.together.xyz',
   'api.perplexity.ai',
+  'api.groq.com',
+  'api.lepton.ai',
+  'api.deepinfra.com',
+  'api.moonshot.ai',
+  'api.x.ai',
 ];
 
 function getOpenAIClient(apiKey: string, baseURL?: string): OpenAI {
@@ -253,37 +260,121 @@ router.post(
         });
       }
 
-      const testModel = model || 'openai/gpt-4o-mini';
-      const client = getOpenAIClient(apiKey, fullApiUrl);
+      const isGemini = fullApiUrl.includes('generativelanguage.googleapis.com');
 
-      try {
-        const response = await client.chat.completions.create({
-          model: testModel,
-          messages: [
+      if (isGemini) {
+        const listModelsUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+
+        try {
+          const listResponse = await axios.get(listModelsUrl, {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: 10000,
+          });
+
+          interface ModelInfo {
+            name: string;
+            supportedGenerationMethods?: string[];
+            [key: string]: unknown;
+          }
+
+          const availableModels: ModelInfo[] = listResponse.data?.models || [];
+          const workingModel = availableModels.find((m) =>
+            m.supportedGenerationMethods?.includes('generateContent'),
+          );
+
+          if (!workingModel) {
+            throw new Error('No models found that support generateContent');
+          }
+
+          const testPrompt =
+            'Hello! This is a test message. Please respond with "API key test successful!"';
+          const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${workingModel.name}:generateContent?key=${apiKey}`;
+
+          const response = await axios.post(
+            generateUrl,
             {
-              role: 'user',
-              content:
-                'Hello! This is a test message. Please respond with "API key test successful!"',
+              contents: [
+                {
+                  role: 'user',
+                  parts: [
+                    {
+                      text: testPrompt,
+                    },
+                  ],
+                },
+              ],
             },
-          ],
-          max_tokens: 50,
-          temperature: 0.1,
-        });
+            {
+              headers: { 'Content-Type': 'application/json' },
+              timeout: 10000,
+            },
+          );
 
-        const testMessage = response.choices?.[0]?.message?.content || 'Test completed';
+          const testMessage =
+            response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Test completed';
 
-        logger.info(`API key test successful for user ${userId}`);
-        res.json({
-          success: true,
-          message: 'API key is valid and working!',
-          testResponse: testMessage,
-        });
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        logger.warn(`API key test failed for user ${userId}: ${errorMessage}`);
-        return res.status(400).json({
-          error: `API key test failed: ${errorMessage}`,
-        });
+          logger.info(
+            `Gemini API key test successful for user ${userId} using model ${workingModel.name}`,
+          );
+          return res.json({
+            success: true,
+            message: 'Gemini API key is valid and working!',
+            testResponse: testMessage,
+            model: workingModel.name.split('/').pop(),
+          });
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          const response =
+            error && typeof error === 'object' && 'response' in error
+              ? (error as { response?: { status?: number; data?: unknown } }).response
+              : undefined;
+
+          logger.warn(`Gemini API key test failed for user ${userId}:`, {
+            error: errorMessage,
+            status: response?.status,
+            data: response?.data,
+          });
+          return res.status(400).json({
+            error: `Gemini API key test failed: ${errorMessage}`,
+            details:
+              response?.data && typeof response.data === 'object' && response.data !== null
+                ? (response.data as { error?: { details?: unknown } }).error?.details
+                : undefined,
+          });
+        }
+      } else {
+        const testModel = model || 'gpt-5-nano';
+        const client = getOpenAIClient(apiKey, fullApiUrl);
+
+        try {
+          const response = await client.chat.completions.create({
+            model: testModel,
+            messages: [
+              {
+                role: 'user',
+                content:
+                  'Hello! This is a test message. Please respond with "API key test successful!"',
+              },
+            ],
+            max_tokens: 50,
+            temperature: 0.1,
+          });
+
+          const testMessage = response.choices?.[0]?.message?.content || 'Test completed';
+
+          logger.info(`API key test successful for user ${userId}`);
+          return res.json({
+            success: true,
+            message: 'API key is valid and working!',
+            testResponse: testMessage,
+          });
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          logger.warn(`API key test failed for user ${userId}: ${errorMessage}`);
+          return res.status(400).json({
+            error: `API key test failed: ${errorMessage}`,
+          });
+        }
       }
     } catch (error) {
       logger.error('Error testing API key:', error);

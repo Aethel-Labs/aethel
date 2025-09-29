@@ -4,7 +4,7 @@ export default function TermsOfService() {
   return (
     <LegalLayout
       title="Terms of Service"
-      lastUpdated="June 16, 2025"
+      lastUpdated="September 29, 2025"
     >
       <div className="space-y-8">
         <section>
@@ -63,9 +63,10 @@ export default function TermsOfService() {
           <ul className="list-disc pl-6 space-y-3 text-gray-700 dark:text-gray-300 mt-2">
             <li>You are responsible for the security of your API keys</li>
             <li>
-              We do not store your API keys permanently - they are only kept in memory during your
-              active session
+              Your API keys are stored securely using industry-standard encryption and are only
+              accessible to you
             </li>
+            <li>You can delete your API keys at any time through the API keys management page</li>
             <li>
               You must comply with the terms of service of any third-party APIs you use with the Bot
             </li>

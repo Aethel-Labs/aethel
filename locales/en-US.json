@@ -162,14 +162,14 @@
       "modal": {
         "title": "Enter your API Credentials",
         "apikey": "API Key",
-        "apikeyplaceholder": "To stop using your key: /ai use_custom_api false",
+        "apikeyplaceholder": "To stop using your key: /ai custom_setup:false",
         "apiurl": "API Url",
         "apiurlplaceholder": "Your API Url",
         "model": "Model",
         "modelplaceholder": "Model name (eg. gpt-4)"
       },
       "nopendingrequest": "No pending request found. Please try the command again.",
-      "apicredssaved": "API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai use_custom_api false`",
+      "apicredssaved": "API credentials saved. You can now use the `/ai` command without re-entering your credentials. To stop using your key, do `/ai custom_setup:false`",
       "testing": "Testing API key...",
       "testfailed": "❌ API key test failed: {error}. Please check your credentials and try again.",
       "testsuccess": "✅ API key test successful! Credentials saved.",

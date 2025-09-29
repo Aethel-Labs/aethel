@@ -178,7 +178,7 @@ export default function PrivacyPolicy() {
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
             We implement the following security measures to protect your information:
           </p>
-          <ul className="list-disc pl-6 space-y-3 text-gray-700 mt-2">
+          <ul className="list-disc pl-6 space-y-3 text-gray-700 dark:text-gray-300 mt-2">
             <li>
               <strong>API Key Encryption:</strong> AES-256-GCM encryption for all stored API keys
             </li>

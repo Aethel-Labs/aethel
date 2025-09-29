@@ -153,14 +153,14 @@
       "modal": {
         "title": "API Kimlik Bilgilerinizi Girin",
         "apikey": "API Anahtarı",
-        "apikeyplaceholder": "Kendi anahtarınızı kullanmayı bırakmak için: /ai use_custom_api false",
+        "apikeyplaceholder": "Kendi anahtarınızı kullanmayı bırakmak için: /ai custom_setup:false",
         "apiurl": "API Adresi",
         "apiurlplaceholder": "API Adresiniz",
         "model": "Model",
         "modelplaceholder": "Model adı (örn. gpt-4)"
       },
       "nopendingrequest": "Bekleyen bir istek bulunamadı. Lütfen komutu tekrar deneyin.",
-      "apicredssaved": "API kimlik bilgileri kaydedildi. Artık `/ai` komutunu anahtarınızı tekrar girmeden kullanabilirsiniz. Kendi anahtarınızı kullanmayı bırakmak için /ai use_custom_api false yazın",
+      "apicredssaved": "API kimlik bilgileri kaydedildi. Artık `/ai` komutunu anahtarınızı tekrar girmeden kullanabilirsiniz. Kendi anahtarınızı kullanmayı bırakmak için /ai custom_setup:false yazın",
       "process": {
         "dailylimit": "Günlük AI istek limitinize ulaştınız",
         "noapikey": "Lütfen önce API anahtarınızı ayarlayın"

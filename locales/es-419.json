@@ -153,14 +153,14 @@
       "modal": {
         "title": "Ingresa tus credenciales de API",
         "apikey": "Clave API",
-        "apikeyplaceholder": "Para dejar de usar tu clave: /ai use_custom_api false",
+        "apikeyplaceholder": "Para dejar de usar tu clave: /ai custom_setup:false",
         "apiurl": "URL de la API",
         "apiurlplaceholder": "Tu URL de API",
         "model": "Modelo",
         "modelplaceholder": "Nombre del modelo (ej. gpt-4)"
       },
       "nopendingrequest": "No se encontró ninguna solicitud pendiente. Por favor, intenta el comando de nuevo.",
-      "apicredssaved": "Credenciales de API guardadas. Ahora puedes usar el comando `/ai` sin volver a ingresar tus credenciales. Para dejar de usar tu clave, usa `/ai use_custom_api false`",
+      "apicredssaved": "Credenciales de API guardadas. Ahora puedes usar el comando `/ai` sin volver a ingresar tus credenciales. Para dejar de usar tu clave, usa `/ai custom_setup:false`",
       "process": {
         "dailylimit": "Has alcanzado tu límite diario de solicitudes de IA",
         "noapikey": "Por favor, configura primero tu clave API"

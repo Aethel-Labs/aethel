@@ -61,6 +61,33 @@ export const apiKeysAPI = {
   deleteApiKey: () => api.delete('/user/api-keys'),
   testApiKey: (data: { apiKey: string; model?: string; apiUrl?: string }) =>
     api.post('/user/api-keys/test', data),
+  getModels: async ({ apiKey, apiUrl }: { apiKey: string; apiUrl?: string }) => {
+    try {
+      let baseUrl = apiUrl || 'https://api.openai.com/v1';
+      if (!baseUrl.endsWith('/v1')) {
+        baseUrl = baseUrl.endsWith('/') ? `${baseUrl}v1` : `${baseUrl}/v1`;
+      }
+
+      const response = await axios.get(`${baseUrl}/models`, {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        timeout: 10000,
+      });
+
+      interface ModelResponse {
+        id: string;
+        [key: string]: unknown;
+      }
+
+      const models = (response.data?.data as ModelResponse[])?.map((model) => model.id) || [];
+      return { data: { models } };
+    } catch (error) {
+      console.error('Failed to fetch models from provider API:', error);
+      return { data: { models: [] } };
+    }
+  },
 };
 
 export const remindersAPI = {

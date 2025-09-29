@@ -153,14 +153,14 @@
       "modal": {
         "title": "Entrez vos identifiants API",
         "apikey": "Clé API",
-        "apikeyplaceholder": "Pour ne plus utiliser votre clé : /ai use_custom_api false",
+        "apikeyplaceholder": "Pour ne plus utiliser votre clé : /ai custom_setup:false",
         "apiurl": "URL de l'API",
         "apiurlplaceholder": "Votre URL d'API",
         "model": "Modèle",
         "modelplaceholder": "Nom du modèle (ex. gpt-4)"
       },
       "nopendingrequest": "Aucune demande en attente trouvée. Veuillez réessayer la commande.",
-      "apicredssaved": "Identifiants API enregistrés. Vous pouvez maintenant utiliser la commande `/ai` sans ressaisir vos identifiants. Pour ne plus utiliser votre clé, faites `/ai use_custom_api false`",
+      "apicredssaved": "Identifiants API enregistrés. Vous pouvez maintenant utiliser la commande `/ai` sans ressaisir vos identifiants. Pour ne plus utiliser votre clé, faites `/ai custom_setup:false`",
       "process": {
         "dailylimit": "Vous avez atteint votre limite quotidienne de requêtes IA",
         "noapikey": "Veuillez d'abord configurer votre clé API"

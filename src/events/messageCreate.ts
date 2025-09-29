@@ -269,7 +269,7 @@ export default class MessageCreateEvent {
       );
 
       if (config.usingDefaultKey) {
-        const exemptUserId = process.env.AI_EXEMPT_USER_ID;
+        const exemptUserId = process.env.AI_EXEMPT_USER_ID?.trim();
         const actorId = message.author.id;
 
         if (actorId !== exemptUserId) {

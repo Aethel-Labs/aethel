@@ -153,14 +153,14 @@
       "modal": {
         "title": "Gib deine API-Zugangsdaten ein",
         "apikey": "API-Schlüssel",
-        "apikeyplaceholder": "Um deinen Schlüssel nicht mehr zu verwenden: /ai use_custom_api false",
+        "apikeyplaceholder": "Um deinen Schlüssel nicht mehr zu verwenden: /ai custom_setup:false",
         "apiurl": "API-URL",
         "apiurlplaceholder": "Deine API-URL",
         "model": "Modell",
         "modelplaceholder": "Modellname (z.B. gpt-4)"
       },
       "nopendingrequest": "Keine ausstehende Anfrage gefunden. Bitte versuche den Befehl erneut.",
-      "apicredssaved": "API-Zugangsdaten gespeichert. Du kannst jetzt den Befehl `/ai` verwenden, ohne deine Zugangsdaten erneut einzugeben. Um deinen Schlüssel nicht mehr zu verwenden, nutze `/ai use_custom_api false`",
+      "apicredssaved": "API-Zugangsdaten gespeichert. Du kannst jetzt den Befehl `/ai` verwenden, ohne deine Zugangsdaten erneut einzugeben. Um deinen Schlüssel nicht mehr zu verwenden, nutze `/ai custom_setup:false`",
       "process": {
         "dailylimit": "Du hast dein tägliches Limit an KI-Anfragen erreicht",
         "noapikey": "Bitte richte zuerst deinen API-Schlüssel ein"

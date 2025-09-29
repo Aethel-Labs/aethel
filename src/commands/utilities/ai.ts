@@ -1,25 +1,13 @@
 import type { ToolCall } from '@/utils/commandExecutor';
 import { extractToolCalls, executeToolCall } from '@/utils/commandExecutor';
 import BotClient from '@/services/Client';
-import {
-  buildProviderModal,
-  PROVIDER_TO_URL,
-  parseV2ModalSubmission,
-  type V2ModalPayload,
-} from '@/types/componentsV2';
+
 import {
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
   EmbedBuilder,
-  ModalBuilder,
-  TextInputBuilder,
-  ActionRowBuilder,
-  TextInputStyle,
-  StringSelectMenuInteraction,
-  ModalSubmitInteraction,
   ChatInputCommandInteraction,
   InteractionResponse,
-  Message,
   InteractionContextType,
   ApplicationIntegrationType,
   MessageFlags,
@@ -34,24 +22,12 @@ import { createCommandLogger } from '@/utils/commandLogger';
 import { createErrorHandler } from '@/utils/errorHandler';
 import { createMemoryManager } from '@/utils/memoryManager';
 
-function getInvokerId(
-  interaction: ChatInputCommandInteraction | ModalSubmitInteraction | StringSelectMenuInteraction,
-): string {
-  if ('guildId' in interaction && interaction.guildId) {
+function getInvokerId(interaction: ChatInputCommandInteraction): string {
+  if (interaction.guildId) {
     return `${interaction.guildId}-${interaction.user.id}`;
   }
   return interaction.user.id;
 }
-
-const ALLOWED_API_HOSTS = [
-  'api.openai.com',
-  'openrouter.ai',
-  'generativelanguage.googleapis.com',
-  'api.anthropic.com',
-  'api.deepseek.com',
-  'api.moonshot.ai',
-  'api.perplexity.ai',
-];
 
 interface ConversationMessage {
   role: 'system' | 'user' | 'assistant';
@@ -87,37 +63,10 @@ interface PendingRequest {
   status?: 'awaiting' | 'processing';
 }
 
-type ModalRawEntry = { data?: { components?: unknown[] }; components?: unknown[] };
-type ClientWithModalState = BotClient & { lastModalRawByUser?: Map<string, ModalRawEntry> };
-
 interface UserCredentials {
   apiKey?: string | null;
   model?: string | null;
   apiUrl?: string | null;
-}
-
-async function showV2Modal(
-  interaction: ChatInputCommandInteraction | StringSelectMenuInteraction,
-  v2Modal: V2ModalPayload,
-): Promise<void> {
-  const url = `https://discord.com/api/v10/interactions/${interaction.id}/${interaction.token}/callback?with_response=false`;
-  const body = {
-    type: 9,
-    data: {
-      custom_id: v2Modal.custom_id,
-      title: v2Modal.title,
-      components: v2Modal.components,
-    },
-  };
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!resp.ok) {
-    const text = await resp.text();
-    throw new Error(`Discord API error showing modal: ${resp.status} ${text}`);
-  }
 }
 
 interface User {
@@ -490,92 +439,6 @@ async function incrementAndCheckServerDailyLimit(serverId: string, limit = 20): 
   }
 }
 
-async function testApiKey(
-  apiKey: string,
-  model: string,
-  apiUrl: string,
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    const url = new URL(apiUrl);
-    const host = url.hostname;
-
-    if (host === 'generativelanguage.googleapis.com') {
-      const base = apiUrl.replace(/\/$/, '');
-      const modelName = model.replace(/^models\//, '');
-      const endpoint = `${base}/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
-
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: 'Hello! This is a test message. Please respond with "API key test successful!"',
-                },
-              ],
-            },
-          ],
-        }),
-      });
-
-      if (!resp.ok) {
-        const text = await resp.text();
-        throw new Error(`${resp.status} ${text || resp.statusText}`);
-      }
-    } else if (host === 'api.perplexity.ai') {
-      const resp = await fetch(`${url.origin}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            {
-              role: 'user',
-              content:
-                'Hello! This is a test message. Please respond with "API key test successful!"',
-            },
-          ],
-          max_tokens: 50,
-          temperature: 0.1,
-        }),
-      });
-      if (!resp.ok) {
-        const text = await resp.text();
-        throw new Error(`${resp.status} ${text || resp.statusText}`);
-      }
-    } else {
-      const client = getOpenAIClient(apiKey, apiUrl);
-      await client.chat.completions.create({
-        model,
-        messages: [
-          {
-            role: 'user',
-            content:
-              'Hello! This is a test message. Please respond with "API key test successful!"',
-          },
-        ],
-        max_tokens: 50,
-        temperature: 0.1,
-      });
-    }
-
-    logger.info('API key test successful');
-    return { success: true };
-  } catch (error: unknown) {
-    logger.error('Error testing API key:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return {
-      success: false,
-      error: errorMessage,
-    };
-  }
-}
-
 async function makeAIRequest(
   config: ReturnType<typeof getApiConfiguration>,
   conversation: ConversationMessage[],
@@ -709,7 +572,6 @@ async function makeAIRequest(
               }
             }
 
-            // Last resort: try to find any text in the response
             const seen = new Set<unknown>();
             const queue: unknown[] = [obj];
             while (queue.length) {
@@ -913,7 +775,7 @@ async function makeAIRequest(
 
 async function processAIRequest(
   client: BotClient,
-  interaction: ChatInputCommandInteraction | ModalSubmitInteraction,
+  interaction: ChatInputCommandInteraction,
   promptOverride?: string,
 ): Promise<void> {
   try {
@@ -934,40 +796,23 @@ async function processAIRequest(
       await interaction.editReply('❌ Missing prompt. Please try again.');
       return;
     }
-    if ('commandType' in interaction) {
-      commandLogger.logFromInteraction(
-        interaction as ChatInputCommandInteraction,
-        `AI command executed - prompt content hidden for privacy`,
-      );
-    } else {
-      commandLogger.logAction({
-        isGuild: interaction.inGuild(),
-        isDM: !interaction.inGuild(),
-        additionalInfo: `AI command executed - prompt content hidden for privacy`,
-      });
-    }
+    commandLogger.logFromInteraction(
+      interaction,
+      `AI command executed - prompt content hidden for privacy`,
+    );
     const { apiKey, model, apiUrl } = await getUserCredentials(interaction.user.id);
     const config = getApiConfiguration(apiKey ?? null, model ?? null, apiUrl ?? null);
-    const exemptUserId = process.env.AI_EXEMPT_USER_ID;
+    const exemptUserId = process.env.AI_EXEMPT_USER_ID?.trim();
+    const userId = interaction.user.id;
 
-    if (invokerId !== exemptUserId && config.usingDefaultKey) {
-      const allowed = await incrementAndCheckDailyLimit(interaction.user.id, 10);
+    if (userId !== exemptUserId && config.usingDefaultKey) {
+      const allowed = await incrementAndCheckDailyLimit(userId, 50); // Increased global limit for slash command
       if (!allowed) {
         await interaction.editReply(
           '❌ ' +
             (await client.getLocaleText('commands.ai.process.dailylimit', interaction.locale)),
         );
         return;
-      }
-
-      if (interaction.inGuild()) {
-        const serverAllowed = await incrementAndCheckServerDailyLimit(interaction.guildId!, 50);
-        if (!serverAllowed) {
-          await interaction.editReply(
-            '❌ This server has reached its daily AI usage limit. Please try again tomorrow.',
-          );
-          return;
-        }
       }
     }
 
@@ -978,7 +823,7 @@ async function processAIRequest(
       return;
     }
 
-    const existingConversation = userConversations.get(invokerId) || [];
+    const existingConversation = userConversations.get(userId) || [];
     const _conversationArray = Array.isArray(existingConversation) ? existingConversation : [];
     const chatInputInteraction =
       'commandType' in interaction ? (interaction as ChatInputCommandInteraction) : undefined;
@@ -1021,19 +866,16 @@ async function processAIRequest(
     await sendAIResponse(interaction, aiResponse, client);
   } catch (error) {
     const err = error as Error;
-    if (
-      'commandType' in interaction ||
-      'componentType' in (interaction as unknown as Record<string, unknown>)
-    ) {
+    if (errorHandler) {
       await errorHandler({
-        interaction: interaction as unknown as ChatInputCommandInteraction,
+        interaction: interaction as ChatInputCommandInteraction,
         client,
         error: err,
         userId: getInvokerId(interaction),
         username: interaction.user.tag,
       });
     } else {
-      const msg = await client.getLocaleText('failedrequest', interaction.locale);
+      const msg = await client.getLocaleText('failedrequest', interaction.locale || 'en-US');
       try {
         if (interaction.deferred || interaction.replied) {
           await interaction.editReply(msg);
@@ -1051,7 +893,7 @@ async function processAIRequest(
 }
 
 async function sendAIResponse(
-  interaction: ChatInputCommandInteraction | ModalSubmitInteraction,
+  interaction: ChatInputCommandInteraction,
   aiResponse: AIResponse,
   _client: BotClient,
 ): Promise<void> {
@@ -1272,11 +1114,6 @@ interface AICommand {
     client: BotClient,
     interaction: ChatInputCommandInteraction,
   ) => Promise<void | InteractionResponse<boolean>>;
-  handleModal: (
-    client: BotClient,
-    interaction: ModalSubmitInteraction,
-  ) => Promise<void | Message<boolean>>;
-  handleSelect: (client: BotClient, interaction: StringSelectMenuInteraction) => Promise<void>;
 }
 
 const aiCommand: AICommand = {
@@ -1311,7 +1148,7 @@ const aiCommand: AICommand = {
         .setRequired(true),
     )
     .addBooleanOption((option) =>
-      option.setName('use_custom_api').setDescription('Use your own API key?').setRequired(false),
+      option.setName('custom_setup').setDescription('Use your own API key?').setRequired(false),
     )
     .addBooleanOption((option) =>
       option.setName('reset').setDescription('Reset your AI chat history').setRequired(false),
@@ -1334,7 +1171,7 @@ const aiCommand: AICommand = {
     }
 
     try {
-      const useCustomApi = interaction.options.getBoolean('use_custom_api');
+      const customSetup = interaction.options.getBoolean('custom_setup');
       const prompt = interaction.options.getString('prompt')!;
       const reset = interaction.options.getBoolean('reset');
 
@@ -1355,7 +1192,30 @@ const aiCommand: AICommand = {
         return;
       }
 
-      if (useCustomApi === false) {
+      if (customSetup !== null) {
+        const { apiKey } = await getUserCredentials(interaction.user.id);
+
+        if (customSetup) {
+          if (!apiKey) {
+            const setupUrl = process.env.FRONTEND_URL
+              ? `${process.env.FRONTEND_URL}/api-keys`
+              : 'the API keys page';
+
+            return interaction.reply({
+              content: `🔑 Please set up your API key first by visiting: ${setupUrl}\n\nAfter setting up your API key, you can use the AI command with your custom key.`,
+              flags: MessageFlags.Ephemeral,
+            });
+          }
+          const setupUrl = process.env.FRONTEND_URL
+            ? `${process.env.FRONTEND_URL}/api-keys`
+            : 'the API keys page';
+
+          await interaction.reply({
+            content: `✅ You're already using a custom API key. To change your API key settings, please visit: ${setupUrl}`,
+            flags: MessageFlags.Ephemeral,
+          });
+          return;
+        }
         await setUserApiKey(interaction.user.id, null, null, null);
         userConversations.delete(userId);
         await interaction.reply({
@@ -1366,13 +1226,6 @@ const aiCommand: AICommand = {
         return;
       }
 
-      const { apiKey } = await getUserCredentials(interaction.user.id);
-      if (useCustomApi && !apiKey) {
-        const title = await client.getLocaleText('commands.ai.modal.title', interaction.locale);
-        const v2Modal = buildProviderModal('apiCredentials', title);
-        await showV2Modal(interaction, v2Modal);
-        return;
-      }
       await processAIRequest(client, interaction);
     } catch (error) {
       console.error('Error in AI command:', error);
@@ -1393,183 +1246,6 @@ const aiCommand: AICommand = {
 
       const userId = getInvokerId(interaction);
       pendingRequests.delete(userId);
-    }
-  },
-
-  async handleModal(client: BotClient, interaction: ModalSubmitInteraction) {
-    try {
-      if (interaction.customId.startsWith('apiConfig')) {
-        console.log('Handling API configuration modal submission');
-        try {
-          await interaction.reply({
-            content: '✅ Provider noted. Please submit credentials next.',
-            flags: MessageFlags.Ephemeral,
-          });
-        } catch (replyError) {
-          console.error('Failed to send apiConfig acknowledgement:', replyError);
-        }
-      } else if (interaction.customId.startsWith('apiCredentials')) {
-        console.log('Handling API credentials modal submission');
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
-        const userId = getInvokerId(interaction);
-        const pendingRequest = pendingRequests.get(userId);
-
-        if (!pendingRequest) {
-          console.error('No pending request found for user:', userId);
-          return interaction
-            .editReply({
-              content: '❌ No pending AI request found. Please try your request again.',
-            })
-            .catch(console.error);
-        }
-
-        let apiKey = '';
-        let model = '';
-        let providerValue: string | undefined;
-
-        const parts = interaction.customId.split(':');
-        if (parts.length > 1) {
-          providerValue = parts[1];
-        }
-
-        try {
-          try {
-            apiKey = interaction.fields.getTextInputValue('apiKey')?.trim() || '';
-            model = interaction.fields.getTextInputValue('model')?.trim() || '';
-          } catch (_error) {
-            console.log('Could not get values from text inputs, trying V2 components');
-          }
-        } catch (error) {
-          console.error('Error processing provider value:', error);
-        }
-        if (!providerValue) {
-          const submitted = parseV2ModalSubmission(
-            interaction as unknown as Record<string, unknown>,
-          );
-          providerValue = Array.isArray(submitted.provider)
-            ? submitted.provider[0]
-            : (submitted.provider as string | undefined);
-        }
-        if (!providerValue) {
-          const m = model.toLowerCase();
-          if (m.startsWith('models/gemini') || m.startsWith('gemini')) providerValue = 'gemini';
-          else if (m.startsWith('pplx') || m.includes('perplexity')) providerValue = 'perplexity';
-          else if (m.startsWith('deepseek')) providerValue = 'deepseek';
-          else if (m.startsWith('moonshot') || m.includes('kimi')) providerValue = 'moonshot';
-          else if (m.startsWith('anthropic') || m.includes('anthropic')) {
-            providerValue = 'anthropic';
-          } else if (m.includes('/')) providerValue = 'openrouter';
-          else providerValue = 'openai';
-        }
-        if (!apiKey || !model) {
-          await interaction.editReply(
-            'Missing API key or model from modal submission. Please try again.',
-          );
-          return;
-        }
-        const apiUrl = providerValue
-          ? PROVIDER_TO_URL[providerValue]
-          : 'https://openrouter.ai/api/v1';
-
-        let parsedUrl;
-        try {
-          parsedUrl = new URL(apiUrl);
-        } catch {
-          await interaction.editReply('API provider URL is invalid.');
-          return;
-        }
-
-        if (!ALLOWED_API_HOSTS.includes(parsedUrl.hostname)) {
-          await interaction.editReply('Selected provider is not allowed.');
-          return;
-        }
-
-        await interaction.editReply(
-          await client.getLocaleText('commands.ai.testing', interaction.locale),
-        );
-        const testResult = await testApiKey(apiKey, model, apiUrl);
-
-        if (!testResult.success) {
-          const errorMessage = await client.getLocaleText(
-            'commands.ai.testfailed',
-            interaction.locale,
-          );
-          await interaction.editReply(
-            errorMessage.replace('{error}', testResult.error || 'Unknown error'),
-          );
-          return;
-        }
-
-        await setUserApiKey(interaction.user.id, apiKey, model, apiUrl);
-        await interaction.editReply(
-          await client.getLocaleText('commands.ai.testsuccess', interaction.locale),
-        );
-
-        await processAIRequest(client, interaction, pendingRequest.prompt);
-      }
-    } catch (error) {
-      try {
-        await interaction.editReply({
-          content: await client.getLocaleText('failedrequest', interaction.locale),
-        });
-      } catch (editError) {
-        console.error('Failed to send error reply in handleModal:', editError || error);
-      }
-    } finally {
-      pendingRequests.delete(getInvokerId(interaction));
-      try {
-        const clientInstance = BotClient.getInstance();
-        const typedClient = clientInstance as ClientWithModalState;
-        if (typedClient.lastModalRawByUser) {
-          typedClient.lastModalRawByUser.delete(interaction.user.id);
-        }
-      } catch (error) {
-        logger.warn('Error cleaning up modal state:', error);
-      }
-    }
-  },
-  handleSelect: async (client: BotClient, interaction: StringSelectMenuInteraction) => {
-    try {
-      if (interaction.customId !== 'ai_provider_select') return;
-
-      const provider = interaction.values[0];
-      const modalTitle = await client.getLocaleText('commands.ai.modal.title', interaction.locale);
-
-      const modal = new ModalBuilder()
-        .setCustomId(`apiCredentials:${provider}`)
-        .setTitle(modalTitle);
-
-      const apiKeyInput = new TextInputBuilder()
-        .setCustomId('apiKey')
-        .setLabel('API Key')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true)
-        .setPlaceholder('Paste your provider API key');
-
-      const modelInput = new TextInputBuilder()
-        .setCustomId('model')
-        .setLabel('Model')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true)
-        .setPlaceholder('e.g., gpt-4o-mini, gemini-1.5-pro');
-
-      modal.addComponents(
-        new ActionRowBuilder<TextInputBuilder>().addComponents(apiKeyInput),
-        new ActionRowBuilder<TextInputBuilder>().addComponents(modelInput),
-      );
-
-      await interaction.showModal(modal);
-    } catch (error) {
-      console.error('Error in handleSelect:', error);
-      try {
-        await interaction.reply({
-          content: '❌ Failed to show API configuration modal. Please try again.',
-          flags: MessageFlags.Ephemeral,
-        });
-      } catch (replyError) {
-        console.error('Failed to send error message:', replyError);
-      }
     }
   },
 };
