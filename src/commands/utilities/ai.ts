@@ -501,8 +501,8 @@ async function testApiKey(
 
     if (host === 'generativelanguage.googleapis.com') {
       const base = apiUrl.replace(/\/$/, '');
-      const mdl = model.startsWith('models/') ? model : `models/${model}`;
-      const endpoint = `${base}/v1beta/${mdl}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const modelName = model.replace(/^models\//, '');
+      const endpoint = `${base}/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
       const resp = await fetch(endpoint, {
         method: 'POST',
@@ -635,10 +635,8 @@ async function makeAIRequest(
           .join('\n\n');
 
         const base = config.finalApiUrl.replace(/\/$/, '');
-        const mdl = config.finalModel.startsWith('models/')
-          ? config.finalModel
-          : `models/${config.finalModel}`;
-        const endpoint = `${base}/v1beta/${mdl}:generateContent?key=${encodeURIComponent(
+        const modelName = config.finalModel.replace(/^models\//, '');
+        const endpoint = `${base}/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(
           config.finalApiKey || '',
         )}`;
 
@@ -652,8 +650,10 @@ async function makeAIRequest(
               ],
             },
           ],
-          temperature: 0.2,
-          maxOutputTokens: Math.min(maxTokens, 3000),
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: Math.min(maxTokens, 3000),
+          },
         };
 
         const resp = await fetch(endpoint, {
@@ -672,6 +672,21 @@ async function makeAIRequest(
         const extractTextFromGemini = (obj: unknown): string | null => {
           if (!obj) return null;
           try {
+            const response = obj as Record<string, unknown>;
+
+            if (Array.isArray(response.candidates) && response.candidates.length > 0) {
+              const candidate = response.candidates[0] as Record<string, unknown>;
+              if (candidate.content && typeof candidate.content === 'object') {
+                const content = candidate.content as { parts?: Array<{ text?: string }> };
+                if (Array.isArray(content.parts) && content.parts.length > 0) {
+                  return content.parts
+                    .map((part) => part.text || '')
+                    .filter(Boolean)
+                    .join('\n');
+                }
+              }
+            }
+
             const o = obj as Record<string, unknown>;
             if (Array.isArray(o.candidates) && o.candidates.length) {
               const cand = o.candidates[0] as unknown;
@@ -692,33 +707,9 @@ async function makeAIRequest(
                   .filter(Boolean)
                   .join('\n');
               }
-              if (typeof (cand as Record<string, unknown>).output === 'object') {
-                const outObj = (cand as Record<string, unknown>).output as Record<string, unknown>;
-                if (Array.isArray(outObj.content)) {
-                  return (outObj.content as unknown[])
-                    .map(
-                      (p) =>
-                        (p as Record<string, unknown>)?.text ||
-                        (p as Record<string, unknown>)?.textRaw ||
-                        '',
-                    )
-                    .filter(Boolean)
-                    .join('\n');
-                }
-              }
             }
 
-            if (Array.isArray(o.outputs) && o.outputs.length) {
-              const out = o.outputs[0] as unknown;
-              if (typeof out === 'string') return out;
-              if (Array.isArray((out as Record<string, unknown>).content)) {
-                return ((out as Record<string, unknown>).content as unknown[])
-                  .map((p) => ((p as Record<string, unknown>)?.text as string) || '')
-                  .filter(Boolean)
-                  .join('\n');
-              }
-            }
-
+            // Last resort: try to find any text in the response
             const seen = new Set<unknown>();
             const queue: unknown[] = [obj];
             while (queue.length) {
@@ -1466,9 +1457,9 @@ const aiCommand: AICommand = {
           else if (m.startsWith('pplx') || m.includes('perplexity')) providerValue = 'perplexity';
           else if (m.startsWith('deepseek')) providerValue = 'deepseek';
           else if (m.startsWith('moonshot') || m.includes('kimi')) providerValue = 'moonshot';
-          else if (m.startsWith('anthropic') || m.includes('anthropic'))
+          else if (m.startsWith('anthropic') || m.includes('anthropic')) {
             providerValue = 'anthropic';
-          else if (m.includes('/')) providerValue = 'openrouter';
+          } else if (m.includes('/')) providerValue = 'openrouter';
           else providerValue = 'openai';
         }
         if (!apiKey || !model) {
