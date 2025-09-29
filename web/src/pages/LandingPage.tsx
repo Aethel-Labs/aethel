@@ -205,7 +205,7 @@ export default function Home() {
         <div className="mb-4">
           <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Powered by</p>
           <a
-            href="https://royalehosting.net?utm_source=aethel.xyz&utm_medium=referral&utm_campaign=powered_by&utm_content=footer"
+            href="https://royalehosting.net/?aff=8033?utm_source=aethel.xyz&utm_medium=referral&utm_campaign=powered_by&utm_content=footer"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block hover:opacity-80 transition-opacity"
