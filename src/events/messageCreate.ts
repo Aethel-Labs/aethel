@@ -135,7 +135,7 @@ export default class MessageCreateEvent {
         config = getApiConfiguration(userApiKey ?? null, selectedModel, userApiUrl ?? null);
         usingDefaultKey = config.usingDefaultKey;
       } else {
-        selectedModel = hasImages ? 'google/gemma-3-4b-it' : 'google/gemini-2.5-flash-lite';
+        selectedModel = hasImages ? 'google/gemma-3-4b-it' : 'moonshotai/kimi-k2';
 
         config = getApiConfiguration(null, selectedModel, null);
         if (config.usingDefaultKey && !config.finalApiKey) {
