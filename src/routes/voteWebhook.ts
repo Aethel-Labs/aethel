@@ -4,8 +4,20 @@ import logger from '../utils/logger';
 
 const router = Router();
 
-router.all('/webhooks/topgg', async (req, res) => {
+interface TopGGWebhookPayload {
+  bot: string;
+  user: string;
+  type: 'upvote' | 'test';
+  isWeekend?: boolean;
+  query?: string;
+}
+
+router.get('/webhooks/topgg', (_, res) => {
+  return res.status(200).json({ status: 'ok', message: 'Webhook endpoint is active' });
+});
+router.post('/webhooks/topgg', async (req, res) => {
   const authHeader = req.headers.authorization;
+  
   if (!authHeader || authHeader !== process.env.TOPGG_WEBHOOK_AUTH) {
     logger.warn('Unauthorized webhook attempt', {
       ip: req.ip,
@@ -14,49 +26,66 @@ router.all('/webhooks/topgg', async (req, res) => {
     });
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  if (req.method === 'GET') {
-    return res.status(200).json({ success: true, message: 'Webhook is active' });
-  }
+
   try {
-    logger.debug('Received Top.gg webhook payload:', {
-      headers: req.headers,
-      body: req.body,
-      query: req.query,
-      params: req.params,
+    const payload = req.body as TopGGWebhookPayload;
+    
+    logger.info('Received Top.gg webhook', {
+      type: payload.type,
+      userId: payload.user,
+      botId: payload.bot,
+      isWeekend: payload.isWeekend || false,
+      query: payload.query,
       ip: req.ip,
-      method: req.method,
-      url: req.originalUrl,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     });
 
-    const { user, type } = req.body;
-    logger.debug(`Processing vote: user=${user}, type=${type}`);
+    if (payload.type === 'test') {
+      logger.info('Received test webhook from Top.gg');
+      return res.status(200).json({ success: true, message: 'Test webhook received' });
+    }
 
-    if (type === 'upvote') {
-      const userId = user;
-
+    if (payload.type === 'upvote') {
+      const userId = payload.user;
       const result = await recordVote(userId);
-      logger.debug('Vote processing result:', { userId, result });
+      
+      logger.info('Processed vote', {
+        userId,
+        creditsAwarded: result.creditsAwarded,
+        nextVote: result.nextVoteAvailable.toISOString(),
+        isWeekend: payload.isWeekend || false
+      });
 
       if (result.success) {
-        logger.info(
-          `Processed vote from user ${userId}. Credits awarded: ${result.creditsAwarded}`,
-        );
-        return res.status(200).json({ success: true, message: 'Vote processed successfully' });
+        return res.status(200).json({ 
+          success: true, 
+          message: 'Vote processed successfully',
+          creditsAwarded: result.creditsAwarded,
+          isWeekend: payload.isWeekend || false
+        });
       }
-      logger.info(`Vote already processed for user ${userId}`, {
-        nextVote: result.nextVoteAvailable,
-      });
+
       return res.status(200).json({
         success: false,
         message: 'Vote already processed',
-        nextVote: result.nextVoteAvailable,
+        nextVote: result.nextVoteAvailable.toISOString(),
       });
     }
 
-    return res.status(400).json({ success: false, message: 'Invalid vote type' });
-  } catch (error) {
-    logger.error('Error processing vote webhook:', error);
+    logger.warn('Received unknown webhook type', { type: payload.type });
+    return res.status(400).json({ success: false, message: 'Invalid webhook type' });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    logger.error('Error processing webhook:', {
+      error: errorMessage,
+      stack: errorStack,
+      headers: req.headers,
+      body: req.body,
+      ip: req.ip,
+      timestamp: new Date().toISOString()
+    });
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
