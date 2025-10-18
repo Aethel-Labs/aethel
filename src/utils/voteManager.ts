@@ -123,7 +123,7 @@ export async function recordVote(
     if (existingVote.rows.length > 0) {
       const lastVoteTime = new Date(existingVote.rows[0].vote_timestamp).getTime();
       const cooldownEnd = lastVoteTime + VOTE_COOLDOWN_HOURS * 60 * 60 * 1000;
-      
+
       if (Date.now() < cooldownEnd) {
         return {
           success: false,
