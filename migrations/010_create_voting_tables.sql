@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS votes (
     vote_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     claimed BOOLEAN DEFAULT FALSE,
     credits_awarded INTEGER DEFAULT 10,
-    UNIQUE(user_id, server_id, DATE(vote_timestamp))
+    UNIQUE(user_id, server_id, vote_timestamp)
 );
 
 CREATE INDEX idx_votes_user ON votes(user_id, claimed);

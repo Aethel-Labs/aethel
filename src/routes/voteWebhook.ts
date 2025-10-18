@@ -43,14 +43,14 @@ router.all('/webhooks/topgg', async (req, res) => {
           `Processed vote from user ${userId}. Credits awarded: ${result.creditsAwarded}`,
         );
         return res.status(200).json({ success: true, message: 'Vote processed successfully' });
-      } else {
+      } 
         logger.info(`Vote already processed for user ${userId}`, { nextVote: result.nextVoteAvailable });
         return res.status(200).json({
           success: false,
           message: 'Vote already processed',
           nextVote: result.nextVoteAvailable,
         });
-      }
+      
     }
 
     return res.status(400).json({ success: false, message: 'Invalid vote type' });

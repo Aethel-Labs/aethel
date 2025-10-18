@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const TOPGG_API = 'https://top.gg/api/';
+const TOPGG_API = 'https://top.gg/api';
 
 interface TopGGVote {
   voted: number;
