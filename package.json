@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "start": "concurrently \"bun run dist/mcp-server/index.js\" \"node dist/index.js\"",
+    "start": "bun run concurrently \"bun run dist/mcp-server/index.js\" \"node dist/index.js\"",
     "dev": "bun --watch src/mcp-server/index.ts & tsx watch src/index.ts",
     "build": "tsc && node scripts/fix-imports.js",
     "migrate": "node scripts/run-migrations.js",
