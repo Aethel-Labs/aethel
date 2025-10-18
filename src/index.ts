@@ -123,7 +123,7 @@ setInterval(
 const server = app.listen(PORT, async () => {
   logger.debug('Aethel is live on', `http://localhost:${PORT}`);
 
-  const { sendDeploymentNotification } = await import('./utils/sendDeploymentNotification');
+  const { sendDeploymentNotification } = await import('./utils/sendDeploymentNotification.js');
   await sendDeploymentNotification(startTime);
 });
 
