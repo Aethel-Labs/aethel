@@ -6,7 +6,7 @@ export async function checkVoteStatus(
   const now = new Date();
   const nextVote = new Date(now.getTime() + VOTE_COOLDOWN_HOURS * 60 * 60 * 1000);
 
-  console.log(`Vote recorded for user ${userId}. Next vote available at ${nextVote.toISOString()}`);
+  console.log(`Vote check for user ${userId}. Next vote available at ${nextVote.toISOString()}`);
 
   return {
     hasVoted: true,
