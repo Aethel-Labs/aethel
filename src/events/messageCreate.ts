@@ -102,7 +102,7 @@ function buildSystemPrompt(
 
 import { extractToolCalls as extractSlashToolCalls } from '@/utils/commandExecutor';
 import _fetch from '@/utils/dynamicFetch';
-import { executeMessageToolCall, type MessageToolCall } from '@/mcp-server/toolExecutor';
+import { executeMessageToolCall, type MessageToolCall } from '@/utils/messageToolExecutor';
 import type { ConversationMessage, AIResponse } from '@/commands/utilities/ai';
 
 type ApiConfiguration = ReturnType<typeof getApiConfiguration>;
