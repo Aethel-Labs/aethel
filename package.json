@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "start": "bun run dist/mcp-server/index.js & node dist/index.js",
+    "start": "concurrently \"bun run dist/mcp-server/index.js\" \"node dist/index.js\"",
     "dev": "bun --watch src/mcp-server/index.ts & tsx watch src/index.ts",
     "build": "tsc && node scripts/fix-imports.js",
     "migrate": "node scripts/run-migrations.js",
@@ -60,6 +60,7 @@
     "@types/uuid": "^10.0.0",
     "@types/validator": "^13.15.3",
     "@types/whois-json": "^2.0.4",
+    "concurrently": "^9.2.1",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^16.4.0",
