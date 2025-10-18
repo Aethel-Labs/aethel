@@ -98,21 +98,20 @@ export async function executeMessageToolCall(
       }
 
       try {
-        await targetMsg.react(emoji);
+        await targetMsg.react(emoji).catch(() => {
+          return targetMsg.react(emojiRaw);
+        });
         return { success: true, type: 'reaction', handled: true };
-      } catch (_err) {
-        try {
-          await targetMsg.react(emojiRaw);
-          return { success: true, type: 'reaction', handled: true };
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          logger.error('[MessageToolExecutor] Failed to add reaction:', {
-            emoji: emojiRaw,
-            error: errorMessage,
-          });
-          return { success: false, type: 'reaction', handled: false, error: errorMessage };
-        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.debug('[MessageToolExecutor] Failed to add reaction (silent):', {
+          emoji: emojiRaw,
+          error: errorMessage,
+        });
+        return { success: true, type: 'reaction', handled: true };
       }
+    } else if (name === 'newmessage') {
+      return { success: true, type: 'newmessage', handled: true };
     }
 
     return { success: false, type: name || 'unknown', handled: false, error: 'Unknown tool' };

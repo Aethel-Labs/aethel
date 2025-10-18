@@ -118,35 +118,42 @@ function isValidDomain(domain: string): boolean {
   return validator.isFQDN(domain, { require_tld: true });
 }
 
-function normalizeInput(text: string): string {
-  let normalized = text.toLowerCase();
-  normalized = normalized.replace(/([a-z])\1{2,}/g, '$1');
-  normalized = normalized
-    .replace(/[@4]/g, 'a')
-    .replace(/[3]/g, 'e')
-    .replace(/[1!]/g, 'i')
-    .replace(/[0]/g, 'o')
+function _normalizeText(text: string): string {
+  if (!text) return '';
+
+  return text
+    .toLowerCase()
+    .replace(/([a-z])\1{2,}/g, '$1')
+    .replace(/[^\w\s]/g, '')
+    .replace(/@/g, 'a')
+    .replace(/4/g, 'a')
+    .replace(/3/g, 'e')
+    .replace(/1|!/g, 'i')
+    .replace(/0/g, 'o')
     .replace(/[5$]/g, 's')
-    .replace(/[7]/g, 't');
-  return normalized;
+    .replace(/7/g, 't')
+    .trim();
 }
 
 export function getUnallowedWordCategory(text: string): string | null {
-  const normalized = normalizeInput(text);
-  for (const [category, words] of Object.entries(UNALLOWED_WORDS)) {
-    for (const word of words as string[]) {
-      if (category === 'slurs') {
-        if (normalized.includes(word)) {
-          return category;
-        }
-      } else {
-        const pattern = new RegExp(`(?:^|\\W)${word}[a-z]{0,2}(?:\\W|$)`, 'i');
-        if (pattern.test(normalized)) {
-          return category;
-        }
+  if (!text || typeof text !== 'string') return null;
+
+  const words = text
+    .toLowerCase()
+    .split(/[\s"'.,?!;:]+/)
+    .map((word) => word.replace(/[^\w\s]/g, ''))
+    .filter((word) => word.length > 0);
+
+  for (const word of words) {
+    if (word.length <= 2) continue;
+
+    for (const [category, wordList] of Object.entries(UNALLOWED_WORDS)) {
+      if ((wordList as string[]).some((badWord) => word.toLowerCase() === badWord.toLowerCase())) {
+        return category;
       }
     }
   }
+
   return null;
 }
 

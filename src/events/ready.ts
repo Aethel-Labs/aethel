@@ -16,7 +16,7 @@ export default class ReadyEvent {
       await client.application?.commands.fetch({ withLocalizations: true });
       await loadActiveReminders(client);
 
-      const { sendDeploymentNotification } = await import('@/utils/sendDeploymentNotification.js');
+      const { sendDeploymentNotification } = await import('@/utils/sendDeploymentNotification');
       await sendDeploymentNotification(this.startTime);
     } catch (error) {
       logger.error('Error during ready event:', error);

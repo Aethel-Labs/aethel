@@ -1,10 +1,10 @@
-import { Message, ChannelType } from 'discord.js';
+import { Message, ChannelType, type ChatInputCommandInteraction } from 'discord.js';
 import BotClient from '@/services/Client';
 import logger from '@/utils/logger';
 import {
   makeAIRequest,
   getApiConfiguration,
-  buildSystemPrompt,
+  buildSystemPrompt as originalBuildSystemPrompt,
   buildConversation,
   getUserCredentials,
   incrementAndCheckDailyLimit,
@@ -12,16 +12,104 @@ import {
   splitResponseIntoChunks,
   processUrls,
 } from '@/commands/utilities/ai';
+
+function buildSystemPrompt(
+  usingDefaultKey: boolean,
+  client?: BotClient,
+  model?: string,
+  username?: string,
+  interaction?: ChatInputCommandInteraction,
+  isServer?: boolean,
+  serverName?: string,
+): string {
+  const basePrompt = originalBuildSystemPrompt(
+    usingDefaultKey,
+    client,
+    model,
+    username,
+    interaction,
+    isServer,
+    serverName,
+  );
+
+  const reactionInstructions = `
+**AVAILABLE TOOLS:**
+
+**REACTION TOOLS:**
+- {reaction:"😀"} - React to the user's message with a unicode emoji
+- {reaction:{"emoji":":thumbsup:"}} - React using a named emoji if available
+- {reaction:{"emoji":"<:name:123456789012345678>"}} - React with a custom emoji by ID (or animated <a:name:id>)
+
+**REACTION GUIDELINES:**
+- When asked to react, ALWAYS use the {reaction:"emoji"} tool call
+- Use reactions sparingly and only when it adds value to the conversation
+- Add at most 1–2 reactions for a single message
+- Do not include the reaction tool call text in your visible reply
+- Common reactions: 😀 😄 👍 👎 ❤️ 🔥 ⭐ 🎉 👏
+- Example: If asked to react with thumbs up, use {reaction:"👍"} and respond normally
+- IMPORTANT: If you use a reaction tool, you MUST also provide a text response - never use ONLY a reaction tool
+- The reaction tool is for adding emoji reactions, not for replacing your response
+
+**NEW MESSAGE TOOL - CRITICAL GUIDELINES:**
+**WHAT IT DOES:**
+- {newmessage:} splits your response into multiple Discord messages
+- This simulates how real users send follow-up messages
+- Use it to break up long responses or create natural conversation flow
+
+**WHEN TO USE IT:**
+- Only when you have SUBSTANTIAL content to split (multiple paragraphs, distinct thoughts)
+- When your response is naturally long and would benefit from being split
+- DO NOT use it for short responses or single sentences
+
+**HOW TO USE IT CORRECTLY:**
+- Place it BETWEEN meaningful parts of your response
+- You MUST have content BEFORE and AFTER the tool
+- CORRECT: "Here's my first point about this topic. {newmessage:} And here's my second point that continues the thought."
+- CORRECT: "Let me explain this in parts. First, the background information. {newmessage:} Now, here's how it applies to your situation."
+
+**NEVER DO THESE - THEY ARE WRONG:**
+- WRONG: "{newmessage:} Here's my response" (starts with the tool)
+- WRONG: "Here's my response {newmessage:}" (ends with the tool)
+- WRONG: "{newmessage:}" (tool by itself with no content)
+- WRONG: Using it for responses under 200 characters
+- WRONG: Using it to split single sentences or short phrases
+
+**VALIDATION CHECK:**
+- Before using {newmessage:}, ask yourself: "Do I have meaningful content both before AND after this tool?"
+- If the answer is NO, don't use the tool
+- If your response is short, send it as one message
+- The tool should feel natural and conversational, not forced
+
+**EXAMPLES OF PROPER USAGE:**
+- "I've analyzed your code and found several issues. The first is a syntax error on line 23. {newmessage:} The second issue is a logical error in your loop condition that could cause an infinite loop."
+- "Let me break down the solution for you. Step 1: Understand the problem by identifying the root cause. {newmessage:} Step 2: Implement the fix by refactoring the problematic function. {newmessage:} Step 3: Test your solution thoroughly before deploying."
+
+**IMPORTANT DISTINCTION:**
+- \`{newmessage:}\` is a FORMATTING TOOL - it just splits your response into multiple messages
+- \`{newmessage:}\` does NOT execute any real functionality like other tools
+- You can use \`{newmessage:}\` without any other tool calls - it's just for message formatting
+- Don't expect any feedback or results from \`{newmessage:}\` - it just creates a new message
+
+**AVOIDING TOOL LOOPS:**
+- If you find yourself repeatedly trying to use tools but generating no content, STOP and respond normally
+- If your tool usage isn't working as expected, provide a simple text response instead
+- Never let tool usage prevent you from giving a helpful response
+- When in doubt, respond with plain text rather than complex tool combinations
+`;
+
+  return basePrompt + reactionInstructions;
+}
+
 import { extractToolCalls as extractSlashToolCalls } from '@/utils/commandExecutor';
-import fetch from '@/utils/dynamicFetch';
-import { executeMessageToolCall, type MessageToolCall } from '@/utils/messageToolExecutor';
+import _fetch from '@/utils/dynamicFetch';
+import { executeMessageToolCall, type MessageToolCall } from '@/mcp-server/toolExecutor';
 import type { ConversationMessage, AIResponse } from '@/commands/utilities/ai';
 
 type ApiConfiguration = ReturnType<typeof getApiConfiguration>;
 import { createMemoryManager } from '@/utils/memoryManager';
 
 const serverConversations = createMemoryManager<string, ConversationMessage[]>({
-  maxSize: 1000,
+  maxSize: 5000,
   maxAge: 2 * 60 * 60 * 1000,
   cleanupInterval: 10 * 60 * 1000,
 });
@@ -34,7 +122,7 @@ const serverMessageContext = createMemoryManager<
     timestamp: number;
   }>
 >({
-  maxSize: 1000,
+  maxSize: 5000,
   maxAge: 2 * 60 * 60 * 1000,
   cleanupInterval: 10 * 60 * 1000,
 });
@@ -154,6 +242,18 @@ export default class MessageCreateEvent {
         }`,
       );
 
+      let replyContext = '';
+      if (message.reference?.messageId) {
+        try {
+          const repliedTo = await message.channel.messages.fetch(message.reference.messageId);
+          if (repliedTo) {
+            replyContext = `[Replying to ${repliedTo.author.username}: ${repliedTo.content}]\n\n`;
+          }
+        } catch (error) {
+          logger.debug('Error fetching replied message:', error);
+        }
+      }
+
       const systemPrompt = buildSystemPrompt(
         usingDefaultKey,
         this.client,
@@ -164,6 +264,9 @@ export default class MessageCreateEvent {
         !isDM ? message.guild?.name : undefined,
       );
 
+      const baseContent = isDM ? message.content : message.content.replace(/<@!?\d+>/g, '').trim();
+      const messageWithContext = replyContext ? `${replyContext}${baseContent}` : baseContent;
+
       let messageContent:
         | string
         | Array<{
@@ -173,7 +276,7 @@ export default class MessageCreateEvent {
               url: string;
               detail?: 'low' | 'high' | 'auto';
             };
-          }> = isDM ? message.content : message.content.replace(/<@!?\d+>/g, '').trim();
+          }>;
 
       if (hasImages) {
         const imageAttachments = message.attachments.filter(
@@ -191,13 +294,10 @@ export default class MessageCreateEvent {
           };
         }> = [];
 
-        const cleanContent = isDM
-          ? message.content
-          : message.content.replace(/<@!?\d+>/g, '').trim();
-        if (cleanContent.trim()) {
+        if (messageWithContext.trim()) {
           contentArray.push({
             type: 'text',
-            text: cleanContent,
+            text: messageWithContext,
           });
         }
 
@@ -212,6 +312,8 @@ export default class MessageCreateEvent {
         });
 
         messageContent = contentArray;
+      } else {
+        messageContent = messageWithContext;
       }
 
       let conversation: ConversationMessage[] = [];
@@ -264,52 +366,61 @@ export default class MessageCreateEvent {
 
       const updatedConversation = buildConversation(
         filteredConversation,
-        messageContent,
+        messageWithContext,
         systemPrompt,
       );
 
-      if (config.usingDefaultKey) {
-        const exemptUserId = process.env.AI_EXEMPT_USER_ID?.trim();
-        const actorId = message.author.id;
+      const exemptUserId = process.env.AI_EXEMPT_USER_ID?.trim();
+      const actorId = message.author.id;
+      const isExempt = actorId === exemptUserId;
 
-        if (actorId !== exemptUserId) {
-          if (isDM) {
-            const allowed = await incrementAndCheckDailyLimit(actorId, 10);
-            if (!allowed) {
+      logger.debug(
+        `AI limit check - usingDefaultKey: ${config.usingDefaultKey}, exemptUserId: ${exemptUserId}, actorId: ${actorId}, isExempt: ${isExempt}, isDM: ${isDM}`,
+      );
+
+      if (config.usingDefaultKey && !isExempt) {
+        if (isDM) {
+          logger.debug(`Checking DM daily limit for user ${actorId}`);
+          const allowed = await incrementAndCheckDailyLimit(actorId, 50);
+          logger.debug(`DM daily limit check result for user ${actorId}: ${allowed}`);
+          if (!allowed) {
+            await message.reply(
+              "❌ You've reached your daily limit of 50 AI requests. " +
+                'Vote for Aethel to get more requests: https://top.gg/bot/1371031984230371369/vote\n' +
+                'Or set up your own API key using the `/ai` command.',
+            );
+            return;
+          }
+        } else {
+          let serverLimit = 30;
+          try {
+            const memberCount = message.guild?.memberCount || 0;
+            if (memberCount >= 1000) {
+              serverLimit = 500;
+            } else if (memberCount >= 100) {
+              serverLimit = 150;
+            }
+
+            const serverAllowed = await incrementAndCheckServerDailyLimit(
+              message.guildId!,
+              serverLimit,
+            );
+            if (!serverAllowed) {
               await message.reply(
-                "❌ You've reached your daily limit of AI requests. Please try again tomorrow or set up your own API key using the `/ai` command.",
+                `❌ This server has reached its daily limit of ${serverLimit} AI requests. ` +
+                  `Vote for Aethel to get more requests: https://top.gg/bot/1371031984230371369/vote`,
               );
               return;
             }
-          } else {
-            let serverLimit = 30;
-            try {
-              const memberCount = message.guild?.memberCount || 0;
-              if (memberCount >= 1000) {
-                serverLimit = 500;
-              } else if (memberCount >= 100) {
-                serverLimit = 150;
-              }
-
-              const serverAllowed = await incrementAndCheckServerDailyLimit(
-                message.guildId!,
-                serverLimit,
+          } catch (error) {
+            logger.error('Error checking server member count:', error);
+            const serverAllowed = await incrementAndCheckServerDailyLimit(message.guildId!, 30);
+            if (!serverAllowed) {
+              await message.reply(
+                '❌ This server has reached its daily limit of AI requests. ' +
+                  'Vote for Aethel to get more requests: https://top.gg/bot/1371031984230371369/vote',
               );
-              if (!serverAllowed) {
-                await message.reply(
-                  `❌ This server has reached its daily limit of ${serverLimit} AI requests. Please try again tomorrow.`,
-                );
-                return;
-              }
-            } catch (error) {
-              logger.error('Error checking server member count:', error);
-              const serverAllowed = await incrementAndCheckServerDailyLimit(message.guildId!, 30);
-              if (!serverAllowed) {
-                await message.reply(
-                  '❌ This server has reached its daily limit of AI requests. Please try again tomorrow.',
-                );
-                return;
-              }
+              return;
             }
           }
         }
@@ -331,16 +442,21 @@ export default class MessageCreateEvent {
       if (!aiResponse && hasImages) {
         logger.warn(`Image model ${selectedModel} failed, falling back to text-only model`);
 
-        let fallbackContent = message.content;
+        let fallbackContent = messageWithContext;
         if (Array.isArray(messageContent)) {
           const textParts = messageContent
-            .filter((item) => item.type === 'text')
-            .map((item) => item.text)
-            .filter((text) => text && text.trim());
+            .filter((item: { type: string; text?: string }) => item.type === 'text')
+            .map((item: { type: string; text?: string }) => item.text)
+            .filter((text: string | undefined) => text && text.trim());
 
           const imageParts = messageContent
-            .filter((item) => item.type === 'image_url')
-            .map((item) => `[Image: ${item.image_url?.url}]`);
+            .filter(
+              (item: { type: string; image_url?: { url: string } }) => item.type === 'image_url',
+            )
+            .map(
+              (item: { type: string; image_url?: { url: string } }) =>
+                `[Image: ${item.image_url?.url}]`,
+            );
 
           fallbackContent =
             [...textParts, ...imageParts].join(' ') ||
@@ -389,138 +505,56 @@ export default class MessageCreateEvent {
 
       const maxIterations = 3;
       let iteration = 0;
+      let lastToolResponse = '';
+
       while (aiResponse && iteration < maxIterations) {
         iteration++;
         const extraction = extractMessageToolCalls(aiResponse.content || '');
         const toolCalls: MessageToolCall[] = extraction.toolCalls;
 
-        if (toolCalls.length === 0) {
+        const executableTools = toolCalls.filter((tc) => tc.name?.toLowerCase() !== 'newmessage');
+
+        if (executableTools.length === 0) {
           aiResponse.content = extraction.cleanContent;
           break;
         }
 
+        const currentToolResponse = JSON.stringify(
+          executableTools.map((tc) => ({ name: tc.name, args: tc.args })),
+        );
+        if (currentToolResponse === lastToolResponse) {
+          logger.warn('AI stuck in tool loop, breaking out to prevent [NO CONTENT] responses');
+          aiResponse.content =
+            extraction.cleanContent ||
+            'I apologize, but I seem to be having trouble with the tools. Let me respond normally.';
+          break;
+        }
+        lastToolResponse = currentToolResponse;
+
         conversationWithTools.push({ role: 'assistant', content: aiResponse.content });
 
-        for (const tc of toolCalls) {
+        for (const tc of executableTools) {
           const name = tc.name?.toLowerCase();
           try {
-            if (name === 'cat' || name === 'dog') {
-              const isCat = name === 'cat';
-              const url = isCat
-                ? 'https://api.pur.cat/random-cat'
-                : 'https://api.erm.dog/random-dog';
-              const res = await fetch(url);
-              let imageUrl = '';
-              try {
-                const data = await res.json();
-                imageUrl = data?.url || '';
-                if (!imageUrl && !isCat) {
-                  const res2 = await fetch(url);
-                  imageUrl = await res2.text();
-                }
-              } catch {
-                const res2 = await fetch(url);
-                imageUrl = await res2.text();
-              }
-              const payload = imageUrl
-                ? { type: name, url: imageUrl }
-                : { type: name, error: 'no_image' };
-              executedResults.push({ type: name, payload });
-              conversationWithTools.push({ role: 'user', content: JSON.stringify(payload) });
-            } else if (name === 'weather') {
-              const raw = (tc.args?.location as string) || (tc.args?.query as string) || '';
-              const location = typeof raw === 'string' ? raw.trim() : '';
-              const apiKey = process.env.OPENWEATHER_API_KEY;
-              let payload: Record<string, unknown> = { type: 'weather', location };
-              if (location && apiKey) {
-                try {
-                  const resp = await fetch(
-                    `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=imperial`,
-                  );
-                  if (resp.ok) {
-                    const data = await resp.json();
-                    payload = {
-                      type: 'weather',
-                      location: data.name || location,
-                      temperature: `${Math.round(data.main?.temp)}°F`,
-                      feels_like: `${Math.round(data.main?.feels_like)}°F`,
-                      conditions: data.weather?.[0]?.description || 'Unknown',
-                      humidity: `${data.main?.humidity}%`,
-                      wind_speed: `${Math.round(data.wind?.speed)} mph`,
-                      pressure: `${data.main?.pressure} hPa`,
-                    };
-                  } else {
-                    logger.error('[MessageCreate] Weather fetch failed', {
-                      status: resp.status,
-                      statusText: resp.statusText,
-                    });
-                    payload = {
-                      type: 'weather',
-                      location,
-                      error: `${resp.status} ${resp.statusText}`,
-                    };
-                  }
-                } catch (e) {
-                  logger.error('[MessageCreate] Weather fetch error', {
-                    error: (e as Error)?.message,
-                  });
-                  payload = {
-                    type: 'weather',
-                    location,
-                    error: (e as Error)?.message || 'fetch_failed',
-                  };
-                }
-              } else {
-                logger.warn('[MessageCreate] Weather missing params or API key', {
-                  locationPresent: !!location,
-                  apiKeyPresent: !!apiKey,
-                });
-                payload = { type: 'weather', location, error: 'missing_params' };
-              }
-              executedResults.push({ type: 'weather', payload });
-              conversationWithTools.push({ role: 'user', content: JSON.stringify(payload) });
-            } else if (name === 'wiki') {
-              const query = (tc.args?.search as string) || (tc.args?.query as string) || '';
-              const q = typeof query === 'string' ? query.trim() : '';
-              let payload: Record<string, unknown> = { type: 'wiki' };
-              if (q) {
-                try {
-                  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`;
-                  const res = await fetch(url);
-                  if (res.ok) {
-                    const data = await res.json();
-                    payload = {
-                      type: 'wiki',
-                      title: data.title || q,
-                      extract: data.extract || '',
-                      url:
-                        data.content_urls?.desktop?.page ||
-                        `https://en.wikipedia.org/wiki/${encodeURIComponent(q)}`,
-                    };
-                  } else {
-                    payload = { type: 'wiki', error: `${res.status} ${res.statusText}` };
-                  }
-                } catch (e) {
-                  payload = { type: 'wiki', error: (e as Error)?.message || 'fetch_failed' };
-                }
-              }
-              executedResults.push({ type: 'wiki', payload });
-              conversationWithTools.push({ role: 'user', content: JSON.stringify(payload) });
-            } else if (name === 'reaction') {
-              const emoji = (tc.args?.emoji as string) || '';
-              const payload = { type: 'reaction', emoji, deferred: true };
-              executedResults.push({ type: 'reaction', payload });
-              conversationWithTools.push({ role: 'user', content: JSON.stringify(payload) });
+            const result = await executeMessageToolCall(tc, message, this.client, {
+              originalMessage: message,
+              botMessage: undefined,
+            });
+            const payload = {
+              type: name,
+              success: result.success,
+              handled: result.handled,
+              error: result.error || null,
+              ...(result.result?.metadata || {}),
+            };
 
-              try {
-                await executeMessageToolCall(tc, message, this.client, {
-                  originalMessage: message,
-                  botMessage: undefined,
-                });
-              } catch (error) {
-                logger.error('[MessageCreate] Iterative loop - reaction execution failed:', error);
-              }
-            }
+            executedResults.push({ type: name, payload });
+            conversationWithTools.push({ role: 'user', content: JSON.stringify(payload) });
+
+            logger.debug(`[MessageCreate] MCP tool ${name} executed:`, {
+              success: result.success,
+              handled: result.handled,
+            });
           } catch (e) {
             conversationWithTools.push({ role: 'user', content: `[Tool ${tc.name} error]` });
             logger.error('[MessageCreate] Tool execution threw exception', {
@@ -532,6 +566,34 @@ export default class MessageCreateEvent {
 
         aiResponse = await makeAIRequest(config, conversationWithTools);
         if (!aiResponse) break;
+
+        const hasNewMessageTool = toolCalls.some((tc) => tc.name?.toLowerCase() === 'newmessage');
+        const cleanContent = extraction.cleanContent?.trim() || '';
+
+        if (hasNewMessageTool && !cleanContent && iteration >= 2) {
+          logger.warn('AI stuck in newmessage misuse loop, forcing normal response');
+          aiResponse.content =
+            'I apologize for the confusion. Let me respond clearly without using any tools.';
+          break;
+        }
+
+        const hasOnlyReactionTools =
+          executableTools.length > 0 &&
+          executableTools.every((tc) => tc.name?.toLowerCase() === 'reaction') &&
+          !cleanContent;
+
+        if (hasOnlyReactionTools && iteration >= 2) {
+          logger.warn('AI stuck in reaction-only loop, forcing normal response');
+          aiResponse.content =
+            'I apologize for the confusion. Let me respond clearly without using any tools.';
+          break;
+        }
+
+        if (executableTools.length === 0 && hasNewMessageTool) {
+          logger.debug('Only newmessage formatting tools found, breaking iterative loop');
+          aiResponse.content = extraction.cleanContent;
+          break;
+        }
       }
 
       if (!aiResponse) {
@@ -567,7 +629,8 @@ export default class MessageCreateEvent {
         }
 
         if (!aiResponse.content || !aiResponse.content.trim()) {
-          aiResponse.content = '\u200b';
+          logger.debug('AI response has no meaningful content, not sending message');
+          return;
         }
       }
 
@@ -654,12 +717,16 @@ export default class MessageCreateEvent {
         }
       }
 
-      const sent = await this.sendResponse(message, aiResponse);
+      const sent = await this.sendResponse(message, aiResponse, executedResults);
       const sentMessage: Message | undefined = sent as Message | undefined;
 
       if (extraction.toolCalls.length > 0) {
         const target = sentMessage || message;
         const executed: Array<{ name: string; success: boolean }> = [];
+        logger.debug(
+          `[MessageCreate] Final execution - processing ${extraction.toolCalls.length} tool calls:`,
+          extraction.toolCalls.map((tc) => ({ name: tc.name, args: tc.args })),
+        );
         for (const tc of extraction.toolCalls) {
           if (!tc || !tc.name) continue;
           const name = tc.name.toLowerCase();
@@ -674,97 +741,28 @@ export default class MessageCreateEvent {
               logger.error('Error executing message tool:', { name, err });
               executed.push({ name, success: false });
             }
-          } else if (name === 'cat' || name === 'dog') {
+          } else {
             try {
-              const isCat = name === 'cat';
-              const url = isCat
-                ? 'https://api.pur.cat/random-cat'
-                : 'https://api.erm.dog/random-dog';
-              const res = await fetch(url);
-              if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-              let imageUrl = '';
-              try {
-                const data = await res.json();
-                imageUrl = data?.url || '';
-                if (!imageUrl && !isCat) {
-                  const res2 = await fetch(url);
-                  imageUrl = await res2.text();
+              const result = await executeMessageToolCall(tc, target, this.client, {
+                originalMessage: message,
+                botMessage: sentMessage,
+              });
+
+              if (name === 'cat' || name === 'dog') {
+                const imageUrl = result.result?.metadata?.url as string;
+                if (imageUrl && imageUrl.startsWith('http')) {
+                  await target.reply({ content: '', files: [imageUrl] });
                 }
-              } catch {
-                const res2 = await fetch(url);
-                imageUrl = await res2.text();
-              }
-              if (imageUrl && imageUrl.startsWith('http')) {
-                await target.reply({ content: '', files: [imageUrl] });
-                executed.push({ name, success: true });
-              } else {
-                executed.push({ name, success: false });
-              }
-            } catch (err) {
-              logger.error('Error executing image tool:', { name, err });
-              executed.push({ name, success: false });
-            }
-          } else if (name === 'weather') {
-            try {
-              const raw = (tc.args?.location as string) || (tc.args?.query as string) || '';
-              const location = typeof raw === 'string' ? raw.trim() : '';
-              if (!location) {
-                executed.push({ name, success: false });
-              } else {
-                const apiKey = process.env.OPENWEATHER_API_KEY;
-                if (!apiKey) {
-                  executed.push({ name, success: false });
-                } else {
-                  const resp = await fetch(
-                    `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
-                      location,
-                    )}&appid=${apiKey}&units=imperial`,
-                  );
-                  if (!resp.ok) {
-                    executed.push({ name, success: false });
-                  } else {
-                    const data = await resp.json();
-                    const temp = Math.round(data.main?.temp);
-                    const feels = Math.round(data.main?.feels_like);
-                    const cond = data.weather?.[0]?.description || 'Unknown';
-                    const hum = data.main?.humidity;
-                    const wind = Math.round(data.wind?.speed);
-                    const pres = data.main?.pressure;
-                    await target.reply(
-                      `Weather for ${data.name || location}: ${temp}°F (feels ${feels}°F), ${cond}. Humidity ${hum}%, Wind ${wind} mph, Pressure ${pres} hPa.`,
-                    );
-                    executed.push({ name, success: true });
-                  }
+              } else if (name === 'weather' || name === 'wiki') {
+                const textContent = result.result?.content?.find((c) => c.type === 'text')?.text;
+                if (textContent) {
+                  await target.reply(textContent);
                 }
               }
+
+              executed.push({ name, success: result.success });
             } catch (err) {
-              logger.error('Error executing weather tool:', { err });
-              executed.push({ name, success: false });
-            }
-          } else if (name === 'wiki') {
-            try {
-              const query = (tc.args?.search as string) || (tc.args?.query as string) || '';
-              const q = typeof query === 'string' ? query.trim() : '';
-              if (!q) {
-                executed.push({ name, success: false });
-              } else {
-                const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`;
-                const res = await fetch(url);
-                if (!res.ok) {
-                  executed.push({ name, success: false });
-                } else {
-                  const data = await res.json();
-                  const title = data.title || q;
-                  const extract = data.extract || 'No summary available.';
-                  const pageUrl =
-                    data.content_urls?.desktop?.page ||
-                    `https://en.wikipedia.org/wiki/${encodeURIComponent(q)}`;
-                  await target.reply(`${title}\n${extract}\n<${pageUrl}>`);
-                  executed.push({ name, success: true });
-                }
-              }
-            } catch (err) {
-              logger.error('Error executing wiki tool:', { err });
+              logger.error(`Error executing MCP tool ${name}:`, { err });
               executed.push({ name, success: false });
             }
           }
@@ -786,7 +784,7 @@ export default class MessageCreateEvent {
 
       const userMessage: ConversationMessage = {
         role: 'user',
-        content: messageContent,
+        content: messageWithContext,
         username: message.author.username,
       };
       const assistantMessage: ConversationMessage = {
@@ -823,7 +821,11 @@ export default class MessageCreateEvent {
     }
   }
 
-  private async sendResponse(message: Message, aiResponse: AIResponse): Promise<Message | void> {
+  private async sendResponse(
+    message: Message,
+    aiResponse: AIResponse,
+    executedResults?: Array<{ type: string; payload: Record<string, unknown> }>,
+  ): Promise<Message | void> {
     let fullResponse = '';
 
     if (aiResponse.reasoning) {
@@ -832,33 +834,147 @@ export default class MessageCreateEvent {
 
     fullResponse += aiResponse.content;
 
-    if (!fullResponse || !fullResponse.trim()) {
-      fullResponse = '\u200b';
+    const imageFiles: string[] = [];
+    if (executedResults) {
+      for (const result of executedResults) {
+        if (
+          (result.type === 'cat' || result.type === 'dog') &&
+          result.payload.url &&
+          typeof result.payload.url === 'string'
+        ) {
+          imageFiles.push(result.payload.url);
+        }
+      }
     }
 
-    const maxLength = 2000;
-    if (fullResponse.length <= maxLength) {
-      const sent = await message.reply({
-        content: fullResponse,
+    if (!fullResponse || !fullResponse.trim()) {
+      logger.debug('AI response has no meaningful content, not sending message');
+      return;
+    }
+
+    const newMessageOnlyRegex = /^\s*\{newmessage:\}\s*$/;
+    if (newMessageOnlyRegex.test(fullResponse)) {
+      logger.warn('AI misused newmessage tool - sent only {newmessage:} with no content');
+      return;
+    }
+
+    const newMessageRegex = /\{newmessage:\}/g;
+    if (newMessageRegex.test(fullResponse)) {
+      const parts = fullResponse.split(/\{newmessage:\}/);
+
+      if (parts[0].trim() === '') {
+        logger.warn('AI misused newmessage tool - started response with {newmessage:}');
+        parts.shift();
+        if (parts.length === 0) {
+          return await message.reply({
+            content: fullResponse.replace(/\{newmessage:\}/g, '').trim() || '\u200b',
+            allowedMentions: { parse: ['users'] as const },
+          });
+        }
+      }
+
+      const first = await message.reply({
+        content: parts[0].trim() || '\u200b',
+        files: imageFiles.length > 0 ? imageFiles : undefined,
         allowedMentions: { parse: ['users'] as const },
       });
-      return sent;
+
+      for (let i = 1; i < parts.length; i++) {
+        if ('send' in message.channel && parts[i].trim()) {
+          const delay = Math.floor(Math.random() * 900) + 300;
+          await new Promise((resolve) => setTimeout(resolve, delay));
+
+          await message.channel.send({
+            content: parts[i].trim(),
+            allowedMentions: { parse: ['users'] as const },
+          });
+        }
+      }
+      return first;
     }
-    const chunks = splitResponseIntoChunks(fullResponse, maxLength);
+    const conversationChunks = this.splitIntoConversationalChunks(fullResponse);
 
     const first = await message.reply({
-      content: chunks[0],
+      content: conversationChunks[0],
+      files: imageFiles.length > 0 ? imageFiles : undefined,
       allowedMentions: { parse: ['users'] as const },
     });
 
-    for (let i = 1; i < chunks.length; i++) {
+    for (let i = 1; i < conversationChunks.length; i++) {
       if ('send' in message.channel) {
+        const delay = Math.floor(Math.random() * 900) + 300;
+        await new Promise((resolve) => setTimeout(resolve, delay));
+
         await message.channel.send({
-          content: chunks[i],
+          content: conversationChunks[i],
           allowedMentions: { parse: ['users'] as const },
         });
       }
     }
     return first;
+  }
+
+  private splitIntoConversationalChunks(text: string): string[] {
+    if (!text || text.length <= 200) {
+      return [text];
+    }
+
+    const chunks: string[] = [];
+    const paragraphs = text.split(/\n\n+/);
+
+    for (const paragraph of paragraphs) {
+      if (paragraph.length < 200) {
+        chunks.push(paragraph);
+      } else {
+        const sentences = paragraph.split(/(?<=[.!?])\s+/);
+
+        let currentChunk = '';
+        for (const sentence of sentences) {
+          if (currentChunk.length + sentence.length > 200 && currentChunk.length > 0) {
+            chunks.push(currentChunk);
+            currentChunk = sentence;
+          } else {
+            if (currentChunk && !currentChunk.endsWith('\n')) {
+              currentChunk += ' ';
+            }
+            currentChunk += sentence;
+          }
+
+          const hasEndPunctuation = /[.!?]$/.test(sentence);
+          const breakChance = hasEndPunctuation ? 0.7 : 0.3;
+
+          if (currentChunk.length > 100 && Math.random() < breakChance) {
+            chunks.push(currentChunk);
+            currentChunk = '';
+          }
+        }
+
+        if (currentChunk) {
+          chunks.push(currentChunk);
+        }
+      }
+    }
+
+    const fillerMessages = ['hmm', 'let me think', 'one sec', 'actually', 'wait', 'so basically'];
+
+    if (chunks.length > 1 && Math.random() < 0.3) {
+      const position = Math.floor(Math.random() * (chunks.length - 1)) + 1;
+      const filler = fillerMessages[Math.floor(Math.random() * fillerMessages.length)];
+      chunks.splice(position, 0, filler);
+    }
+
+    const maxLength = 2000;
+    const finalChunks: string[] = [];
+
+    for (const chunk of chunks) {
+      if (chunk.length <= maxLength) {
+        finalChunks.push(chunk);
+      } else {
+        // Fall back to the original splitting method for any chunks that are still too long
+        finalChunks.push(...splitResponseIntoChunks(chunk, maxLength));
+      }
+    }
+
+    return finalChunks;
   }
 }

@@ -174,7 +174,7 @@
       "testfailed": "❌ API key test failed: {error}. Please check your credentials and try again.",
       "testsuccess": "✅ API key test successful! Credentials saved.",
       "process": {
-        "dailylimit": "You've reached your daily limit of AI requests",
+        "dailylimit": "You've reached your daily limit of AI requests. Vote for Aethel to get more requests: https://top.gg/bot/1371031984230371369/vote\nOr set up your own API key using the \"/ai\" command.",
         "noapikey": "Please set up your API key first"
       },
       "errors": {

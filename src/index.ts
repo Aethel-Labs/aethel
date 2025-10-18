@@ -13,6 +13,7 @@ import authRoutes from './routes/auth';
 import todosRoutes from './routes/todos';
 import apiKeysRoutes from './routes/apiKeys';
 import remindersRoutes from './routes/reminders';
+import voteWebhookRoutes from './routes/voteWebhook';
 import { resetOldStrikes } from './utils/userStrikes';
 import logger from './utils/logger';
 
@@ -85,7 +86,7 @@ app.use(async (req, res, next) => {
   res.on('finish', () => {
     const durMs = Number(process.hrtime.bigint() - start) / 1e6;
     const safePath = req.baseUrl ? `${req.baseUrl}${req.path}` : req.path;
-    logger.info(`API [${req.method}] ${safePath} ${res.statusCode} ${durMs.toFixed(1)}ms`);
+    logger.debug(`API [${req.method}] ${safePath} ${res.statusCode} ${durMs.toFixed(1)}ms`);
   });
   next();
 });
@@ -93,7 +94,8 @@ app.use(async (req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/todos', todosRoutes);
 app.use('/api/user/api-keys', apiKeysRoutes);
-app.use('/api/reminders', remindersRoutes);
+app.use('/api/reminders', authenticateApiKey, remindersRoutes);
+app.use('/api', voteWebhookRoutes);
 
 app.use('/api/status', authenticateApiKey, status(bot));
 
@@ -121,7 +123,7 @@ setInterval(
 const server = app.listen(PORT, async () => {
   logger.debug('Aethel is live on', `http://localhost:${PORT}`);
 
-  const { sendDeploymentNotification } = await import('./utils/sendDeploymentNotification.js');
+  const { sendDeploymentNotification } = await import('./utils/sendDeploymentNotification');
   await sendDeploymentNotification(startTime);
 });
 

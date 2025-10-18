@@ -58,9 +58,17 @@ const logger = winston.createLogger({
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
-        winston.format.printf(({ timestamp, level, message, service, environment, version }) => {
-          return `${timestamp} [${service}] [${environment}] [${version}] ${level}: ${message}`;
-        }),
+        winston.format.printf(
+          ({ timestamp, level, message, service, environment, version, ...metadata }) => {
+            let logMessage = `${timestamp} [${service}] [${environment}] [${version}] ${level}: ${message}`;
+
+            if (Object.keys(metadata).length > 0) {
+              logMessage += ` ${JSON.stringify(metadata)}`;
+            }
+
+            return logMessage;
+          },
+        ),
       ),
     }),
   ],

@@ -239,19 +239,8 @@ You can use tools by placing commands in {curly braces}. Available tools:
 - {joke: or {joke: {type: "general/knock-knock/programming/dad"}} } - Get a joke
 - {weather:{"location":"city"}} - Check weather, use if user asks for weather.
 - {wiki:{"search":"query"}} - Wikipedia search, if user asks for a wikipedia search, use this tool, and also use it if user asks something out of your dated knowledge.
-- {reaction:"😀"} - React to the user's message with a unicode emoji
-- {reaction:{"emoji":":thumbsup:"}} - React using a named emoji if available
-- {reaction:{"emoji":"<:name:123456789012345678>"}} - React with a custom emoji by ID (or animated <a:name:id>)
 
 Use the wikipedia search when you want to look for information outside of your knowledge, state it came from Wikipedia if used.
-
-**REACTION GUIDELINES:**
-- When asked to react, ALWAYS use the {reaction:"emoji"} tool call
-- Use reactions sparingly and only when it adds value to the conversation
-- Add at most 1–2 reactions for a single message
-- Do not include the reaction tool call text in your visible reply
-- Common reactions: 😀 😄 👍 👎 ❤️ 🔥 ⭐ 🎉 👏
-- Example: If asked to react with thumbs up, use {reaction:"👍"} and respond normally
 
 When you use a tool, you'll receive a JSON response with the command results.`;
 
@@ -446,6 +435,37 @@ async function makeAIRequest(
   client?: BotClient,
   maxIterations = 3,
 ): Promise<AIResponse | null> {
+  const maxRetries = 3;
+  let retryCount = 0;
+
+  while (retryCount < maxRetries) {
+    try {
+      return await makeAIRequestInternal(config, conversation, interaction, client, maxIterations);
+    } catch (error) {
+      retryCount++;
+      logger.error(`AI API request failed (attempt ${retryCount}/${maxRetries}):`, error);
+
+      if (retryCount >= maxRetries) {
+        logger.error('AI API request failed after all retries');
+        return null;
+      }
+
+      const waitTime = Math.pow(2, retryCount) * 1000;
+      logger.debug(`Retrying AI API request in ${waitTime}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+    }
+  }
+
+  return null;
+}
+
+async function makeAIRequestInternal(
+  config: ReturnType<typeof getApiConfiguration>,
+  conversation: ConversationMessage[],
+  interaction?: ChatInputCommandInteraction,
+  client?: BotClient,
+  maxIterations = 3,
+): Promise<AIResponse | null> {
   try {
     const openAIClient = getOpenAIClient(config.finalApiKey!, config.finalApiUrl);
     const maxTokens = config.usingDefaultKey ? 1000 : 3000;
@@ -606,23 +626,133 @@ async function makeAIRequest(
 
         completion = { choices: [{ message: { content: extracted } }] } as unknown;
       } else {
-        completion = (await openAIClient.chat.completions.create({
-          model: config.finalModel,
-          messages: currentConversation as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
-          max_tokens: maxTokens,
-        })) as unknown;
+        try {
+          logger.debug('Making OpenAI API call', {
+            model: config.finalModel,
+            messageCount: currentConversation.length,
+            maxTokens: maxTokens,
+          });
+
+          completion = await openAIClient.chat.completions.create({
+            model: config.finalModel,
+            messages: currentConversation as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
+            max_tokens: maxTokens,
+          });
+
+          logger.debug('OpenAI API call completed successfully');
+        } catch (apiError) {
+          logger.error('OpenAI API call failed:', apiError);
+          if (apiError instanceof Error) {
+            logger.error('API Error details:', {
+              message: apiError.message,
+              stack: apiError.stack?.substring(0, 500),
+            });
+          }
+          return null;
+        }
+      }
+
+      if (!completion) {
+        logger.error('AI API returned null or undefined completion');
+        return null;
       }
 
       const completionTyped = completion as {
         choices?: Array<{ message?: { content?: string; reasoning?: string } }>;
+        error?: { message?: string; type?: string; code?: string };
       };
+
+      try {
+        interface CompletionData {
+          id?: string;
+          object?: string;
+          model?: string;
+          created?: number;
+          usage?: {
+            prompt_tokens?: number;
+            completion_tokens?: number;
+            total_tokens?: number;
+          };
+        }
+
+        const completionData = completion as unknown as CompletionData;
+
+        logger.debug('AI API response structure', {
+          completionType: typeof completion,
+          completionKeys: Object.keys(completionData).join(', '),
+          hasChoices: !!completionTyped.choices,
+          choicesLength: completionTyped.choices?.length || 0,
+          hasMessage: !!completionTyped.choices?.[0]?.message,
+          hasContent: !!completionTyped.choices?.[0]?.message?.content,
+          errorPresent: !!completionTyped.error,
+          errorType: completionTyped.error?.type || 'none',
+          errorMessage: completionTyped.error?.message || 'none',
+        });
+
+        interface ChoiceData {
+          message?: {
+            content?: string;
+          };
+          finish_reason?: string;
+        }
+
+        const simplifiedResponse = {
+          id: completionData?.id,
+          object: completionData?.object,
+          model: completionData?.model,
+          created: completionData?.created,
+          choices: completionTyped.choices?.map((choice: ChoiceData, index: number) => ({
+            index,
+            message: {
+              content: choice.message?.content
+                ? choice.message.content.substring(0, 100) +
+                  (choice.message.content.length > 100 ? '...' : '')
+                : '[NO CONTENT]',
+              hasReasoning: !!(choice as OpenAIMessageWithReasoning)?.reasoning,
+              hasContent: !!choice.message?.content,
+            },
+            finish_reason: choice?.finish_reason,
+          })),
+          error: completionTyped.error,
+          usage: completionData?.usage,
+        };
+
+        logger.debug('Raw API response', simplifiedResponse);
+      } catch (jsonError) {
+        logger.error('Failed to log API response:', jsonError);
+        logger.debug('API response basic info:', {
+          type: typeof completion,
+          isObject: typeof completion === 'object',
+          isArray: Array.isArray(completion),
+          keys:
+            typeof completion === 'object' && completion !== null
+              ? Object.keys(completion).join(', ')
+              : 'N/A',
+        });
+      }
+
       const message = completionTyped.choices?.[0]?.message;
-      if (!message?.content) {
-        logger.error('No valid response content from AI API');
+
+      if (!message) {
+        if (completionTyped.error) {
+          logger.error('AI API returned an error:', {
+            message: completionTyped.error.message,
+            type: completionTyped.error.type,
+            code: completionTyped.error.code,
+          });
+        } else if (!completionTyped.choices || completionTyped.choices.length === 0) {
+          logger.error('AI API returned no choices in the response');
+        } else {
+          logger.error('No message in AI API response');
+        }
         return null;
       }
 
-      let content = message.content;
+      let content = message.content || '';
+      if (content === '[NO CONTENT]' || !content.trim()) {
+        logger.debug('AI API returned empty or [NO CONTENT] response, treating as valid but empty');
+        content = '';
+      }
       let reasoning = (message as OpenAIMessageWithReasoning)?.reasoning;
       let detectedCitations: string[] | undefined;
       try {
@@ -696,7 +826,7 @@ async function makeAIRequest(
       if (toolCalls.length > 0 && interaction && client) {
         currentConversation.push({
           role: 'assistant',
-          content: message.content,
+          content: content,
         });
 
         for (const toolCall of toolCalls) {
