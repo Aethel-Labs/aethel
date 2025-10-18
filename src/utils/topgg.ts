@@ -1,11 +1,5 @@
 const VOTE_COOLDOWN_HOURS = 12;
 
-interface TopGGVote {
-  created_at: string;
-  expires_at: string;
-  weight: number;
-}
-
 export async function checkVoteStatus(
   userId: string,
 ): Promise<{ hasVoted: boolean; nextVote: Date; voteCount: number }> {

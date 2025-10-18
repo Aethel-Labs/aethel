@@ -17,7 +17,7 @@ router.get('/webhooks/topgg', (_, res) => {
 });
 router.post('/webhooks/topgg', async (req, res) => {
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader || authHeader !== process.env.TOPGG_WEBHOOK_AUTH) {
     logger.warn('Unauthorized webhook attempt', {
       ip: req.ip,
@@ -29,7 +29,7 @@ router.post('/webhooks/topgg', async (req, res) => {
 
   try {
     const payload = req.body as TopGGWebhookPayload;
-    
+
     logger.info('Received Top.gg webhook', {
       type: payload.type,
       userId: payload.user,
@@ -37,34 +37,33 @@ router.post('/webhooks/topgg', async (req, res) => {
       isWeekend: payload.isWeekend || false,
       query: payload.query,
       ip: req.ip,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
-    if (payload.type === 'test') {
-      logger.info('Received test webhook from Top.gg');
-      return res.status(200).json({ success: true, message: 'Test webhook received' });
+    if (payload.type !== 'test' && payload.type !== 'upvote') {
+      logger.warn('Received unknown webhook type', { type: payload.type });
+      return res.status(400).json({ success: false, message: 'Invalid webhook type' });
     }
 
-    if (payload.type === 'upvote') {
-      const userId = payload.user;
-      const result = await recordVote(userId);
-      
-      logger.info('Processed vote', {
-        userId,
-        creditsAwarded: result.creditsAwarded,
-        nextVote: result.nextVoteAvailable.toISOString(),
-        isWeekend: payload.isWeekend || false
-      });
+    const userId = payload.user;
+    const isTest = payload.type === 'test';
 
-      if (result.success) {
-        return res.status(200).json({ 
-          success: true, 
-          message: 'Vote processed successfully',
-          creditsAwarded: result.creditsAwarded,
-          isWeekend: payload.isWeekend || false
-        });
-      }
+    logger.info(`Processing ${isTest ? 'test ' : ''}vote`, {
+      userId,
+      isTest,
+      isWeekend: payload.isWeekend || false,
+    });
 
+    const result = await recordVote(userId);
+
+    logger.info('Processed vote', {
+      userId,
+      creditsAwarded: result.creditsAwarded,
+      nextVote: result.nextVoteAvailable.toISOString(),
+      isWeekend: payload.isWeekend || false,
+    });
+
+    if (!result.success) {
       return res.status(200).json({
         success: false,
         message: 'Vote already processed',
@@ -72,19 +71,23 @@ router.post('/webhooks/topgg', async (req, res) => {
       });
     }
 
-    logger.warn('Received unknown webhook type', { type: payload.type });
-    return res.status(400).json({ success: false, message: 'Invalid webhook type' });
+    return res.status(200).json({
+      success: true,
+      message: 'Vote processed successfully',
+      creditsAwarded: result.creditsAwarded,
+      isWeekend: payload.isWeekend || false,
+    });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     const errorStack = error instanceof Error ? error.stack : undefined;
-    
+
     logger.error('Error processing webhook:', {
       error: errorMessage,
       stack: errorStack,
       headers: req.headers,
       body: req.body,
       ip: req.ip,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
