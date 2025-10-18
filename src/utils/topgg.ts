@@ -3,9 +3,9 @@ import fetch from 'node-fetch';
 const TOPGG_API = 'https://top.gg/api';
 
 interface TopGGVote {
-  voted: number;
-  voteCount: number;
-  voteReset: number;
+  created_at: string;
+  expires_at: string;
+  weight: number;
 }
 
 export async function checkVoteStatus(
@@ -16,7 +16,7 @@ export async function checkVoteStatus(
   }
 
   try {
-    const response = await fetch(`${TOPGG_API}/users/${userId}/vote`, {
+    const response = await fetch(`${TOPGG_API}/v1/projects/@me/votes/${userId}`, {
       headers: {
         Authorization: process.env.TOPGG_TOKEN,
         'Content-Type': 'application/json',
@@ -27,12 +27,16 @@ export async function checkVoteStatus(
       throw new Error(`Top.gg API error: ${response.statusText}`);
     }
 
-    const data = (await response.json()) as TopGGVote;
-
+    const responseData = await response.json();
+    console.log('Top.gg API Response:', JSON.stringify(responseData, null, 2));
+    
+    const data = responseData as TopGGVote;
+    const hasVoted = !!data?.created_at;
+    
     return {
-      hasVoted: data.voted === 1,
-      nextVote: new Date(data.voteReset * 1000),
-      voteCount: data.voteCount,
+      hasVoted,
+      nextVote: new Date(data.expires_at),
+      voteCount: hasVoted ? data.weight : 0,
     };
   } catch (error) {
     console.error('Error checking Top.gg vote status:', error);
@@ -41,5 +45,5 @@ export async function checkVoteStatus(
 }
 
 export function getVoteLink(): string {
-  return 'https://top.gg/bot/${process.env.CLIENT_ID}/vote';
+  return `https://top.gg/bot/${process.env.CLIENT_ID}/vote`;
 }
