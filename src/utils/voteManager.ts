@@ -111,27 +111,26 @@ export async function recordVote(
   try {
     await client.query('BEGIN');
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const existingVote = await client.query(
       `SELECT vote_timestamp FROM votes 
        WHERE user_id = $1 
        AND (server_id = $2 OR ($2 IS NULL AND server_id IS NULL))
-       AND vote_timestamp >= $3
        ORDER BY vote_timestamp DESC
        LIMIT 1`,
-      [userId, serverId || null, today],
+      [userId, serverId || null],
     );
 
     if (existingVote.rows.length > 0) {
-      return {
-        success: false,
-        creditsAwarded: 0,
-        nextVoteAvailable: new Date(
-          existingVote.rows[0].vote_timestamp.getTime() + VOTE_COOLDOWN_HOURS * 60 * 60 * 1000,
-        ),
-      };
+      const lastVoteTime = new Date(existingVote.rows[0].vote_timestamp).getTime();
+      const cooldownEnd = lastVoteTime + VOTE_COOLDOWN_HOURS * 60 * 60 * 1000;
+      
+      if (Date.now() < cooldownEnd) {
+        return {
+          success: false,
+          creditsAwarded: 0,
+          nextVoteAvailable: new Date(cooldownEnd),
+        };
+      }
     }
 
     const voteStatus = await checkVoteStatus(userId);
