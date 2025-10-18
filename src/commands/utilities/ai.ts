@@ -390,23 +390,23 @@ async function incrementAndCheckDailyLimit(userId: string, limit = 20): Promise<
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    
+
     const voteCheck = await client.query(
       `SELECT vote_timestamp FROM votes 
        WHERE user_id = $1 
        AND vote_timestamp > NOW() - INTERVAL '24 hours'
        ORDER BY vote_timestamp DESC
        LIMIT 1`,
-      [userId]
+      [userId],
     );
-    
+
     const hasVotedRecently = voteCheck.rows.length > 0;
     const effectiveLimit = hasVotedRecently ? limit + 10 : limit;
-    
+
     await client.query('INSERT INTO users (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING', [
       userId,
     ]);
-    
+
     const res = await client.query(
       `INSERT INTO ai_usage (user_id, usage_date, count) 
        VALUES ($1, $2, 1)
@@ -415,11 +415,10 @@ async function incrementAndCheckDailyLimit(userId: string, limit = 20): Promise<
        RETURNING count`,
       [userId, today],
     );
-    
+
     await client.query('COMMIT');
-    
+
     return res.rows[0].count <= effectiveLimit;
-    
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error in incrementAndCheckDailyLimit:', err);

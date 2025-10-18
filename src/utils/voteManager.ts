@@ -158,7 +158,7 @@ export async function recordVote(
        RETURNING credits_remaining`,
       [userId, VOTE_CREDITS],
     );
-    
+
     console.log(`Added ${VOTE_CREDITS} credits to user ${userId} (global)`);
 
     const clientBot = new Client({
@@ -188,7 +188,9 @@ export async function recordVote(
                    RETURNING credits_remaining`,
                   [userId, guild.id, VOTE_CREDITS],
                 );
-                console.log(`Added ${VOTE_CREDITS} credits to user ${userId} in server ${guild.id}`);
+                console.log(
+                  `Added ${VOTE_CREDITS} credits to user ${userId} in server ${guild.id}`,
+                );
               }
             } catch (error) {
               console.error(`Error processing guild ${guild.id}:`, error);
@@ -209,32 +211,38 @@ export async function recordVote(
        DO UPDATE SET 
          count = GREATEST(0, ai_usage.count) + 10
        RETURNING count`,
-      [userId]
+      [userId],
     );
-    
+
     console.log(`Added 10 AI usage credits to user ${userId}`);
 
     try {
       const clientBot = new Client({
-        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent],
+        intents: [
+          GatewayIntentBits.Guilds,
+          GatewayIntentBits.GuildMembers,
+          GatewayIntentBits.MessageContent,
+        ],
       });
-      
+
       await clientBot.login(process.env.TOKEN);
       const user = await clientBot.users.fetch(userId);
-      
+
       if (user) {
         const nextVoteTime = Math.floor((Date.now() + 12 * 60 * 60 * 1000) / 1000);
-        await user.send(
-          `🎉 **Thank you for voting for Aethel!**\n` +
-          `\n` +
-          `You've received **+10 AI message credits** for today!\n` +
-          `\n` +
-          `You can vote again <t:${nextVoteTime}:R>\n` +
-          `\n` +
-          `Thank you for your support! ❤️`
-        ).catch(console.error);
+        await user
+          .send(
+            `🎉 **Thank you for voting for Aethel!**\n` +
+              `\n` +
+              `You've received **+10 AI message credits** for today!\n` +
+              `\n` +
+              `You can vote again <t:${nextVoteTime}:R>\n` +
+              `\n` +
+              `Thank you for your support! ❤️`,
+          )
+          .catch(console.error);
       }
-      
+
       clientBot.destroy().catch(console.error);
     } catch (error) {
       console.error('Failed to send vote thank you DM:', error);
@@ -283,38 +291,38 @@ export async function getRemainingCredits(userId: string, serverId?: string): Pr
 
 export async function canUseAIFeature(
   userId: string,
-  _serverId?: string,  // Prefix with underscore to indicate intentionally unused
+  _serverId?: string, // Prefix with underscore to indicate intentionally unused
 ): Promise<{ canUse: boolean; remainingCredits: number }> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    
+
     const result = await client.query(
       `SELECT count FROM ai_usage 
        WHERE user_id = $1 AND usage_date = CURRENT_DATE
        FOR UPDATE`,
-      [userId]
+      [userId],
     );
-    
+
     if (result.rows.length > 0 && result.rows[0].count > 0) {
       const updateResult = await client.query(
         `UPDATE ai_usage 
          SET count = count - 1 
          WHERE user_id = $1 AND usage_date = CURRENT_DATE
          RETURNING count`,
-        [userId]
+        [userId],
       );
-      
+
       await client.query('COMMIT');
-      
+
       return {
         canUse: true,
         remainingCredits: updateResult.rows[0]?.count || 0,
       };
     }
-    
+
     await client.query('COMMIT');
-    
+
     return {
       canUse: false,
       remainingCredits: 0,
