@@ -1,11 +1,19 @@
 import { Router } from 'express';
 import { recordVote } from '../utils/voteManager';
 import logger from '../utils/logger';
-import { authenticateTopGG } from '../middlewares/verifyApiKey';
 
 const router = Router();
 
-router.all('/webhooks/topgg', authenticateTopGG, async (req, res) => {
+router.all('/webhooks/topgg', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || authHeader !== process.env.TOPGG_WEBHOOK_AUTH) {
+    logger.warn('Unauthorized webhook attempt', { 
+      ip: req.ip,
+      headers: req.headers,
+      timestamp: new Date().toISOString()
+    });
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   if (req.method === 'GET') {
     return res.status(200).json({ success: true, message: 'Webhook is active' });
   }
