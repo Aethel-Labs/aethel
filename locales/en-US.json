@@ -51,6 +51,18 @@
       "newcat": "New cat",
       "error": "Sorry, I had trouble fetching a cat image. Please try again later!"
     },
+    "meow": {
+      "name": "meow",
+      "description": "Translate text into meow language",
+      "noText": "Please provide some text to translate to meow!",
+      "response": "🐱 {meowText}",
+      "options": {
+        "text": {
+          "name": "text",
+          "description": "The text to translate to meow"
+        }
+      }
+    },
     "dog": {
       "name": "dog",
       "description": "Get a random dog image!",
