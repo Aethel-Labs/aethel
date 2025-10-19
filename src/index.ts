@@ -8,6 +8,7 @@ import BotClient from './services/Client';
 import { ALLOWED_ORIGINS, PORT, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX } from './config';
 import rateLimit from 'express-rate-limit';
 import authenticateApiKey from './middlewares/verifyApiKey';
+import { authenticateToken } from './middlewares/auth';
 import status from './routes/status';
 import authRoutes from './routes/auth';
 import todosRoutes from './routes/todos';
@@ -94,7 +95,7 @@ app.use(async (req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/todos', todosRoutes);
 app.use('/api/user/api-keys', apiKeysRoutes);
-app.use('/api/reminders', authenticateApiKey, remindersRoutes);
+app.use('/api/reminders', authenticateToken, remindersRoutes);
 app.use('/api', voteWebhookRoutes);
 
 app.use('/api/status', authenticateApiKey, status(bot));
