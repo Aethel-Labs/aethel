@@ -94,7 +94,7 @@ export default class BotClient extends Client {
   }
 
   private async setupEvents() {
-    console.log('Initializing events...');
+    logger.info('Initializing events...');
     const eventsDir = path.join(srcDir, 'events');
     for (const event of readdirSync(path.join(eventsDir))) {
       const filepath = path.join(eventsDir, event);
@@ -165,10 +165,10 @@ export default class BotClient extends Client {
 
       const shutdown = async (signal?: NodeJS.Signals) => {
         try {
-          console.log(`Received ${signal ?? 'shutdown'}: closing services and database pool...`);
+          logger.info(`Received ${signal ?? 'shutdown'}: closing services and database pool...`);
           await this.socialMediaManager?.cleanup();
           await pool.end();
-          console.log('Database pool closed. Exiting.');
+          logger.info('Database pool closed. Exiting.');
         } catch (e) {
           console.error('Error during graceful shutdown:', e);
         } finally {

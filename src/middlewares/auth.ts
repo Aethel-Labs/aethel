@@ -41,21 +41,3 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     return res.status(500).json({ error: 'Token verification failed' });
   }
 };
-
-export const optionalAuth = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return next();
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as unknown as JwtPayload;
-    req.user = decoded;
-  } catch (error) {
-    logger.debug('Optional auth token verification failed:', error);
-  }
-
-  next();
-};

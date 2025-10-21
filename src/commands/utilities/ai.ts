@@ -421,7 +421,7 @@ async function incrementAndCheckDailyLimit(userId: string, limit = 20): Promise<
     return res.rows[0].count <= effectiveLimit;
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error('Error in incrementAndCheckDailyLimit:', err);
+    logger.error('Error in incrementAndCheckDailyLimit:', err);
     throw err;
   } finally {
     client.release();
@@ -1232,14 +1232,14 @@ async function sendAIResponse(
         }
       }
     } catch (error) {
-      console.error('Error processing tool results:', error);
+      logger.error('Error processing tool results:', error);
       try {
         await interaction.followUp({
           content: 'An error occurred while processing the tool results.',
           flags: MessageFlags.SuppressNotifications,
         });
       } catch (followUpError) {
-        console.error('Failed to send error message:', followUpError);
+        logger.error('Failed to send error message:', followUpError);
       }
     }
   }
@@ -1378,7 +1378,7 @@ const aiCommand: AICommand = {
 
       await processAIRequest(client, interaction);
     } catch (error) {
-      console.error('Error in AI command:', error);
+      logger.error('Error in AI command:', error);
       const errorMessage = `❌ An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`;
 
       try {
@@ -1391,7 +1391,7 @@ const aiCommand: AICommand = {
           });
         }
       } catch (replyError) {
-        console.error('Failed to send error message:', replyError);
+        logger.error('Failed to send error message:', replyError);
       }
 
       const userId = getInvokerId(interaction);

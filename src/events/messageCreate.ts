@@ -104,6 +104,7 @@ import { extractToolCalls as extractSlashToolCalls } from '@/utils/commandExecut
 import _fetch from '@/utils/dynamicFetch';
 import { executeMessageToolCall, type MessageToolCall } from '@/utils/messageToolExecutor';
 import type { ConversationMessage, AIResponse } from '@/commands/utilities/ai';
+import pool from '@/utils/pgClient';
 
 type ApiConfiguration = ReturnType<typeof getApiConfiguration>;
 import { createMemoryManager } from '@/utils/memoryManager';
@@ -399,6 +400,24 @@ export default class MessageCreateEvent {
               serverLimit = 500;
             } else if (memberCount >= 100) {
               serverLimit = 150;
+            }
+
+            const voteBonus = await pool.query(
+              `SELECT COUNT(DISTINCT user_id) as voter_count 
+               FROM votes 
+               WHERE vote_timestamp > NOW() - INTERVAL '24 hours'
+               AND user_id IN (
+                 SELECT user_id FROM votes WHERE server_id IS NULL
+               )`,
+            );
+
+            const voterCount = parseInt(voteBonus.rows[0]?.voter_count || '0');
+            if (voterCount > 0) {
+              const bonus = Math.min(voterCount * 20, 100);
+              serverLimit += bonus;
+              logger.debug(
+                `Server ${message.guildId} vote bonus: +${bonus} (${voterCount} voters)`,
+              );
             }
 
             const serverAllowed = await incrementAndCheckServerDailyLimit(

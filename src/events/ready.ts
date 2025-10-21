@@ -13,11 +13,15 @@ export default class ReadyEvent {
   private async readyEvent(client: BotClient) {
     try {
       logger.info(`Logged in as ${client.user?.username}`);
+
       await client.application?.commands.fetch({ withLocalizations: true });
+
       await loadActiveReminders(client);
 
       const { sendDeploymentNotification } = await import('../utils/sendDeploymentNotification.js');
       await sendDeploymentNotification(this.startTime);
+
+      logger.info('Bot fully initialized and ready');
     } catch (error) {
       logger.error('Error during ready event:', error);
     }

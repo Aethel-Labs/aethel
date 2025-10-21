@@ -1,6 +1,7 @@
 import pool from './pgClient';
 import { Client, GatewayIntentBits } from 'discord.js';
 import { checkVoteStatus } from './topgg';
+import logger from './logger';
 
 const VOTE_CREDITS = 10;
 const VOTE_COOLDOWN_HOURS = 12;
@@ -16,7 +17,7 @@ export interface CreditsInfo {
   lastReset: Date;
 }
 
-export async function hasVotedToday(
+async function _hasVotedToday(
   userId: string,
   serverId?: string,
 ): Promise<{ hasVoted: boolean; nextVote: Date }> {
@@ -76,7 +77,6 @@ async function recordVoteInDatabase(userId: string, serverId?: string): Promise<
       [userId, serverId || null, VOTE_CREDITS],
     );
 
-
     await client.query('COMMIT');
   } catch (error) {
     await client.query('ROLLBACK');
@@ -131,7 +131,6 @@ export async function recordVote(
       [userId, serverId || null, VOTE_CREDITS],
     );
 
-
     const clientBot = new Client({
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
     });
@@ -149,24 +148,23 @@ export async function recordVote(
               const member = await fullGuild.members.fetch(userId).catch(() => null);
 
               if (member) {
-                console.log(
+                logger.debug(
                   `User ${userId} is member of server ${guild.id} - vote benefits apply`,
                 );
               }
             } catch (error) {
-              console.error(`Error processing guild ${guild.id}:`, error);
+              logger.error(`Error processing guild ${guild.id}:`, error);
             }
           }),
         );
       }
     } catch (error) {
-      console.error('Error in vote processing:', error);
+      logger.error('Error in vote processing:', error);
     } finally {
-      clientBot.destroy().catch(console.error);
+      clientBot.destroy().catch((err) => logger.error('Error destroying bot client:', err));
     }
 
-    
-    console.log(`User ${userId} voted - AI system will give +10 daily limit`);
+    logger.info(`User ${userId} voted - AI system will give +10 daily limit`);
 
     try {
       const clientBot = new Client({
@@ -192,12 +190,12 @@ export async function recordVote(
               `\n` +
               `Thank you for your support! ❤️`,
           )
-          .catch(console.error);
+          .catch((err) => logger.error('Failed to send vote DM:', err));
       }
 
-      clientBot.destroy().catch(console.error);
+      clientBot.destroy().catch((err) => logger.error('Error destroying bot client:', err));
     } catch (error) {
-      console.error('Failed to send vote thank you DM:', error);
+      logger.error('Failed to send vote thank you DM:', error);
     }
 
     await client.query('COMMIT');
@@ -209,80 +207,8 @@ export async function recordVote(
     };
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error recording vote:', error);
+    logger.error('Error recording vote:', error);
     throw new Error('Failed to record your vote. Please try again later.');
-  } finally {
-    client.release();
-  }
-}
-
-export async function getRemainingCredits(userId: string, serverId?: string): Promise<CreditsInfo> {
-  try {
-    const query = serverId
-      ? 'SELECT credits_remaining as "creditsRemaining", last_reset as "lastReset" FROM message_credits WHERE user_id = $1 AND server_id = $2'
-      : 'SELECT credits_remaining as "creditsRemaining", last_reset as "lastReset" FROM message_credits WHERE user_id = $1 AND server_id IS NULL';
-
-    const result = await pool.query(query, [userId, serverId].filter(Boolean));
-
-    if (result.rows.length === 0) {
-      return {
-        remaining: 0,
-        lastReset: new Date(),
-      };
-    }
-
-    return {
-      remaining: result.rows[0].creditsRemaining,
-      lastReset: result.rows[0].lastReset,
-    };
-  } catch (error) {
-    console.error('Error getting remaining credits:', error);
-    throw new Error('Failed to get remaining credits');
-  }
-}
-
-export async function canUseAIFeature(
-  userId: string,
-  _serverId?: string,
-): Promise<{ canUse: boolean; remainingCredits: number }> {
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    const result = await client.query(
-      `SELECT count FROM ai_usage 
-       WHERE user_id = $1 AND usage_date = CURRENT_DATE
-       FOR UPDATE`,
-      [userId],
-    );
-
-    if (result.rows.length > 0 && result.rows[0].count > 0) {
-      const updateResult = await client.query(
-        `UPDATE ai_usage 
-         SET count = count - 1 
-         WHERE user_id = $1 AND usage_date = CURRENT_DATE
-         RETURNING count`,
-        [userId],
-      );
-
-      await client.query('COMMIT');
-
-      return {
-        canUse: true,
-        remainingCredits: updateResult.rows[0]?.count || 0,
-      };
-    }
-
-    await client.query('COMMIT');
-
-    return {
-      canUse: false,
-      remainingCredits: 0,
-    };
-  } catch (error) {
-    await client.query('ROLLBACK');
-    console.error('Error checking AI feature usage:', error);
-    throw new Error('Failed to check AI feature usage');
   } finally {
     client.release();
   }

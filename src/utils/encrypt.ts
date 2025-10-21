@@ -131,15 +131,6 @@ function decrypt(encrypted: string): string {
   }
 }
 
-function canDecrypt(encrypted: string): boolean {
-  try {
-    decrypt(encrypted);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 function isValidEncryptedFormat(encrypted: string): boolean {
   if (!encrypted || typeof encrypted !== 'string') {
     return false;
@@ -162,4 +153,4 @@ function isValidEncryptedFormat(encrypted: string): boolean {
   }
 }
 
-export { encrypt, decrypt, canDecrypt, isValidEncryptedFormat, EncryptionError };
+export { encrypt, decrypt, isValidEncryptedFormat, EncryptionError };

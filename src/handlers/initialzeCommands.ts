@@ -33,7 +33,7 @@ export default async (c: BotClient) => {
         await import(commandUrl)
       ).default) as SlashCommandProps | RemindCommandProps;
       if (!command.data) {
-        console.log('No command data in file', `${cat}/${file}.. Skipping`);
+        logger.warn('No command data in file', `${cat}/${file}.. Skipping`);
         continue;
       }
       command.category = cat;

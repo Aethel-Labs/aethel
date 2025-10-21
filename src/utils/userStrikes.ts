@@ -16,7 +16,7 @@ export class StrikeError extends Error {
   }
 }
 
-export async function getUserStrikeInfo(userId: string): Promise<StrikeInfo | null> {
+async function _getUserStrikeInfo(userId: string): Promise<StrikeInfo | null> {
   if (!userId || typeof userId !== 'string') {
     throw new StrikeError('Invalid user ID provided');
   }
@@ -150,24 +150,5 @@ export async function resetOldStrikes(): Promise<number> {
   } catch (error) {
     logger.error('Failed to reset old strikes', { error });
     throw new StrikeError('Failed to reset old strikes');
-  }
-}
-
-export async function clearUserStrikes(userId: string): Promise<boolean> {
-  if (!userId || typeof userId !== 'string') {
-    throw new StrikeError('Invalid user ID provided');
-  }
-
-  try {
-    const res = await pgClient.query(
-      'UPDATE user_strikes SET strike_count = 0, banned_until = NULL WHERE user_id = $1',
-      [userId],
-    );
-
-    logger.info('Cleared user strikes', { userId });
-    return (res.rowCount ?? 0) > 0;
-  } catch (error) {
-    logger.error('Failed to clear user strikes', { userId, error });
-    throw new StrikeError('Failed to clear strikes', userId);
   }
 }
