@@ -180,7 +180,8 @@ function buildSystemPrompt(
       .join('\n');
   }
 
-  const currentModel = model || (usingDefaultKey ? 'moonshotai/kimi-k2-0905 (default)' : 'custom model');
+  const currentModel =
+    model || (usingDefaultKey ? 'moonshotai/kimi-k2-0905 (default)' : 'custom model');
 
   const contextInfo = isServer
     ? `**CONTEXT:**
@@ -242,7 +243,9 @@ You can use tools by placing commands in {curly braces}. Available tools:
 
 Use the wikipedia search when you want to look for information outside of your knowledge, state it came from Wikipedia if used.
 
-When you use a tool, you'll receive a JSON response with the command results.`;
+When you use a tool, you'll receive a JSON response with the command results if needed.
+
+**IMPORTANT:** The {reaction:} and {newmessage:} tools are NOT available in slash commands. Only use the tools listed above.`;
 
   const modelSpecificInstructions = usingDefaultKey
     ? '\n\n**IMPORTANT:** Please keep your responses under 3000 characters. Be concise and to the point.'

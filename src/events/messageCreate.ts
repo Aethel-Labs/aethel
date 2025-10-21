@@ -568,7 +568,10 @@ export default class MessageCreateEvent {
             };
 
             executedResults.push({ type: name, payload });
-            conversationWithTools.push({ role: 'user', content: JSON.stringify(payload) });
+
+            if (name !== 'reaction') {
+              conversationWithTools.push({ role: 'user', content: JSON.stringify(payload) });
+            }
 
             logger.debug(`[MessageCreate] MCP tool ${name} executed:`, {
               success: result.success,
