@@ -532,6 +532,16 @@ export default class MessageCreateEvent {
         const toolCalls: MessageToolCall[] = extraction.toolCalls;
 
         const executableTools = toolCalls.filter((tc) => tc.name?.toLowerCase() !== 'newmessage');
+        const reactionTools = executableTools.filter((tc) => tc.name?.toLowerCase() === 'reaction');
+        const nonReactionTools = executableTools.filter(
+          (tc) => tc.name?.toLowerCase() !== 'reaction',
+        );
+
+        if (executableTools.length > 0 && nonReactionTools.length === 0) {
+          logger.debug('AI used only reactions with text, executing and breaking loop');
+          aiResponse.content = extraction.cleanContent;
+          break;
+        }
 
         if (executableTools.length === 0) {
           aiResponse.content = extraction.cleanContent;
@@ -552,7 +562,7 @@ export default class MessageCreateEvent {
 
         conversationWithTools.push({ role: 'assistant', content: aiResponse.content });
 
-        for (const tc of executableTools) {
+        for (const tc of nonReactionTools) {
           const name = tc.name?.toLowerCase();
           try {
             const result = await executeMessageToolCall(tc, message, this.client, {
@@ -568,10 +578,7 @@ export default class MessageCreateEvent {
             };
 
             executedResults.push({ type: name, payload });
-
-            if (name !== 'reaction') {
-              conversationWithTools.push({ role: 'user', content: JSON.stringify(payload) });
-            }
+            conversationWithTools.push({ role: 'user', content: JSON.stringify(payload) });
 
             logger.debug(`[MessageCreate] MCP tool ${name} executed:`, {
               success: result.success,
@@ -583,6 +590,12 @@ export default class MessageCreateEvent {
               name: tc.name,
               error: (e as Error)?.message,
             });
+          }
+        }
+
+        if (reactionTools.length > 0) {
+          for (const tc of reactionTools) {
+            executedResults.push({ type: 'reaction', payload: { pending: true, tool: tc } });
           }
         }
 
@@ -599,19 +612,7 @@ export default class MessageCreateEvent {
           break;
         }
 
-        const hasOnlyReactionTools =
-          executableTools.length > 0 &&
-          executableTools.every((tc) => tc.name?.toLowerCase() === 'reaction') &&
-          !cleanContent;
-
-        if (hasOnlyReactionTools && iteration >= 2) {
-          logger.warn('AI stuck in reaction-only loop, forcing normal response');
-          aiResponse.content =
-            'I apologize for the confusion. Let me respond clearly without using any tools.';
-          break;
-        }
-
-        if (executableTools.length === 0 && hasNewMessageTool) {
+        if (nonReactionTools.length === 0 && hasNewMessageTool) {
           logger.debug('Only newmessage formatting tools found, breaking iterative loop');
           aiResponse.content = extraction.cleanContent;
           break;
@@ -741,6 +742,28 @@ export default class MessageCreateEvent {
 
       const sent = await this.sendResponse(message, aiResponse, executedResults);
       const sentMessage: Message | undefined = sent as Message | undefined;
+
+      const pendingReactions = executedResults.filter(
+        (r) => r.type === 'reaction' && r.payload.pending,
+      );
+
+      if (pendingReactions.length > 0) {
+        const target = sentMessage || message;
+        logger.debug(`Executing ${pendingReactions.length} pending reactions from iteration loop`);
+
+        for (const pending of pendingReactions) {
+          const tc = pending.payload.tool as MessageToolCall;
+          try {
+            await executeMessageToolCall(tc, target, this.client, {
+              originalMessage: message,
+              botMessage: sentMessage,
+            });
+            logger.debug(`Executed pending reaction successfully`);
+          } catch (err) {
+            logger.error('Error executing pending reaction:', err);
+          }
+        }
+      }
 
       if (extraction.toolCalls.length > 0) {
         const target = sentMessage || message;
