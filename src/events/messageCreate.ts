@@ -219,12 +219,12 @@ export default class MessageCreateEvent {
 
         selectedModel = hasImages
           ? 'google/gemma-3-4b-it'
-          : userCustomModel || 'moonshotai/kimi-k2-0905';
+          : userCustomModel || 'moonshotai/kimi-k2';
 
         config = getApiConfiguration(userApiKey ?? null, selectedModel, userApiUrl ?? null);
         usingDefaultKey = config.usingDefaultKey;
       } else {
-        selectedModel = hasImages ? 'google/gemma-3-4b-it' : 'moonshotai/kimi-k2-0905';
+        selectedModel = hasImages ? 'google/gemma-3-4b-it' : 'moonshotai/kimi-k2';
 
         config = getApiConfiguration(null, selectedModel, null);
         if (config.usingDefaultKey && !config.finalApiKey) {
@@ -352,7 +352,7 @@ export default class MessageCreateEvent {
       }
 
       let filteredConversation = conversation;
-      if (selectedModel === 'moonshotai/kimi-k2-0905') {
+      if (selectedModel === 'moonshotai/kimi-k2') {
         filteredConversation = conversation.map((msg) => {
           if (Array.isArray(msg.content)) {
             const textContent = msg.content
@@ -495,9 +495,9 @@ export default class MessageCreateEvent {
 
         const fallbackModel =
           isDM && !usingDefaultKey
-            ? 'moonshotai/kimi-k2-0905'
+            ? 'moonshotai/kimi-k2'
             : isDM
-              ? 'moonshotai/kimi-k2-0905'
+              ? 'moonshotai/kimi-k2'
               : 'google/gemini-2.5-flash-lite';
 
         const fallbackConversation = buildConversation(
@@ -525,6 +525,7 @@ export default class MessageCreateEvent {
       const maxIterations = 3;
       let iteration = 0;
       let lastToolResponse = '';
+      let originalContentWithTools = aiResponse?.content || '';
 
       while (aiResponse && iteration < maxIterations) {
         iteration++;
@@ -538,7 +539,10 @@ export default class MessageCreateEvent {
         );
 
         if (executableTools.length > 0 && nonReactionTools.length === 0) {
-          logger.debug('AI used only reactions with text, executing and breaking loop');
+          logger.debug(
+            `AI used only reactions (${reactionTools.length}), breaking loop and preserving tool calls`,
+          );
+          originalContentWithTools = aiResponse.content || '';
           aiResponse.content = extraction.cleanContent;
           break;
         }
@@ -590,12 +594,6 @@ export default class MessageCreateEvent {
               name: tc.name,
               error: (e as Error)?.message,
             });
-          }
-        }
-
-        if (reactionTools.length > 0) {
-          for (const tc of reactionTools) {
-            executedResults.push({ type: 'reaction', payload: { pending: true, tool: tc } });
           }
         }
 
@@ -660,12 +658,18 @@ export default class MessageCreateEvent {
       aiResponse.content = processUrls(aiResponse.content);
       aiResponse.content = aiResponse.content.replace(/@(everyone|here)/gi, '@\u200b$1');
 
-      const originalContent = aiResponse.content || '';
+      const originalContent = originalContentWithTools || aiResponse.content || '';
       const extraction = extractMessageToolCalls(originalContent);
       aiResponse.content = extraction.cleanContent;
       const toolCalls: MessageToolCall[] = extraction.toolCalls;
       const hasReactionTool = toolCalls.some((tc) => tc?.name?.toLowerCase() === 'reaction');
       const originalCleaned = (extraction.cleanContent || '').trim();
+
+      logger.debug(`Final tool extraction: ${toolCalls.length} tools found`, {
+        tools: toolCalls.map((tc) => tc.name),
+        hasReaction: hasReactionTool,
+        cleanContent: extraction.cleanContent?.substring(0, 50),
+      });
 
       if (!originalCleaned && hasReactionTool) {
         for (const tc of toolCalls) {
@@ -743,30 +747,7 @@ export default class MessageCreateEvent {
       const sent = await this.sendResponse(message, aiResponse, executedResults);
       const sentMessage: Message | undefined = sent as Message | undefined;
 
-      const pendingReactions = executedResults.filter(
-        (r) => r.type === 'reaction' && r.payload.pending,
-      );
-
-      if (pendingReactions.length > 0) {
-        const target = sentMessage || message;
-        logger.debug(`Executing ${pendingReactions.length} pending reactions from iteration loop`);
-
-        for (const pending of pendingReactions) {
-          const tc = pending.payload.tool as MessageToolCall;
-          try {
-            await executeMessageToolCall(tc, target, this.client, {
-              originalMessage: message,
-              botMessage: sentMessage,
-            });
-            logger.debug(`Executed pending reaction successfully`);
-          } catch (err) {
-            logger.error('Error executing pending reaction:', err);
-          }
-        }
-      }
-
       if (extraction.toolCalls.length > 0) {
-        const target = sentMessage || message;
         const executed: Array<{ name: string; success: boolean }> = [];
         logger.debug(
           `[MessageCreate] Final execution - processing ${extraction.toolCalls.length} tool calls:`,
@@ -777,7 +758,7 @@ export default class MessageCreateEvent {
           const name = tc.name.toLowerCase();
           if (name === 'reaction') {
             try {
-              const result = await executeMessageToolCall(tc, target, this.client, {
+              const result = await executeMessageToolCall(tc, message, this.client, {
                 originalMessage: message,
                 botMessage: sentMessage,
               });
@@ -787,6 +768,7 @@ export default class MessageCreateEvent {
               executed.push({ name, success: false });
             }
           } else {
+            const target = sentMessage || message;
             try {
               const result = await executeMessageToolCall(tc, target, this.client, {
                 originalMessage: message,
@@ -1015,7 +997,6 @@ export default class MessageCreateEvent {
       if (chunk.length <= maxLength) {
         finalChunks.push(chunk);
       } else {
-        // Fall back to the original splitting method for any chunks that are still too long
         finalChunks.push(...splitResponseIntoChunks(chunk, maxLength));
       }
     }

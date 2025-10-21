@@ -132,7 +132,7 @@ function getApiConfiguration(apiKey: string | null, model: string | null, apiUrl
   const usingCustomApi = !!apiKey;
   const finalApiUrl = apiUrl || 'https://openrouter.ai/api/v1';
   const finalApiKey = apiKey || process.env.OPENROUTER_API_KEY;
-  const finalModel = model || (usingCustomApi ? 'openai/gpt-4o-mini' : 'moonshotai/kimi-k2-0905');
+  const finalModel = model || (usingCustomApi ? 'openai/gpt-4o-mini' : 'moonshotai/kimi-k2');
   const usingDefaultKey = !usingCustomApi && !!process.env.OPENROUTER_API_KEY;
 
   return {
@@ -180,8 +180,7 @@ function buildSystemPrompt(
       .join('\n');
   }
 
-  const currentModel =
-    model || (usingDefaultKey ? 'moonshotai/kimi-k2-0905 (default)' : 'custom model');
+  const currentModel = model || (usingDefaultKey ? 'moonshotai/kimi-k2 (default)' : 'custom model');
 
   const contextInfo = isServer
     ? `**CONTEXT:**
@@ -491,7 +490,7 @@ async function makeAIRequestInternal(
 ): Promise<AIResponse | null> {
   try {
     const openAIClient = getOpenAIClient(config.finalApiKey!, config.finalApiUrl);
-    const maxTokens = config.usingDefaultKey ? 1000 : 3000;
+    const maxTokens = config.usingDefaultKey ? 5000 : 8000;
     const currentConversation = [...conversation];
     let iteration = 0;
     let finalResponse: AIResponse | null = null;
@@ -959,7 +958,7 @@ async function processAIRequest(
     const userId = interaction.user.id;
 
     if (userId !== exemptUserId && config.usingDefaultKey) {
-      const allowed = await incrementAndCheckDailyLimit(userId, 50); // Increased global limit for slash command
+      const allowed = await incrementAndCheckDailyLimit(userId, 50);
       if (!allowed) {
         await interaction.editReply(
           '❌ ' +
