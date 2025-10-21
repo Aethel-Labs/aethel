@@ -76,23 +76,6 @@ async function recordVoteInDatabase(userId: string, serverId?: string): Promise<
       [userId, serverId || null, VOTE_CREDITS],
     );
 
-    const query = serverId
-      ? `INSERT INTO message_credits (user_id, server_id, credits_remaining, last_reset)
-         VALUES ($1, $2, $3, NOW())
-         ON CONFLICT (user_id, server_id) WHERE server_id IS NOT NULL
-         DO UPDATE SET 
-           credits_remaining = message_credits.credits_remaining + $3,
-           last_reset = NOW()
-         RETURNING credits_remaining`
-      : `INSERT INTO message_credits (user_id, credits_remaining, last_reset)
-         VALUES ($1, $3, NOW())
-         ON CONFLICT (user_id) WHERE server_id IS NULL
-         DO UPDATE SET 
-           credits_remaining = message_credits.credits_remaining + $3,
-           last_reset = NOW()
-         RETURNING credits_remaining`;
-
-    await client.query(query, [userId, serverId, VOTE_CREDITS].filter(Boolean));
 
     await client.query('COMMIT');
   } catch (error) {
@@ -148,18 +131,6 @@ export async function recordVote(
       [userId, serverId || null, VOTE_CREDITS],
     );
 
-    await client.query(
-      `INSERT INTO message_credits (user_id, credits_remaining, last_reset)
-       VALUES ($1, $2, NOW())
-       ON CONFLICT (user_id) 
-       DO UPDATE SET 
-         credits_remaining = message_credits.credits_remaining + EXCLUDED.credits_remaining,
-         last_reset = NOW()
-       RETURNING credits_remaining`,
-      [userId, VOTE_CREDITS],
-    );
-
-    console.log(`Added ${VOTE_CREDITS} credits to user ${userId} (global)`);
 
     const clientBot = new Client({
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -178,18 +149,8 @@ export async function recordVote(
               const member = await fullGuild.members.fetch(userId).catch(() => null);
 
               if (member) {
-                await client.query(
-                  `INSERT INTO message_credits (user_id, server_id, credits_remaining, last_reset)
-                   VALUES ($1, $2, $3, NOW())
-                   ON CONFLICT (user_id, server_id) 
-                   DO UPDATE SET 
-                     credits_remaining = message_credits.credits_remaining + $3,
-                     last_reset = NOW()
-                   RETURNING credits_remaining`,
-                  [userId, guild.id, VOTE_CREDITS],
-                );
                 console.log(
-                  `Added ${VOTE_CREDITS} credits to user ${userId} in server ${guild.id}`,
+                  `User ${userId} is member of server ${guild.id} - vote benefits apply`,
                 );
               }
             } catch (error) {
@@ -204,17 +165,8 @@ export async function recordVote(
       clientBot.destroy().catch(console.error);
     }
 
-    await client.query(
-      `INSERT INTO ai_usage (user_id, usage_date, count)
-       VALUES ($1, CURRENT_DATE, 10)
-       ON CONFLICT (user_id, usage_date) 
-       DO UPDATE SET 
-         count = GREATEST(0, ai_usage.count) + 10
-       RETURNING count`,
-      [userId],
-    );
-
-    console.log(`Added 10 AI usage credits to user ${userId}`);
+    
+    console.log(`User ${userId} voted - AI system will give +10 daily limit`);
 
     try {
       const clientBot = new Client({
@@ -234,7 +186,7 @@ export async function recordVote(
           .send(
             `🎉 **Thank you for voting for Aethel!**\n` +
               `\n` +
-              `You've received **+10 AI message credits** for today!\n` +
+              `You've received **+10 AI daily limit** for today!\n` +
               `\n` +
               `You can vote again <t:${nextVoteTime}:R>\n` +
               `\n` +
@@ -252,7 +204,7 @@ export async function recordVote(
 
     return {
       success: true,
-      creditsAwarded: serverId ? VOTE_CREDITS * 2 : VOTE_CREDITS,
+      creditsAwarded: 10,
       nextVoteAvailable: voteStatus.nextVote,
     };
   } catch (error) {
@@ -291,7 +243,7 @@ export async function getRemainingCredits(userId: string, serverId?: string): Pr
 
 export async function canUseAIFeature(
   userId: string,
-  _serverId?: string, // Prefix with underscore to indicate intentionally unused
+  _serverId?: string,
 ): Promise<{ canUse: boolean; remainingCredits: number }> {
   const client = await pool.connect();
   try {
