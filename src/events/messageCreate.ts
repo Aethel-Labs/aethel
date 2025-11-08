@@ -783,7 +783,7 @@ export default class MessageCreateEvent {
               } else if (name === 'weather' || name === 'wiki') {
                 const textContent = result.result?.content?.find((c) => c.type === 'text')?.text;
                 if (textContent) {
-                  await target.reply(textContent);
+                  await target.reply(processUrls(textContent));
                 }
               }
 
@@ -860,6 +860,7 @@ export default class MessageCreateEvent {
     }
 
     fullResponse += aiResponse.content;
+    fullResponse = processUrls(fullResponse);
 
     const imageFiles: string[] = [];
     if (executedResults) {
