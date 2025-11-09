@@ -153,15 +153,15 @@ export async function recordVote(
                 );
               }
             } catch (error) {
-              logger.error(`Error processing guild ${guild.id}:`, error);
+              console.error(`Error processing guild ${guild.id}:`, error);
             }
           }),
         );
       }
     } catch (error) {
-      logger.error('Error in vote processing:', error);
+      console.error('Error in vote processing:', error);
     } finally {
-      clientBot.destroy().catch((err) => logger.error('Error destroying bot client:', err));
+      clientBot.destroy().catch(console.error);
     }
 
     logger.info(`User ${userId} voted - AI system will give +10 daily limit`);
@@ -190,12 +190,12 @@ export async function recordVote(
               `\n` +
               `Thank you for your support! ❤️`,
           )
-          .catch((err) => logger.error('Failed to send vote DM:', err));
+          .catch(console.error);
       }
 
-      clientBot.destroy().catch((err) => logger.error('Error destroying bot client:', err));
+      clientBot.destroy().catch(console.error);
     } catch (error) {
-      logger.error('Failed to send vote thank you DM:', error);
+      console.error('Failed to send vote thank you DM:', error);
     }
 
     await client.query('COMMIT');
@@ -207,7 +207,7 @@ export async function recordVote(
     };
   } catch (error) {
     await client.query('ROLLBACK');
-    logger.error('Error recording vote:', error);
+    console.error('Error recording vote:', error);
     throw new Error('Failed to record your vote. Please try again later.');
   } finally {
     client.release();

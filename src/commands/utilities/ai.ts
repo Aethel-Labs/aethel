@@ -242,9 +242,7 @@ You can use tools by placing commands in {curly braces}. Available tools:
 
 Use the wikipedia search when you want to look for information outside of your knowledge, state it came from Wikipedia if used.
 
-When you use a tool, you'll receive a JSON response with the command results if needed.
-
-**IMPORTANT:** The {reaction:} and {newmessage:} tools are NOT available in slash commands. Only use the tools listed above.`;
+When you use a tool, you'll receive a JSON response with the command results.`;
 
   const modelSpecificInstructions = usingDefaultKey
     ? '\n\n**IMPORTANT:** Please keep your responses under 3000 characters. Be concise and to the point.'
@@ -490,7 +488,7 @@ async function makeAIRequestInternal(
 ): Promise<AIResponse | null> {
   try {
     const openAIClient = getOpenAIClient(config.finalApiKey!, config.finalApiUrl);
-    const maxTokens = config.usingDefaultKey ? 5000 : 8000;
+    const maxTokens = config.usingDefaultKey ? 1000 : 3000;
     const currentConversation = [...conversation];
     let iteration = 0;
     let finalResponse: AIResponse | null = null;
