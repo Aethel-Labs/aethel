@@ -14,7 +14,7 @@ ENV STATUS_API_KEY=${STATUS_API_KEY}
 WORKDIR /app
 
 
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git fonts-dejavu-core fontconfig && rm -rf /var/lib/apt/lists/*
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
@@ -55,7 +55,7 @@ ENV VITE_BOT_API_URL=${VITE_BOT_API_URL}
 ENV STATUS_API_KEY=${STATUS_API_KEY}
 ENV VITE_STATUS_API_KEY=${VITE_STATUS_API_KEY}
 
-RUN apt-get update && apt-get install -y curl git && rm -rf /var/lib/apt/lists/* && \
+RUN apt-get update && apt-get install -y curl git fonts-dejavu-core fontconfig && rm -rf /var/lib/apt/lists/* && \
     groupadd -g 1001 nodejs && \
     useradd -r -u 1001 -g nodejs aethel
 
