@@ -100,7 +100,7 @@ export async function renderStockCandles(
 
   ctx.strokeStyle = GRID_COLOR;
   ctx.lineWidth = 1;
-  ctx.font = '12px "SF Pro Display", "Segoe UI", sans-serif';
+  ctx.font = '12px sans-serif';
   ctx.fillStyle = TEXT_COLOR;
 
   const gridLines = Math.max(2, Math.round(priceRange / tickSpacing));
