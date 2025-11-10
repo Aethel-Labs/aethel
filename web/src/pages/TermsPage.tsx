@@ -4,7 +4,7 @@ export default function TermsOfService() {
   return (
     <LegalLayout
       title="Terms of Service"
-      lastUpdated="September 29, 2025"
+      lastUpdated="November 9, 2025"
     >
       <div className="space-y-8">
         <section>
@@ -32,6 +32,7 @@ export default function TermsOfService() {
             <li>Random cat and dog images</li>
             <li>Weather information</li>
             <li>Wiki lookups</li>
+            <li>Informational stock snapshots</li>
             <li>And other Discord utilities</li>
           </ul>
         </section>
@@ -54,7 +55,42 @@ export default function TermsOfService() {
 
         <section>
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            4. API Usage
+            4. Financial Data &amp; /stocks Command
+          </h2>
+          <div className="space-y-4 text-gray-700 dark:text-gray-300 leading-relaxed">
+            <p>
+              The /stocks command and any other financial utilities are provided for informational
+              purposes only. We do not offer investment advice, brokerage services, or any tools for
+              trading automation. By using these features you acknowledge and agree that:
+            </p>
+            <ul className="list-disc pl-6 space-y-3">
+              <li>
+                You will not rely on the Bot for investment, legal, tax, or other professional
+                advice.
+              </li>
+              <li>
+                You will not use the Bot to attempt to manipulate any financial market, coordinate
+                trading activity, or distribute misleading information.
+              </li>
+              <li>
+                All output is delayed, may be inaccurate, and is intended solely for personal,
+                non-commercial use.
+              </li>
+              <li>
+                You are solely responsible for complying with applicable securities laws, exchange
+                policies, and platform rules.
+              </li>
+              <li>
+                We may throttle, modify, or disable financial data access at any time without
+                notice.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
+            5. API Usage
           </h2>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
             The Bot may use third-party APIs and services (&quot;Third-Party Services&quot;). Your
@@ -79,7 +115,7 @@ export default function TermsOfService() {
 
         <section>
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            5. Limitation of Liability
+            6. Limitation of Liability
           </h2>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
             The Bot is provided &quot;as is&quot; without any warranties. We are not responsible for
@@ -90,7 +126,7 @@ export default function TermsOfService() {
 
         <section>
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            6. Changes to Terms
+            7. Changes to Terms
           </h2>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
             We reserve the right to modify these terms at any time. Continued use of the Bot after
@@ -100,7 +136,7 @@ export default function TermsOfService() {
 
         <section>
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            7. Contact
+            8. Contact
           </h2>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
             If you have any questions about these Terms of Service, please contact us at{' '}

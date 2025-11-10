@@ -4,10 +4,8 @@ import {
   GetStocksAggregatesTimespanEnum,
   GetStocksSnapshotTicker200Response,
   GetStocksSnapshotTicker200ResponseAllOfTicker,
-  GetTicker200Response,
   GetTicker200ResponseResults,
   GetStocksAggregates200Response,
-  ListTickers200Response,
   ListTickers200ResponseResultsInner,
   ListTickersMarketEnum,
   ListTickersOrderEnum,
@@ -275,6 +273,6 @@ export function sanitizeTickerInput(input: string): string {
   return input
     .trim()
     .toUpperCase()
-    .replace(/[^A-Z0-9.\-]/g, '')
+    .replace(/[^A-Z0-9.-]/g, '')
     .slice(0, 12);
 }
