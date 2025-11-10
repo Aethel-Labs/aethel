@@ -92,6 +92,43 @@
       "nolocation": "Location not found. Please check the city name and try again.",
       "apikeymissing": "OpenWeather API key is missing or invalid."
     },
+    "stocks": {
+      "name": "stocks",
+      "description": "Track stock prices and view quick charts",
+      "option": {
+        "ticker": {
+          "name": "ticker",
+          "description": "The stock ticker symbol (e.g., AAPL, TSLA)"
+        },
+        "range": {
+          "name": "range",
+          "description": "Initial timeframe for the chart"
+        }
+      },
+      "errors": {
+        "noapikey": "The Massive.com API key is missing. Ask the bot owner to configure MASSIVE_API_KEY.",
+        "notfound": "I couldn't find any data for {ticker}. Please double-check the symbol.",
+        "unauthorized": "Only the person who used /stocks can interact with these buttons."
+      },
+      "labels": {
+        "price": "Price",
+        "change": "Change",
+        "dayrange": "Day range",
+        "volume": "Volume",
+        "prevclose": "Prev close",
+        "marketcap": "Market cap",
+        "nochart": "Chart data unavailable for this timeframe."
+      },
+      "buttons": {
+        "timeframes": {
+          "1d": "1D",
+          "5d": "5D",
+          "1m": "1M",
+          "3m": "3M",
+          "1y": "1Y"
+        }
+      }
+    },
     "joke": {
       "name": "joke",
       "description": "Get a random joke!",

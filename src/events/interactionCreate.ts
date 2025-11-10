@@ -1,5 +1,7 @@
 import { browserHeaders } from '@/constants/index';
 import BotClient from '@/services/Client';
+import * as config from '@/config';
+import { renderStocksView, parseStocksButtonId } from '@/commands/utilities/stocks';
 import { RandomReddit } from '@/types/base';
 import { RemindCommandProps } from '@/types/command';
 import logger from '@/utils/logger';
@@ -127,6 +129,51 @@ export default class InteractionCreateEvent {
               }
             ).handleButton(this.client, i);
           }
+        }
+
+        const stocksPayload = parseStocksButtonId(i.customId);
+        if (stocksPayload) {
+          if (!config.MASSIVE_API_KEY) {
+            const message = await this.client.getLocaleText(
+              'commands.stocks.errors.noapikey',
+              i.locale,
+            );
+            return await i.reply({ content: message, flags: MessageFlags.Ephemeral });
+          }
+
+          if (stocksPayload.userId !== i.user.id) {
+            const unauthorized =
+              (await this.client.getLocaleText('commands.stocks.errors.unauthorized', i.locale)) ||
+              'Only the person who used /stocks can use these buttons.';
+            return await i.reply({ content: unauthorized, flags: MessageFlags.Ephemeral });
+          }
+
+          await i.deferUpdate();
+
+          try {
+            const response = await renderStocksView({
+              client: this.client,
+              locale: i.locale,
+              ticker: stocksPayload.ticker,
+              timeframe: stocksPayload.timeframe,
+              userId: stocksPayload.userId,
+            });
+            await i.editReply(response);
+          } catch (error) {
+            if ((error as Error).message === 'STOCKS_TICKER_NOT_FOUND') {
+              const notFound = await this.client.getLocaleText(
+                'commands.stocks.errors.notfound',
+                i.locale,
+                { ticker: stocksPayload.ticker },
+              );
+              await i.editReply({ content: notFound, components: [] });
+            } else {
+              logger.error('Error updating stocks view:', error);
+              const failMsg = await this.client.getLocaleText('failedrequest', i.locale);
+              await i.editReply({ content: failMsg, components: [] });
+            }
+          }
+          return;
         }
 
         const originalUser = i.message.interaction!.user;

@@ -6,6 +6,8 @@ declare global {
       DATABASE_URL: string;
       OPENROUTER_API_KEY: string;
       OPENWEATHER_API_KEY: string;
+      MASSIVE_API_KEY: string;
+      MASSIVE_API_BASE_URL: string;
       SOURCE_COMMIT: string;
       STATUS_API_KEY: string;
       TOKEN: string;
