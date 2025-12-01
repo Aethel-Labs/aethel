@@ -108,7 +108,9 @@
             "links_social": "リンクとソーシャルメディア",
             "features": "機能",
             "features_content": "**楽しいコマンド** - 8ball、猫/犬の画像、その他\n**AI統合** - OpenAIやその他のプロバイダーが提供\n**リマインダー** - 重要なタスクを忘れない\n**ユーティリティ** - 天気、ヘルプ、生産性ツール\n**多言語対応** - 複数の言語に対応",
-            "dashboard": "To-Dos、リマインダー、カスタムAI APIキーを管理するために、[ダッシュボード](https://aethel.xyz/login)をご覧ください"
+            "dashboard": "To-Dos、リマインダー、カスタムAI APIキーを管理するために、[ダッシュボード](https://aethel.xyz/login)をご覧ください",
+            "title": "Aethel Bot",
+            "about": "AI チャット、天気情報、リマインダーなどの便利機能で Discord の体験を向上させてください。"
         },
         "remind": {
             "name": "リマインダー",
@@ -197,13 +199,34 @@
                     "description": "ダウンロードするビデオの品質"
                 },
                 "audio_only": {
-                    "name": "オーディオのみ"
+                    "name": "オーディオのみ",
+                    "description": "音声のみダウンロード"
+                },
+                "mute_audio": {
+                    "name": "mute-audio",
+                    "description": "音声ミュート"
+                },
+                "twitter_gif": {
+                    "name": "twitter-gif",
+                    "description": "Twitter GIFとしてダウンロード"
+                },
+                "tiktok_original_audio": {
+                    "name": "tiktok-original-audio",
+                    "description": "TikTokオリジナル音声を含める"
+                },
+                "audio_format": {
+                    "name": "audio-format",
+                    "description": "音声のフォーマット（audio-onlyがtrueの場合に必須）"
                 }
             },
             "rate_limit": "⏳ **レート制限が超過しました。** しばらくしてからもう一度お試しください。",
             "unknown_response": "❓ **APIからの未知の応答です。** もう一度お試しください。",
             "multiple_items": "📋 **このURLに複数の項目が見つかりました。** より具体的なURLを入力してください。",
-            "local_processing_not_supported": "⚠️ **ローカル処理はサポートされていません。** 別のURLまたはオプションをお試しください。"
+            "local_processing_not_supported": "⚠️ **ローカル処理はサポートされていません。** 別のURLまたはオプションをお試しください。",
+            "button_label": "ダウンロード",
+            "success": "✅ **ダウンロード完了!**\n\n🔗 {url}\n📥 **以下のボタンをクリックしてファイルをダウンロードしてください。**",
+            "error": "❌ **エラー:** {error}",
+            "unknown_error": "不明なエラーが発生しました。"
         },
         "meow": {
             "noText": "にゃーに変換するテキストを入力してください！",
@@ -222,7 +245,35 @@
             "description": "株価を追跡し、クイックチャートを表示する",
             "option": {
                 "ticker": {
-                    "name": "ティッカー"
+                    "name": "ティッカー",
+                    "description": "株式ティッカーシンボル（例：AAPL、TSLA）"
+                },
+                "range": {
+                    "name": "レンジ",
+                    "description": "チャートの初期時間枠"
+                }
+            },
+            "errors": {
+                "notfound": "{ticker} のデータが見つかりません。シンボルを再確認してください。",
+                "unauthorized": "/stocks を使用したユーザーだけがこれらのボタンと対話できます。",
+                "noapikey": "Massive.com の API キーがありません。ボットの所有者に MASSIVE_API_KEY を設定するように依頼してください。"
+            },
+            "labels": {
+                "change": "変化",
+                "dayrange": "1 日のレンジ",
+                "volume": "取引量",
+                "prevclose": "前日の終値",
+                "marketcap": "時価総額",
+                "nochart": "この時間枠ではチャートデータが利用できません。",
+                "price": "価格"
+            },
+            "buttons": {
+                "timeframes": {
+                    "1d": "1D",
+                    "5d": "5D",
+                    "1m": "1M",
+                    "3m": "3M",
+                    "1y": "1Y"
                 }
             }
         },
@@ -243,7 +294,14 @@
             "add_error": "❌ やることの追加に失敗しました。しばらくしてから再試行してください。",
             "empty": "やることリストは空です！ 🎉",
             "description": "やることリストを管理",
-            "name": "todo"
+            "name": "todo",
+            "list_title": "📝 あなたのTo-Doリスト",
+            "checked": "✅ 完了としてマークされたTo-Do: **{item}**",
+            "notfound": "❌ 指定されたTo-Doが見つかりません: **{item}**",
+            "done_error": "❌ To-Doを完了としてマークできませんでした。後で再試行してください。",
+            "todo_title": "To-Do",
+            "done_title": "完了",
+            "none": "—"
         },
         "time": {
             "description": "タイムゾーンの現在時刻を取得する",
