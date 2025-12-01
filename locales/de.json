@@ -296,7 +296,8 @@
                 "volume": "Volumen",
                 "prevclose": "Vorheriger Schlusskurs",
                 "marketcap": "Marktkapitalisierung",
-                "nochart": "Diagrammdaten für diesen Zeitraum nicht verfügbar."
+                "nochart": "Diagrammdaten für diesen Zeitraum nicht verfügbar.",
+                "change": "Änderung"
             },
             "name": "Aktien",
             "buttons": {
