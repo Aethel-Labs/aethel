@@ -95,12 +95,21 @@
         },
         "help": {
             "name": "ayuda",
-            "description": "Muestra todos los comandos disponibles y su uso",
+            "description": "Obtener información sobre Aethel",
             "embed": {
                 "title": "Comandos de Aethel",
                 "description": "Aquí están todos los comandos disponibles"
             },
-            "nooptions": "Sin opciones"
+            "nooptions": "Sin opciones",
+            "title": "Bot Aethel",
+            "about": "Mejora tu experiencia en Discord con chat de IA, actualizaciones del clima, recordatorios y más funciones útiles.",
+            "viewcommands": "Ver comandos",
+            "supportserver": "Servidor de soporte",
+            "back": "Atrás",
+            "links_social": "Enlaces y redes sociales",
+            "features": "Características",
+            "features_content": "**Comandos divertidos** - 8ball, imágenes de gato/perro y más\n**Integración con IA** - Impulsado por OpenAI y otros proveedores\n**Recordatorios** - Nunca olvides tareas importantes\n**Utilidades** - Clima, ayuda y herramientas de productividad\n**Multilingüe** - Soporta varios idiomas",
+            "dashboard": "Consulta nuestro [panel de control](https://aethel.xyz/login) para gestionar tareas, recordatorios y claves de API de IA personalizadas"
         },
         "remind": {
             "name": "recordar",
@@ -170,7 +179,10 @@
                 "failed": "No se pudo procesar la respuesta de la IA",
                 "nores": "Sin respuesta de la IA",
                 "toolong": "El mensaje es demasiado largo"
-            }
+            },
+            "testing": "Probando la clave de API...",
+            "testfailed": "❌ La prueba de la clave de API falló: {error}. Verifica tus credenciales e inténtalo de nuevo.",
+            "testsuccess": "✅ ¡Prueba de la clave de API exitosa! Credenciales guardadas."
         },
         "todo": {
             "name": "tarea",
@@ -228,7 +240,9 @@
                 "dayrange": "Rango del día",
                 "volume": "Volumen",
                 "prevclose": "Cierre anterior",
-                "price": "Precio"
+                "price": "Precio",
+                "marketcap": "Capitalización de mercado",
+                "nochart": "Datos del gráfico no disponibles para este período."
             },
             "name": "acciones",
             "description": "Rastrear precios de acciones y ver gráficos rápidos",
@@ -246,6 +260,15 @@
                 "noapikey": "La clave API de Massive.com falta. Pida al propietario del bot que configure MASSIVE_API_KEY.",
                 "notfound": "No pude encontrar datos para {ticker}. Por favor, verifique el símbolo.",
                 "unauthorized": "Solo la persona que usó /stocks puede interactuar con estos botones."
+            },
+            "buttons": {
+                "timeframes": {
+                    "1d": "1D",
+                    "5d": "5D",
+                    "1m": "1M",
+                    "3m": "3M",
+                    "1y": "1Y"
+                }
             }
         },
         "social": {
