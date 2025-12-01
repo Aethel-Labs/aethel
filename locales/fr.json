@@ -388,7 +388,8 @@
             "fieldNoAccounts": "Pas de comptes",
             "guildOnly": "Cette commande ne peut être utilisée que sur un serveur.",
             "unknownSubcommand": "Sous-commande inconnue.",
-            "failedAction": "❌ Échec de {action} l'abonnement : {message}"
+            "failedAction": "❌ Échec de {action} l'abonnement : {message}",
+            "name": "social"
         }
     },
     "categories": {
