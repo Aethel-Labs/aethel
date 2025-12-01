@@ -125,7 +125,8 @@
             "contextiwillremindyou": "Te recordaré sobre este mensaje en {time}",
             "time": "Tiempo",
             "willtrigger": "Se activará",
-            "reminderid": "ID del recordatorio: {reminderId}"
+            "reminderid": "ID del recordatorio: {reminderId}",
+            "description": "Establecer un recordatorio"
         },
         "whois": {
             "name": "whois",
@@ -162,7 +163,7 @@
             "nopendingrequest": "No se encontró ninguna solicitud pendiente. Por favor, intenta el comando de nuevo.",
             "apicredssaved": "Credenciales de API guardadas. Ahora puedes usar el comando `/ai` sin volver a ingresar tus credenciales. Para dejar de usar tu clave, usa `/ai custom_setup:false`",
             "process": {
-                "dailylimit": "Has alcanzado tu límite diario de solicitudes de IA",
+                "dailylimit": "Has alcanzado tu límite diario de solicitudes de IA. Vota por Aethel para obtener más solicitudes: https://top.gg/bot/1371031984230371369/vote\nO configura tu propia clave API usando el comando \"/ai\".",
                 "noapikey": "Por favor, configura primero tu clave API"
             },
             "errors": {
@@ -183,7 +184,110 @@
                 "description": "Marcar una tarea como realizada"
             },
             "list": {
-                "name": "lista"
+                "name": "lista",
+                "description": "Ver tu lista de tareas pendientes"
+            },
+            "added": "✅ Añadido a la lista de tareas: **{item}**",
+            "add_error": "❌ Falló al agregar tu tarea. Por favor, inténtalo más tarde."
+        },
+        "cobalt": {
+            "name": "cobalto",
+            "description": "Descargar un video o audio desde una URL dada",
+            "options": {
+                "url": {
+                    "name": "url",
+                    "description": "La URL del video que se descargará"
+                },
+                "video_quality": {
+                    "name": "video-quality",
+                    "description": "La calidad del video a descargar"
+                }
+            },
+            "unknown_response": "❓ **Respuesta desconocida de la API.** Inténtalo de nuevo.",
+            "multiple_items": "📋 **Se encontraron varios elementos para esta URL.** Proporciona una URL más específica.",
+            "local_processing_not_supported": "⚠️ **El procesamiento local no está soportado.** Prueba con una URL u opción diferente.",
+            "error": "❌ **Error:** {error}",
+            "unknown_error": "Ocurrió un error desconocido.",
+            "rate_limit": "⏳ **Límite de tasa excedido.** Inténtalo más tarde."
+        },
+        "meow": {
+            "name": "miau",
+            "description": "Traducir texto al lenguaje de maullidos",
+            "noText": "¡Por favor, proporcione algún texto para traducir al lenguaje de maullidos!",
+            "response": "🐱 {meowText}",
+            "options": {
+                "text": {
+                    "name": "texto",
+                    "description": "El texto para traducir al lenguaje de maullidos"
+                }
+            }
+        },
+        "stocks": {
+            "labels": {
+                "change": "Cambio",
+                "dayrange": "Rango del día",
+                "volume": "Volumen",
+                "prevclose": "Cierre anterior",
+                "price": "Precio"
+            },
+            "name": "acciones",
+            "description": "Rastrear precios de acciones y ver gráficos rápidos",
+            "option": {
+                "ticker": {
+                    "name": "ticker",
+                    "description": "El símbolo de ticker de acciones (por ejemplo, AAPL, TSLA)"
+                },
+                "range": {
+                    "name": "rango",
+                    "description": "Intervalo de tiempo inicial para el gráfico"
+                }
+            },
+            "errors": {
+                "noapikey": "La clave API de Massive.com falta. Pida al propietario del bot que configure MASSIVE_API_KEY.",
+                "notfound": "No pude encontrar datos para {ticker}. Por favor, verifique el símbolo.",
+                "unauthorized": "Solo la persona que usó /stocks puede interactuar con estos botones."
+            }
+        },
+        "social": {
+            "refreshFailed": "❌ Falló la actualización: {message}",
+            "removeSuccess": "✅ Eliminada la cuenta {account} de {platform} del seguimiento.",
+            "removeNotFound": "❌ No se encontró una suscripción para la cuenta {account} de {platform}.",
+            "listNone": "No hay cuentas de redes sociales siendo rastreadas en este servidor.",
+            "listTitle": "📱 Cuentas de redes sociales rastreadas",
+            "listDescription": "Aquí están todas las cuentas de redes sociales que se rastrean en este servidor:",
+            "channelUnset": "No se configuró canal",
+            "fieldNoAccounts": "No hay cuentas",
+            "name": "social",
+            "description": "Obtener notificaciones de publicaciones desde cuentas de Fediverse y Bluesky",
+            "invalidChannel": "❌ Canal seleccionado inválido.",
+            "notInitializedThrow": "Las funciones de redes sociales no están correctamente inicializadas.",
+            "addSuccess": "✅ Ahora siguiendo la cuenta {account} de {platform}. Nuevas publicaciones se publicarán en {channel}.",
+            "notInitialized": "❌ Las funciones de redes sociales no están inicializadas.",
+            "refreshSuccess": "🔄 Actualización completa. {count} nueva(s) publicación(es) notificadas.",
+            "guildOnly": "Este comando solo se puede usar en un servidor.",
+            "unknownSubcommand": "Subcomando desconocido.",
+            "failedAction": "❌ Falló al {action} la suscripción: {message}"
+        },
+        "time": {
+            "name": "time",
+            "description": "Obtener la hora actual para una zona horaria",
+            "option_timezone": {
+                "name": "timezone",
+                "description": "La zona horaria a verificar (p. ej., Europe/Madrid)"
+            },
+            "embed": {
+                "title_single": "Hora en {city}, {country}",
+                "title_multi": "Hora para {city}",
+                "time_format": "dddd, MMMM D, YYYY, h:mm A z"
+            }
+        },
+        "trivia": {
+            "game_end": {
+                "tie": "🤝 Es un empate entre {winners}!"
+            },
+            "errors": {
+                "fetch_failed": "Falló al obtener preguntas de trivia: {error}",
+                "api_error": "Error de la API de trivia: {code}"
             }
         }
     },
