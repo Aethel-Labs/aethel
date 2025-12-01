@@ -314,7 +314,31 @@
             "name": "trivia",
             "description": "Starte ein Mehrspieler-Trivia-Spiel",
             "buttons": {
-                "join": "🎯 Spiel beitreten"
+                "join": "🎯 Spiel beitreten",
+                "start": "🚀 Spiel starten",
+                "cancel": "❌ Abbrechen"
+            },
+            "messages": {
+                "tied_game": "🤝 Unentschieden! Weiter spielen, bis jemand einen Punkt erzielt!",
+                "game_exists": "❌ Es läuft bereits ein Trivia-Spiel in diesem Kanal!",
+                "game_starting": "## 🎯 Trivia-Spiel startet!\n\n**Spieler ({count}):**\n{players}\n\nKlicken Sie auf **Beitreten** um teilzunehmen!\nKlicken Sie auf **Spiel starten** wenn alle beigetreten sind.",
+                "game_started": "Das Spiel hat bereits begonnen!",
+                "already_joined": "Du bist bereits im Spiel!",
+                "only_creator_start": "Nur die Person, die das Spiel gestartet hat, kann es beginnen!",
+                "only_creator_cancel": "Nur die Person, die das Spiel gestartet hat, kann es abbrechen!",
+                "need_players": "Mindestens 1 Spieler benötigt, um zu starten!",
+                "starting_game": "🎯 Trivia-Spiel startet... Fragen werden abgerufen!",
+                "game_cancelled": "❌ Trivia-Spiel wurde abgebrochen.",
+                "no_active_game": "❌ Kein aktives Trivia-Spiel gefunden.",
+                "not_your_turn": "Es ist nicht dein Zug!",
+                "no_active_question": "❌ Kein aktives Spiel.",
+                "failed_start": "❌ Trivia-Spiel konnte nicht gestartet werden. Bitte später erneut versuchen.",
+                "preparing_next": "Nächste Frage wird vorbereitet..."
+            },
+            "question": {
+                "header": "## 🧠 Trivia-Frage {current}/{total}",
+                "your_turn": "**{player}, es ist dein Zug!**",
+                "category": "**Kategorie:** {category}"
             }
         },
         "meow": {
