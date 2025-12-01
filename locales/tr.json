@@ -43,7 +43,8 @@
                 "mysourcessayno": "Kaynaklarım hayır diyor",
                 "outlooknotsogood": "Görünüm pek iyi değil",
                 "verydoubtful": "Çok şüpheli"
-            }
+            },
+            "askagain": "Tekrar Sor"
         },
         "cat": {
             "name": "kedi",
@@ -95,12 +96,17 @@
         },
         "help": {
             "name": "yardım",
-            "description": "Tüm mevcut komutları ve kullanımlarını göster",
+            "description": "Aethel hakkında bilgi alın",
             "embed": {
                 "title": "Aethel komutları",
                 "description": "İşte tüm mevcut komutlar"
             },
-            "nooptions": "Seçenek yok"
+            "nooptions": "Seçenek yok",
+            "dashboard": "To-Dos, hatırlatıcılar ve özel AI API anahtarlarını yönetmek için [panelimizi](https://aethel.xyz/login) inceleyin.",
+            "back": "Geri",
+            "links_social": "Linkler & Sosyal Medya",
+            "features": "Özellikler",
+            "features_content": "**Eğlence Komutları** - 8ball, kedi/kopek resimleri ve daha fazlası\n**Yapay Zeka Entegrasyonu** - OpenAI ve diğer sağlayıcılar tarafından desteklenir\n**Hatırlatıcılar** - Önemli görevleri asla unutmayın\n**Yardımcılar** - Hava, yardım ve üretkenlik araçları\n**Çoklu Dil** - Birden fazla dili destekler"
         },
         "remind": {
             "name": "hatırlat",
@@ -125,7 +131,8 @@
             "contextiwillremindyou": "Bu mesajı {time} sonra hatırlatacağım",
             "time": "Zaman",
             "willtrigger": "Tetiklenecek",
-            "reminderid": "Hatırlatıcı ID: {reminderId}"
+            "reminderid": "Hatırlatıcı ID: {reminderId}",
+            "description": "Hatırlatıcı ayarla"
         },
         "whois": {
             "name": "whois",
@@ -162,13 +169,123 @@
             "nopendingrequest": "Bekleyen bir istek bulunamadı. Lütfen komutu tekrar deneyin.",
             "apicredssaved": "API kimlik bilgileri kaydedildi. Artık `/ai` komutunu anahtarınızı tekrar girmeden kullanabilirsiniz. Kendi anahtarınızı kullanmayı bırakmak için /ai custom_setup:false yazın",
             "process": {
-                "dailylimit": "Günlük AI istek limitinize ulaştınız",
+                "dailylimit": "Günlük AI talep sınırınıza ulaştınız. Daha fazla talep için Aethel'e oy verin: https://top.gg/bot/1371031984230371369/vote\nVeya \"/ai\" komutunu kullanarak kendi API anahtarınızı ayarlayın.",
                 "noapikey": "Lütfen önce API anahtarınızı ayarlayın"
             },
             "errors": {
                 "failed": "AI yanıtı işlenemedi",
                 "nores": "AI'dan yanıt yok",
                 "toolong": "Mesaj çok uzun"
+            },
+            "testing": "API anahtarı test ediliyor...",
+            "testfailed": "❌ API anahtarı testi başarısız: {error}. Lütfen kimlik bilgilerinizi kontrol edin ve tekrar deneyin.",
+            "testsuccess": "✅ API anahtarı testi başarılı! Kimlik bilgileri kaydedildi."
+        },
+        "cobalt": {
+            "name": "kobalt",
+            "rate_limit": "⏳ **Hız sınırı aşıldı.** Lütfen daha sonra tekrar deneyin.",
+            "description": "Belirli bir URL'den video veya ses indirin",
+            "options": {
+                "url": {
+                    "name": "url",
+                    "description": "İndirilecek videonun URL'si"
+                },
+                "video_quality": {
+                    "name": "video-quality",
+                    "description": "İndirilecek videonun kalitesi"
+                },
+                "audio_only": {
+                    "name": "audio-only",
+                    "description": "Sadece ses indirin"
+                },
+                "mute_audio": {
+                    "name": "mute-audio",
+                    "description": "Sesi kapat"
+                },
+                "twitter_gif": {
+                    "name": "twitter-gif",
+                    "description": "Twitter GIF olarak indirin"
+                },
+                "tiktok_original_audio": {
+                    "name": "tiktok-original-audio",
+                    "description": "TikTok'un orijinal sesini dahil edin"
+                },
+                "audio_format": {
+                    "name": "audio-format",
+                    "description": "Ses için format (sadece ses seçeneği true olmalı)"
+                }
+            },
+            "button_label": "İndir"
+        },
+        "meow": {
+            "options": {
+                "text": {
+                    "description": "Miyav çevirilecek metin",
+                    "name": "metin"
+                }
+            },
+            "name": "miyav",
+            "description": "Metni miyav diline çevir",
+            "noText": "Lütfen çevirilecek bir metin sağlayın!",
+            "response": "🐱 {meowText}"
+        },
+        "stocks": {
+            "name": "hisseler",
+            "description": "Hisse fiyatlarını takip edin ve hızlı grafikleri görüntüleyin.",
+            "option": {
+                "ticker": {
+                    "name": "seçici sembol",
+                    "description": "Hisse senedi ticker sembolü (örneğin, AAPL, TSLA)"
+                },
+                "range": {
+                    "name": "aralık",
+                    "description": "Grafik için başlangıç süresi"
+                }
+            }
+        },
+        "todo": {
+            "name": "yapılacaklar",
+            "description": "Yapılacaklar listenizi yönetin",
+            "add": {
+                "name": "ekle",
+                "description": "Yeni bir yapılacaklar öğesi ekleyin"
+            },
+            "done": {
+                "name": "tamamla",
+                "description": "Bir yapılacakları tamamlandı olarak işaretleyin"
+            },
+            "list": {
+                "name": "liste",
+                "description": "Yapılacaklar listenizi görüntüleyin"
+            },
+            "added": "✅ Yapılacaklar eklendi: **{item}**",
+            "add_error": "❌ Yapılacaklar eklenemedi. Lütfen daha sonra tekrar deneyin.",
+            "empty": "Yapılacaklar listeniz boş! 🎉",
+            "list_title": "📝 Yapılacaklar Listeniz",
+            "checked": "✅ Yapılacaklar tamamlandı olarak işaretlendi: **{item}**",
+            "notfound": "❌ Bu yapılacak iş bulunamadı: **{item}**",
+            "done_error": "❌ Yapılacak işinizi tamamlandı olarak işaretleme başarısız oldu. Lütfen daha sonra tekrar deneyin.",
+            "done_title": "Tamamlandı",
+            "none": "—",
+            "todo_title": "Yapılacak"
+        },
+        "social": {
+            "refreshSuccess": "🔄 Yenileme tamamlandı. {count} yeni gönderi(ler) bildirim edildi.",
+            "refreshFailed": "❌ Yenileme başarısız: {message}",
+            "removeSuccess": "✅ {platform} hesabı {account} izlemeden çıkarıldı.",
+            "removeNotFound": "❌ {platform} hesabı {account} için abonelik bulunamadı.",
+            "listNone": "Bu sunucuda sosyal medya hesapları izlenmiyor.",
+            "listTitle": "📱 İzlenen Sosyal Medya Hesapları",
+            "listDescription": "Aşağıda bu sunucuda izlenen tüm sosyal medya hesapları listelenmiştir:",
+            "channelUnset": "Kanal ayarlı değil",
+            "fieldNoAccounts": "Hesap yok",
+            "guildOnly": "Bu komut yalnızca bir sunucuda kullanılabilir.",
+            "unknownSubcommand": "Bilinmeyen alt komut.",
+            "failedAction": "❌ {action} aboneliği başarısız: {message}"
+        },
+        "time": {
+            "embed": {
+                "notfound": "Şehir bulunamadı."
             }
         }
     },
