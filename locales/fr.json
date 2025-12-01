@@ -96,12 +96,21 @@
         },
         "help": {
             "name": "aide",
-            "description": "Affiche toutes les commandes disponibles et leur utilisation",
+            "description": "Obtenir des informations sur Aethel",
             "embed": {
                 "title": "Commandes Aethel",
                 "description": "Voici toutes les commandes disponibles"
             },
-            "nooptions": "Aucune option"
+            "nooptions": "Aucune option",
+            "features_content": "**Commandes amusantes** - 8ball, images de chat/chien, et plus \n**Intégration IA** - Propulsé par OpenAI et d'autres fournisseurs  \n**Rappels** - N'oubliez jamais les tâches importantes  \n**Outils** - Météo, aide, et outils de productivité  \n**Multilingue** - Prend en charge plusieurs langues",
+            "dashboard": "Découvrez notre [tableau de bord](https://aethel.xyz/login) pour gérer les tâches, les rappels et les clés API IA personnalisées",
+            "title": "Bot Aethel",
+            "about": "Améliorez votre expérience Discord avec un chat IA, des mises à jour météo, des rappels, et d'autres fonctionnalités utiles.",
+            "viewcommands": "Afficher les commandes",
+            "supportserver": "Serveur de support",
+            "back": "retour",
+            "links_social": "Liens & Médias sociaux",
+            "features": "Fonctionnalités"
         },
         "remind": {
             "name": "rappel",
@@ -126,7 +135,8 @@
             "contextiwillremindyou": "Je vous rappellerai ce message dans {time}",
             "time": "Temps",
             "willtrigger": "Déclenchera",
-            "reminderid": "ID du rappel : {reminderId}"
+            "reminderid": "ID du rappel : {reminderId}",
+            "description": "Programmer un rappel"
         },
         "whois": {
             "name": "whois",
@@ -163,14 +173,17 @@
             "nopendingrequest": "Aucune demande en attente trouvée. Veuillez réessayer la commande.",
             "apicredssaved": "Identifiants API enregistrés. Vous pouvez maintenant utiliser la commande `/ai` sans ressaisir vos identifiants. Pour ne plus utiliser votre clé, faites `/ai custom_setup:false`",
             "process": {
-                "dailylimit": "Vous avez atteint votre limite quotidienne de requêtes IA",
+                "dailylimit": "Vous avez atteint votre limite quotidienne de demandes d'IA. Votez pour Aethel pour obtenir plus de demandes : https://top.gg/bot/1371031984230371369/vote Ou configurez votre propre clé API en utilisant la commande \"/ai\".",
                 "noapikey": "Veuillez d'abord configurer votre clé API"
             },
             "errors": {
                 "failed": "Impossible de traiter la réponse de l'IA",
                 "nores": "Aucune réponse de l'IA",
                 "toolong": "Le message est trop long"
-            }
+            },
+            "testfailed": "❌ Le test de la clé API a échoué : {error}. Veuillez vérifier vos identifiants et réessayer.",
+            "testing": "Test de la clé API...",
+            "testsuccess": "✅ Test de clé API réussi ! Identifiants sauvegardés."
         },
         "todo": {
             "name": "faire",
@@ -220,7 +233,162 @@
             "description": "Obtenir l'heure actuelle pour un fuseau horaire"
         },
         "meow": {
-            "name": "miaou"
+            "name": "miaou",
+            "response": "🐱 {meowText}",
+            "description": "Traduire le texte en langue de miaulement",
+            "options": {
+                "text": {
+                    "name": "texte",
+                    "description": "Le texte à traduire à miauler"
+                }
+            },
+            "noText": "Veuillez fournir du texte à traduire vers meow !"
+        },
+        "stocks": {
+            "labels": {
+                "nochart": "Données de graphique indisponibles pour cette période.",
+                "change": "Changer",
+                "dayrange": "Plage de jour",
+                "volume": "Volume",
+                "prevclose": "fermeture précédente",
+                "marketcap": "Capitalisation boursière",
+                "price": "Prix"
+            },
+            "description": "Suivez les cours des actions et visualisez des graphiques rapides",
+            "errors": {
+                "noapikey": "La clé d'API de Massive.com est manquante. Demandez au propriétaire du bot de configurer MASSIVE_API_KEY.",
+                "notfound": "Je n'ai trouvé aucune donnée pour {ticker}. Veuillez vérifier double le symbole.",
+                "unauthorized": "Seule la personne qui a utilisé /stocks peut interagir avec ces boutons."
+            },
+            "name": "actions",
+            "option": {
+                "ticker": {
+                    "name": "symbole ticker",
+                    "description": "Le symbole du ticker boursier (par exemple, AAPL, TSLA)"
+                },
+                "range": {
+                    "name": "gamme",
+                    "description": "Période initiale pour le graphique"
+                }
+            },
+            "buttons": {
+                "timeframes": {
+                    "5d": "5D",
+                    "1d": "1D",
+                    "1m": "1M",
+                    "3m": "3M",
+                    "1y": "1 an"
+                }
+            }
+        },
+        "cobalt": {
+            "local_processing_not_supported": "⚠️ **Le traitement local n’est pas supporté.** Veuillez essayer une URL ou une option différente.",
+            "success": "✅ **Téléchargement prêt!**\n\n🔗 {url}\n📥 **Cliquez sur le bouton ci-dessous pour télécharger votre fichier.**",
+            "name": "cobalt",
+            "description": "Télécharger une vidéo ou un audio à partir d'une URL donnée",
+            "options": {
+                "url": {
+                    "name": "url",
+                    "description": "L'URL de la vidéo à télécharger"
+                },
+                "video_quality": {
+                    "name": "qualité vidéo",
+                    "description": "La qualité de la vidéo à télécharger"
+                },
+                "audio_only": {
+                    "name": "audio uniquement",
+                    "description": "Télécharger uniquement l'audio"
+                },
+                "mute_audio": {
+                    "name": "mettre en sourdine l'audio",
+                    "description": "Muet audio"
+                },
+                "twitter_gif": {
+                    "name": "gif Twitter",
+                    "description": "Télécharger en tant que GIF Twitter"
+                },
+                "tiktok_original_audio": {
+                    "name": "tiktok-original-audio",
+                    "description": "Inclure l'audio original de TikTok"
+                },
+                "audio_format": {
+                    "name": "format-audio",
+                    "description": "Format pour audio (nécessite que audio-only soit vrai)"
+                }
+            },
+            "button_label": "Télécharger",
+            "error": "❌ **Erreur:** {error}",
+            "unknown_error": "Une erreur inconnue s'est produite.",
+            "rate_limit": "⏳ **Limite de débit dépassée.** Veuillez réessayer plus tard.",
+            "unknown_response": "❓ **Réponse inconnue de l'API.** Veuillez réessayer.",
+            "multiple_items": "📋 **Plusieurs éléments trouvés pour cette URL.** Veuillez fournir une URL plus précise."
+        },
+        "trivia": {
+            "messages": {
+                "only_creator_start": "Seule la personne qui a commencé le jeu peut le commencer !",
+                "tied_game": "🤝 Match nul ! Continuez jusqu'à ce que quelqu'un marque !",
+                "not_your_turn": "Ce n'est pas ton tour !",
+                "game_exists": "❌ Il y a déjà un jeu de quiz en cours dans ce canal !",
+                "game_starting": "## 🎯 Démarrage du jeu Trivia!\n\n**Joueurs ({count}):**\n{players}\n\nCliquez **Rejoindre le jeu** pour participer!\nCliquez **Démarrer le jeu** lorsque tout le monde a rejoint.",
+                "game_started": "Le jeu a déjà commencé !",
+                "already_joined": "Tu es déjà dans le jeu !",
+                "only_creator_cancel": "Seule la personne qui a commencé le jeu peut l'annuler !",
+                "need_players": "Besoin d'au moins 1 joueur pour démarrer !",
+                "starting_game": "🎯 Démarrage du jeu de trivia... Récupération des questions !",
+                "game_cancelled": "❌ Jeu de trivia annulé.",
+                "no_active_game": "❌ Aucun jeu de trivia actif trouvé.",
+                "no_active_question": "❌ Aucun jeu actif.",
+                "failed_start": "❌ Échec de démarrage du jeu de trivia. Veuillez réessayer plus tard.",
+                "preparing_next": "Préparer la prochaine question..."
+            },
+            "answer": {
+                "result_format": "{result}\n\n**Question:** {question}\n**Votre réponse:** {answer}\n**Réponse correcte:** {correct}\n\n{preparing}",
+                "correct": "✅ **Correct!**",
+                "incorrect": "❌ **Incorrect!**"
+            },
+            "game_end": {
+                "header": "## 🏆 Jeu de Trivia terminé !",
+                "congratulations": "🎉 Félicitations {winner} !",
+                "final_scores": "**Scores finaux:**",
+                "tie": "🤝 C'est un match nul entre {winners}!"
+            },
+            "name": "trivias",
+            "description": "Démarrer un jeu de trivia multijoueur",
+            "buttons": {
+                "join": "🎯 Rejoindre le jeu",
+                "start": "🚀 Démarrer le jeu",
+                "cancel": "❌ Annuler"
+            },
+            "question": {
+                "header": "## 🧠 Question Trivia {current}/{total}",
+                "your_turn": "**{player}, c'est votre tour!**",
+                "category": "**Catégorie:** {category}",
+                "difficulty": "**Difficulté:** {difficulty}",
+                "question_text": "**{question}**"
+            },
+            "errors": {
+                "fetch_failed": "Échec de la récupération des questions de culture générale : {error}",
+                "api_error": "Erreur API Trivia : {code}"
+            }
+        },
+        "social": {
+            "description": "Obtenir des notifications de publications provenant des comptes Fediverse et Bluesky",
+            "invalidChannel": "❌ Canal invalide sélectionné.",
+            "notInitializedThrow": "Les fonctionnalités des médias sociaux ne sont pas correctement initialisées.",
+            "addSuccess": "✅ Suivi du compte {account} sur {platform}. Les nouveaux posts seront publiés dans {channel}.",
+            "notInitialized": "❌ Les fonctionnalités des réseaux sociaux ne sont pas initialisées.",
+            "refreshSuccess": "🔄 Rafraîchissement complet. {count} nouveau(s) notifié(s).",
+            "refreshFailed": "❌ Échec du rafraîchage : {message}",
+            "removeSuccess": "✅ Supprimé {platform} compte {account} du suivi.",
+            "removeNotFound": "❌ Impossible de trouver un abonnement pour le compte {account} sur {platform}.",
+            "listNone": "Aucun compte de média social n'est suivi dans ce serveur.",
+            "listTitle": "📱 Comptes de médias sociaux suivis",
+            "listDescription": "Voici tous les comptes de médias sociaux suivis dans ce serveur :",
+            "channelUnset": "Aucun canal défini",
+            "fieldNoAccounts": "Pas de comptes",
+            "guildOnly": "Cette commande ne peut être utilisée que sur un serveur.",
+            "unknownSubcommand": "Sous-commande inconnue.",
+            "failedAction": "❌ Échec de {action} l'abonnement : {message}"
         }
     },
     "categories": {
