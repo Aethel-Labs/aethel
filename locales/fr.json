@@ -43,7 +43,8 @@
                 "mysourcessayno": "Mes sources disent non",
                 "outlooknotsogood": "Ça ne s'annonce pas bien",
                 "verydoubtful": "Très douteux"
-            }
+            },
+            "askagain": "Demander à nouveau"
         },
         "cat": {
             "name": "chat",
@@ -217,6 +218,9 @@
             },
             "name": "temps",
             "description": "Obtenir l'heure actuelle pour un fuseau horaire"
+        },
+        "meow": {
+            "name": "miaou"
         }
     },
     "categories": {
