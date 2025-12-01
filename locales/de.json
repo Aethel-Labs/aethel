@@ -43,7 +43,8 @@
                 "mysourcessayno": "Meine Quellen sagen nein",
                 "outlooknotsogood": "Sieht nicht so gut aus",
                 "verydoubtful": "Sehr zweifelhaft"
-            }
+            },
+            "askagain": "Erneut fragen"
         },
         "cat": {
             "name": "katze",
@@ -125,7 +126,8 @@
             "contextiwillremindyou": "Ich werde dich an diese Nachricht in {time} erinnern",
             "time": "Zeit",
             "willtrigger": "Wird ausgelöst",
-            "reminderid": "Erinnerungs-ID: {reminderId}"
+            "reminderid": "Erinnerungs-ID: {reminderId}",
+            "description": "Erinnerung einstellen"
         },
         "whois": {
             "name": "whois",
@@ -169,6 +171,108 @@
                 "failed": "KI-Antwort konnte nicht verarbeitet werden",
                 "nores": "Keine Antwort von der KI",
                 "toolong": "Nachricht ist zu lang"
+            },
+            "testing": "API-Schlüssel testen...",
+            "testfailed": "❌ API-Schlüssel-Test fehlgeschlagen: {error}. Bitte prüfen Sie Ihre Anmeldedaten und versuchen Sie es erneut.",
+            "testsuccess": "✅ API-Schlüssel-Test erfolgreich! Anmeldedaten gespeichert."
+        },
+        "cobalt": {
+            "name": "cobalt",
+            "description": "Ein Video oder Audio von einer angegebenen URL herunterladen",
+            "options": {
+                "url": {
+                    "name": "url",
+                    "description": "Die URL des Videos, das heruntergeladen werden soll"
+                },
+                "video_quality": {
+                    "name": "video-quality",
+                    "description": "Die Videoqualität, die heruntergeladen werden soll"
+                },
+                "audio_only": {
+                    "name": "audio-only",
+                    "description": "Nur Audio herunterladen"
+                },
+                "mute_audio": {
+                    "name": "mute-audio",
+                    "description": "Audio stummschalten"
+                },
+                "audio_format": {
+                    "name": "audio-format",
+                    "description": "Format für Audio (Audio-only muss wahr sein)"
+                },
+                "tiktok_original_audio": {
+                    "name": "tiktok-original-audio",
+                    "description": "TikTok-originales Audio einbeziehen"
+                }
+            },
+            "rate_limit": "⏳ **Rate-Limit überschritten.** Bitte versuchen Sie es später noch einmal.",
+            "unknown_response": "❓ **Unbekannte Antwort von der API.** Bitte versuchen Sie es erneut.",
+            "multiple_items": "📋 **Mehrere Elemente für diese URL gefunden.** Bitte geben Sie eine spezifischere URL an.",
+            "local_processing_not_supported": "⚠️ **Lokale Verarbeitung wird nicht unterstützt.** Bitte versuchen Sie eine andere URL oder Option.",
+            "button_label": "Herunterladen",
+            "success": "✅ **Download bereit!**\n🔗 {url}\n📥 **Klicken Sie unten auf die Schaltfläche, um Ihre Datei herunterzuladen.**",
+            "error": "❌ **Fehler:** {error}",
+            "unknown_error": "Ein unbekannter Fehler ist aufgetreten."
+        },
+        "time": {
+            "name": "time",
+            "description": "Aktuelle Zeit für eine Zeitzone abfragen",
+            "option_timezone": {
+                "name": "Zeitzone",
+                "description": "Die zu überprüfende Zeitzone (z. B. Europe/Madrid)"
+            },
+            "embed": {
+                "title_single": "Uhrzeit in {city}, {country}",
+                "title_multi": "Zeit für {city}",
+                "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+                "notfound": "Stadt nicht gefunden.",
+                "field_time": "Zeit",
+                "field_date": "Datum",
+                "footer": "Zeitzone: {timezone}",
+                "footer_multi": "Mehrere Städte mit ähnlichen Namen gefunden",
+                "author": "Aktuelle Uhrzeit",
+                "multi_city_description": "Mehrere Städte gefunden für '{city}':"
+            }
+        },
+        "todo": {
+            "name": "todo"
+        },
+        "stocks": {
+            "description": "Aktienkurse verfolgen und schnelle Diagramme anzeigen",
+            "option": {
+                "ticker": {
+                    "name": "Ticker",
+                    "description": "Das Börsenticker-Symbol (z. B. AAPL, TSLA)"
+                },
+                "range": {
+                    "name": "Zeitraum",
+                    "description": "Anfangszeitrahmen für das Diagramm"
+                }
+            },
+            "errors": {
+                "noapikey": "Der Massive.com-API-Schlüssel fehlt. Bitten Sie den Bot-Besitzer, MASSIVE_API_KEY einzurichten.",
+                "notfound": "Ich konnte keine Daten für {ticker} finden. Bitte prüfen Sie das Symbol noch einmal.",
+                "unauthorized": "Nur die Person, die /stocks verwendet hat, kann mit diesen Schaltflächen interagieren."
+            },
+            "labels": {
+                "price": "Preis"
+            },
+            "name": "Aktien"
+        },
+        "trivia": {
+            "name": "trivia",
+            "description": "Starte ein Mehrspieler-Trivia-Spiel"
+        },
+        "meow": {
+            "name": "miau",
+            "description": "Text in Miau-Sprache übersetzen",
+            "noText": "Bitte geben Sie einen Text ein, der in Miau übersetzt werden soll!",
+            "response": "🐱 {meowText}",
+            "options": {
+                "text": {
+                    "name": "Text",
+                    "description": "Der Text, der in Miau übersetzt werden soll"
+                }
             }
         }
     },
