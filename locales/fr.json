@@ -1,227 +1,227 @@
 {
-  "cooldown": "Veuillez patienter {cooldown} seconde(s) avant d'utiliser à nouveau cette commande.",
-  "failedrequest": "Une erreur s'est produite lors du traitement de votre demande. Veuillez réessayer plus tard.",
-  "unexpectederror": "Une erreur inattendue s'est produite. Veuillez réessayer plus tard.",
-  "poweredby": "Technologie de",
-  "providedby": "Données fournies par",
-  "reddit": {
-    "from": "De r/{subreddit}"
-  },
-  "error": "Erreur !",
-  "common": {
-    "ogmessage": "Message original",
-    "jumptomessage": "Aller au message",
-    "messagelink": "Lien du message"
-  },
-  "commands": {
-    "8ball": {
-      "name": "8ball",
-      "description": "Posez une question à la boule magique 8",
-      "says": "La boule magique 8 dit…",
-      "question": "Question",
-      "answer": "Réponse",
-      "anotherfortune": "Demandez à nouveau pour une autre prédiction !",
-      "spoken": "La boule magique 8 a parlé !",
-      "responces": {
-        "itiscertain": "C'est certain",
-        "itisdecidedlyso": "C'est décidément ainsi",
-        "withoutadoubt": "Sans aucun doute",
-        "yesdefinitely": "Oui, définitivement",
-        "youmayrelyonit": "Vous pouvez compter dessus",
-        "asiseeityes": "D'après moi, oui",
-        "mostlikely": "Très probable",
-        "outlookgood": "Ça s'annonce bien",
-        "yes": "Oui",
-        "signspointtoyes": "Les signes indiquent que oui",
-        "replyhazytryagain": "Réponse floue, réessayez",
-        "askagainlater": "Demandez à nouveau plus tard",
-        "betternottellyounow": "Mieux vaut ne pas vous le dire maintenant",
-        "cannotpredictnow": "Impossible de prédire maintenant",
-        "concentrateandaskagain": "Concentrez-vous et demandez à nouveau",
-        "dontcountonit": "N'y comptez pas",
-        "myreplyisno": "Ma réponse est non",
-        "mysourcessayno": "Mes sources disent non",
-        "outlooknotsogood": "Ça ne s'annonce pas bien",
-        "verydoubtful": "Très douteux"
-      }
+    "cooldown": "Veuillez patienter {cooldown} seconde(s) avant d'utiliser à nouveau cette commande.",
+    "failedrequest": "Une erreur s'est produite lors du traitement de votre demande. Veuillez réessayer plus tard.",
+    "unexpectederror": "Une erreur inattendue s'est produite. Veuillez réessayer plus tard.",
+    "poweredby": "Technologie de",
+    "providedby": "Données fournies par",
+    "reddit": {
+        "from": "De r/{subreddit}"
     },
-    "cat": {
-      "name": "chat",
-      "description": "Obtenez une image aléatoire de chat !",
-      "randomcat": "Chat aléatoire",
-      "newcat": "Nouveau chat",
-      "error": "Désolé, j'ai eu un problème pour obtenir une image de chat. Veuillez réessayer plus tard !"
+    "error": "Erreur !",
+    "common": {
+        "ogmessage": "Message original",
+        "jumptomessage": "Aller au message",
+        "messagelink": "Lien du message"
     },
-    "dog": {
-      "name": "chien",
-      "description": "Obtenez une image aléatoire de chien !",
-      "randomdog": "Chien aléatoire",
-      "newdog": "Nouveau chien",
-      "error": "Désolé, j'ai eu un problème pour obtenir une image de chien. Veuillez réessayer plus tard !"
-    },
-    "wiki": {
-      "name": "wiki",
-      "description": "Recherchez un sujet sur Wikipédia",
-      "pedia": "Wikipédia : {article}",
-      "error": "Désolé, j'ai eu un problème pour obtenir l'article Wikipédia. Veuillez réessayer plus tard !",
-      "nosummary": "Aucun résumé disponible",
-      "readmoreonwiki": "En savoir plus"
-    },
-    "weather": {
-      "name": "météo",
-      "description": "Obtenez la météo actuelle pour un lieu",
-      "temperature": "Température",
-      "feelslike": "Ressenti",
-      "default": "Météo",
-      "humidity": "Humidité",
-      "windspeed": "Vitesse du vent",
-      "pressure": "Pression",
-      "weatherin": "Météo à {location}",
-      "error": "Désolé, j'ai eu un problème pour obtenir la météo. Veuillez réessayer plus tard !",
-      "nolocation": "Lieu introuvable. Veuillez vérifier le nom de la ville et réessayer.",
-      "apikeymissing": "La clé API OpenWeather est manquante ou invalide."
-    },
-    "joke": {
-      "name": "blague",
-      "description": "Obtenez une blague aléatoire !",
-      "waitingpunchline": "La chute apparaîtra dans {seconds} secondes…",
-      "error": "Désolé, j'ai eu un problème pour obtenir une blague. Veuillez réessayer plus tard !",
-      "type": {
-        "default": "Blague de {type}",
-        "general": "Général",
-        "programming": "Programmation",
-        "dad": "Papa"
-      }
-    },
-    "help": {
-      "name": "aide",
-      "description": "Affiche toutes les commandes disponibles et leur utilisation",
-      "embed": {
-        "title": "Commandes Aethel",
-        "description": "Voici toutes les commandes disponibles"
-      },
-      "nooptions": "Aucune option"
-    },
-    "remind": {
-      "name": "rappel",
-      "reminder": "Rappel !",
-      "remindyou": "Vous m'avez demandé de vous rappeler : {message}",
-      "timeelapsed": "Temps écoulé",
-      "originaltime": "Heure d'origine",
-      "errors": {
-        "base": "Une erreur s'est produite lors de la configuration de votre rappel. Veuillez réessayer plus tard.",
-        "failedtosave": "Impossible d'enregistrer votre rappel. Veuillez réessayer plus tard.",
-        "invalidformat": "Format d'heure invalide ! Utilisez des combinaisons comme : 1h30m, 45m ou 2h",
-        "providevalidchars": "Veuillez fournir un message valide (1-1000 caractères)",
-        "atleastoneminute": "Le rappel doit durer au moins 1 minute !",
-        "notlongerthanaday": "Le rappel ne peut pas durer plus de 24 heures !"
-      },
-      "modal": {
-        "setreminder": "Définir un rappel",
-        "whento": "Quand vous rappeler ? (ex : 10m, 1h, 2h30m)"
-      },
-      "reminderset": "Rappel défini",
-      "iwillremindyou": "Je vous rappellerai {message} dans {time}",
-      "contextiwillremindyou": "Je vous rappellerai ce message dans {time}",
-      "time": "Temps",
-      "willtrigger": "Déclenchera",
-      "reminderid": "ID du rappel : {reminderId}"
-    },
-    "whois": {
-      "name": "whois",
-      "description": "Recherchez des informations WHOIS pour un domaine ou une adresse IP",
-      "error": "Désolé, j'ai eu un problème pour obtenir les données WHOIS. Veuillez réessayer plus tard !",
-      "nodata": "Aucune donnée WHOIS trouvée pour le domaine ou l'IP spécifié.",
-      "notvalid": "Veuillez fournir un nom de domaine ou une adresse IP valide."
-    },
-    "ai": {
-      "name": "ia",
-      "description": "Discutez avec un assistant IA",
-      "optioins": {
-        "prompt": {
-          "name": "message",
-          "description": "Votre message à l'IA"
+    "commands": {
+        "8ball": {
+            "name": "8ball",
+            "description": "Posez une question à la boule magique 8",
+            "says": "La boule magique 8 dit…",
+            "question": "Question",
+            "answer": "Réponse",
+            "anotherfortune": "Demandez à nouveau pour une autre prédiction !",
+            "spoken": "La boule magique 8 a parlé !",
+            "responces": {
+                "itiscertain": "C'est certain",
+                "itisdecidedlyso": "C'est décidément ainsi",
+                "withoutadoubt": "Sans aucun doute",
+                "yesdefinitely": "Oui, définitivement",
+                "youmayrelyonit": "Vous pouvez compter dessus",
+                "asiseeityes": "D'après moi, oui",
+                "mostlikely": "Très probable",
+                "outlookgood": "Ça s'annonce bien",
+                "yes": "Oui",
+                "signspointtoyes": "Les signes indiquent que oui",
+                "replyhazytryagain": "Réponse floue, réessayez",
+                "askagainlater": "Demandez à nouveau plus tard",
+                "betternottellyounow": "Mieux vaut ne pas vous le dire maintenant",
+                "cannotpredictnow": "Impossible de prédire maintenant",
+                "concentrateandaskagain": "Concentrez-vous et demandez à nouveau",
+                "dontcountonit": "N'y comptez pas",
+                "myreplyisno": "Ma réponse est non",
+                "mysourcessayno": "Mes sources disent non",
+                "outlooknotsogood": "Ça ne s'annonce pas bien",
+                "verydoubtful": "Très douteux"
+            }
         },
-        "customapi": "Utiliser votre propre clé API ?",
-        "reset": "Réinitialiser votre historique de chat IA"
-      },
-      "request": {
-        "inprogress": "Vous avez déjà une demande en cours. Veuillez attendre qu'elle soit terminée."
-      },
-      "reset": "Votre historique de chat IA a été réinitialisé.",
-      "defaultapi": " Revenu à l'API par défaut. Votre clé API personnalisée a été supprimée et le modèle par défaut sera utilisé.",
-      "modal": {
-        "title": "Entrez vos identifiants API",
-        "apikey": "Clé API",
-        "apikeyplaceholder": "Pour ne plus utiliser votre clé : /ai custom_setup:false",
-        "apiurl": "URL de l'API",
-        "apiurlplaceholder": "Votre URL d'API",
-        "model": "Modèle",
-        "modelplaceholder": "Nom du modèle (ex. gpt-4)"
-      },
-      "nopendingrequest": "Aucune demande en attente trouvée. Veuillez réessayer la commande.",
-      "apicredssaved": "Identifiants API enregistrés. Vous pouvez maintenant utiliser la commande `/ai` sans ressaisir vos identifiants. Pour ne plus utiliser votre clé, faites `/ai custom_setup:false`",
-      "process": {
-        "dailylimit": "Vous avez atteint votre limite quotidienne de requêtes IA",
-        "noapikey": "Veuillez d'abord configurer votre clé API"
-      },
-      "errors": {
-        "failed": "Impossible de traiter la réponse de l'IA",
-        "nores": "Aucune réponse de l'IA",
-        "toolong": "Le message est trop long"
-      }
+        "cat": {
+            "name": "chat",
+            "description": "Obtenez une image aléatoire de chat !",
+            "randomcat": "Chat aléatoire",
+            "newcat": "Nouveau chat",
+            "error": "Désolé, j'ai eu un problème pour obtenir une image de chat. Veuillez réessayer plus tard !"
+        },
+        "dog": {
+            "name": "chien",
+            "description": "Obtenez une image aléatoire de chien !",
+            "randomdog": "Chien aléatoire",
+            "newdog": "Nouveau chien",
+            "error": "Désolé, j'ai eu un problème pour obtenir une image de chien. Veuillez réessayer plus tard !"
+        },
+        "wiki": {
+            "name": "wiki",
+            "description": "Recherchez un sujet sur Wikipédia",
+            "pedia": "Wikipédia : {article}",
+            "error": "Désolé, j'ai eu un problème pour obtenir l'article Wikipédia. Veuillez réessayer plus tard !",
+            "nosummary": "Aucun résumé disponible",
+            "readmoreonwiki": "En savoir plus"
+        },
+        "weather": {
+            "name": "météo",
+            "description": "Obtenez la météo actuelle pour un lieu",
+            "temperature": "Température",
+            "feelslike": "Ressenti",
+            "default": "Météo",
+            "humidity": "Humidité",
+            "windspeed": "Vitesse du vent",
+            "pressure": "Pression",
+            "weatherin": "Météo à {location}",
+            "error": "Désolé, j'ai eu un problème pour obtenir la météo. Veuillez réessayer plus tard !",
+            "nolocation": "Lieu introuvable. Veuillez vérifier le nom de la ville et réessayer.",
+            "apikeymissing": "La clé API OpenWeather est manquante ou invalide."
+        },
+        "joke": {
+            "name": "blague",
+            "description": "Obtenez une blague aléatoire !",
+            "waitingpunchline": "La chute apparaîtra dans {seconds} secondes…",
+            "error": "Désolé, j'ai eu un problème pour obtenir une blague. Veuillez réessayer plus tard !",
+            "type": {
+                "default": "Blague de {type}",
+                "general": "Général",
+                "programming": "Programmation",
+                "dad": "Papa"
+            }
+        },
+        "help": {
+            "name": "aide",
+            "description": "Affiche toutes les commandes disponibles et leur utilisation",
+            "embed": {
+                "title": "Commandes Aethel",
+                "description": "Voici toutes les commandes disponibles"
+            },
+            "nooptions": "Aucune option"
+        },
+        "remind": {
+            "name": "rappel",
+            "reminder": "Rappel !",
+            "remindyou": "Vous m'avez demandé de vous rappeler : {message}",
+            "timeelapsed": "Temps écoulé",
+            "originaltime": "Heure d'origine",
+            "errors": {
+                "base": "Une erreur s'est produite lors de la configuration de votre rappel. Veuillez réessayer plus tard.",
+                "failedtosave": "Impossible d'enregistrer votre rappel. Veuillez réessayer plus tard.",
+                "invalidformat": "Format d'heure invalide ! Utilisez des combinaisons comme : 1h30m, 45m ou 2h",
+                "providevalidchars": "Veuillez fournir un message valide (1-1000 caractères)",
+                "atleastoneminute": "Le rappel doit durer au moins 1 minute !",
+                "notlongerthanaday": "Le rappel ne peut pas durer plus de 24 heures !"
+            },
+            "modal": {
+                "setreminder": "Définir un rappel",
+                "whento": "Quand vous rappeler ? (ex : 10m, 1h, 2h30m)"
+            },
+            "reminderset": "Rappel défini",
+            "iwillremindyou": "Je vous rappellerai {message} dans {time}",
+            "contextiwillremindyou": "Je vous rappellerai ce message dans {time}",
+            "time": "Temps",
+            "willtrigger": "Déclenchera",
+            "reminderid": "ID du rappel : {reminderId}"
+        },
+        "whois": {
+            "name": "whois",
+            "description": "Recherchez des informations WHOIS pour un domaine ou une adresse IP",
+            "error": "Désolé, j'ai eu un problème pour obtenir les données WHOIS. Veuillez réessayer plus tard !",
+            "nodata": "Aucune donnée WHOIS trouvée pour le domaine ou l'IP spécifié.",
+            "notvalid": "Veuillez fournir un nom de domaine ou une adresse IP valide."
+        },
+        "ai": {
+            "name": "ia",
+            "description": "Discutez avec un assistant IA",
+            "optioins": {
+                "prompt": {
+                    "name": "message",
+                    "description": "Votre message à l'IA"
+                },
+                "customapi": "Utiliser votre propre clé API ?",
+                "reset": "Réinitialiser votre historique de chat IA"
+            },
+            "request": {
+                "inprogress": "Vous avez déjà une demande en cours. Veuillez attendre qu'elle soit terminée."
+            },
+            "reset": "Votre historique de chat IA a été réinitialisé.",
+            "defaultapi": " Revenu à l'API par défaut. Votre clé API personnalisée a été supprimée et le modèle par défaut sera utilisé.",
+            "modal": {
+                "title": "Entrez vos identifiants API",
+                "apikey": "Clé API",
+                "apikeyplaceholder": "Pour ne plus utiliser votre clé : /ai custom_setup:false",
+                "apiurl": "URL de l'API",
+                "apiurlplaceholder": "Votre URL d'API",
+                "model": "Modèle",
+                "modelplaceholder": "Nom du modèle (ex. gpt-4)"
+            },
+            "nopendingrequest": "Aucune demande en attente trouvée. Veuillez réessayer la commande.",
+            "apicredssaved": "Identifiants API enregistrés. Vous pouvez maintenant utiliser la commande `/ai` sans ressaisir vos identifiants. Pour ne plus utiliser votre clé, faites `/ai custom_setup:false`",
+            "process": {
+                "dailylimit": "Vous avez atteint votre limite quotidienne de requêtes IA",
+                "noapikey": "Veuillez d'abord configurer votre clé API"
+            },
+            "errors": {
+                "failed": "Impossible de traiter la réponse de l'IA",
+                "nores": "Aucune réponse de l'IA",
+                "toolong": "Le message est trop long"
+            }
+        },
+        "todo": {
+            "name": "faire",
+            "done": {
+                "description": "Marquer une tâche comme accomplie",
+                "name": "fait"
+            },
+            "add_error": "❌ L'ajout de votre tâche a échoué. Veuillez réessayer plus tard.",
+            "notfound": "Cette tâche n'a pas été trouvée : **{item}**",
+            "description": "Gérer votre liste de tâches",
+            "add": {
+                "name": "ajouter",
+                "description": "Ajouter une nouvelle tâche"
+            },
+            "list": {
+                "name": "liste",
+                "description": "Consulter votre liste de tâches"
+            },
+            "added": "✅ Ajout d'une tâche : **{item}**",
+            "empty": "Votre liste de choses à faire est vide ! 🎉",
+            "list_title": "📝 Votre liste de choses à faire",
+            "checked": "✅ Marqué la tâche comme faite : **{item}**",
+            "done_error": "❌ Échec du marquage de votre tâche comme étant terminée. Veuillez réessayer plus tard.",
+            "todo_title": "À faire",
+            "done_title": "Terminé",
+            "none": "—"
+        },
+        "time": {
+            "embed": {
+                "footer_multi": "Plusieurs villes ont été trouvées avec des noms similaires",
+                "title_single": "Temps passé à {city}, {country}",
+                "title_multi": "L'heure de la {city}",
+                "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+                "notfound": "Ville non trouvée.",
+                "field_day_of_week": "Jour de la semaine",
+                "field_time": "L'heure",
+                "field_date": "Date",
+                "footer": "Le fuseau horaire : {timezone}",
+                "author": "Heure actuelle",
+                "multi_city_description": "Plusieurs villes ont été trouvées pour '{city}' :"
+            },
+            "option_timezone": {
+                "description": "Le fuseau horaire à vérifier (par exemple, Europe/Madrid)",
+                "name": "fuseau horaire"
+            },
+            "name": "temps",
+            "description": "Obtenir l'heure actuelle pour un fuseau horaire"
+        }
     },
-    "todo": {
-      "name": "faire",
-      "done": {
-        "description": "Marquer une tâche comme accomplie",
-        "name": "fait"
-      },
-      "add_error": "❌ L'ajout de votre tâche a échoué. Veuillez réessayer plus tard.",
-      "notfound": "Cette tâche n'a pas été trouvée : **{item}**",
-      "description": "Gérer votre liste de tâches",
-      "add": {
-        "name": "ajouter",
-        "description": "Ajouter une nouvelle tâche"
-      },
-      "list": {
-        "name": "liste",
-        "description": "Consulter votre liste de tâches"
-      },
-      "added": "✅ Ajout d'une tâche : **{item}**",
-      "empty": "Votre liste de choses à faire est vide ! 🎉",
-      "list_title": "📝 Votre liste de choses à faire",
-      "checked": "✅ Marqué la tâche comme faite : **{item}**",
-      "done_error": "❌ Échec du marquage de votre tâche comme étant terminée. Veuillez réessayer plus tard.",
-      "todo_title": "À faire",
-      "done_title": "Terminé",
-      "none": "—"
-    },
-    "time": {
-      "embed": {
-        "footer_multi": "Plusieurs villes ont été trouvées avec des noms similaires",
-        "title_single": "Temps passé à {city}, {country}",
-        "title_multi": "L'heure de la {city}",
-        "time_format": "dddd, MMMM D, YYYY, h:mm A z",
-        "notfound": "Ville non trouvée.",
-        "field_day_of_week": "Jour de la semaine",
-        "field_time": "L'heure",
-        "field_date": "Date",
-        "footer": "Le fuseau horaire : {timezone}",
-        "author": "Heure actuelle",
-        "multi_city_description": "Plusieurs villes ont été trouvées pour '{city}' :"
-      },
-      "option_timezone": {
-        "description": "Le fuseau horaire à vérifier (par exemple, Europe/Madrid)",
-        "name": "fuseau horaire"
-      },
-      "name": "temps",
-      "description": "Obtenir l'heure actuelle pour un fuseau horaire"
+    "categories": {
+        "fun": "Divertissement",
+        "info": "Info",
+        "utilities": "Utilitaires"
     }
-  },
-  "categories": {
-    "fun": "Divertissement",
-    "info": "Info",
-    "utilities": "Utilitaires"
-  }
 }
