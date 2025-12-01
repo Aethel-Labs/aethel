@@ -43,7 +43,8 @@
                 "mysourcessayno": "Mis fuentes dicen que no",
                 "outlooknotsogood": "No pinta bien",
                 "verydoubtful": "Muy dudoso"
-            }
+            },
+            "askagain": "Pedir de nuevo"
         },
         "cat": {
             "name": "gato",
@@ -100,7 +101,16 @@
                 "title": "Comandos de Aethel",
                 "description": "Aquí están todos los comandos disponibles"
             },
-            "nooptions": "Sin opciones"
+            "nooptions": "Sin opciones",
+            "features_content": "**Comandos divertidos** - 8ball, imágenes de gatos/perros y más\n**Integración de IA** - Impulsado por OpenAI y otros proveedores\n**Recordatorios** - Nunca olvides tareas importantes\n**Utilidades** - Clima, ayuda y herramientas de productividad\n**Multilingüe** - Admite varios idiomas",
+            "dashboard": "Mira nuestro [panel](https://aethel.xyz/login) para gestionar To-Dos, recordatorios y claves de API de IA personalizadas",
+            "title": "Bot Aethel",
+            "about": "Mejora tu experiencia en Discord con chat de IA, actualizaciones del clima, recordatorios y más funciones útiles.",
+            "viewcommands": "Ver comandos",
+            "supportserver": "Servidor de soporte",
+            "back": "Atrás",
+            "links_social": "Enlaces y redes sociales",
+            "features": "Características"
         },
         "remind": {
             "name": "recordar",
@@ -125,7 +135,8 @@
             "contextiwillremindyou": "Te recordaré sobre este mensaje en {time}",
             "time": "Tiempo",
             "willtrigger": "Se activará",
-            "reminderid": "ID del recordatorio: {reminderId}"
+            "reminderid": "ID del recordatorio: {reminderId}",
+            "description": "Configura un recordatorio"
         },
         "whois": {
             "name": "whois",
@@ -169,7 +180,10 @@
                 "failed": "No se pudo procesar la respuesta de la IA",
                 "nores": "Sin respuesta de la IA",
                 "toolong": "El mensaje es demasiado largo"
-            }
+            },
+            "testing": "Probando la clave API...",
+            "testfailed": "❌ La prueba de la clave API falló: {error}. Por favor, verifica tus credenciales e inténtalo de nuevo.",
+            "testsuccess": "✅ ¡La prueba de la clave API fue exitosa! Credenciales guardadas."
         },
         "todo": {
             "name": "todo",
@@ -273,7 +287,75 @@
             "fieldNoAccounts": "No hay cuentas",
             "guildOnly": "Este comando solo se puede usar en un servidor.",
             "unknownSubcommand": "Subcomando desconocido.",
-            "failedAction": "❌ Falló al {action} la suscripción: {message}"
+            "failedAction": "❌ Falló al {action} la suscripción: {message}",
+            "name": "social",
+            "description": "Obtener notificaciones de publicaciones de cuentas de Fediverse y Bluesky",
+            "invalidChannel": "❌ Canal seleccionado no válido.",
+            "notInitializedThrow": "Las funciones de redes sociales no están correctamente inicializadas.",
+            "addSuccess": "✅ Ahora rastreando la cuenta {account} de {platform}. Las nuevas publicaciones se publicarán en {channel}."
+        },
+        "trivia": {
+            "game_end": {
+                "final_scores": "**Puntuaciones finales:**",
+                "congratulations": "🎉 ¡Felicidades {winner}!",
+                "tie": "🤝 ¡Hay un empate entre {winners}!",
+                "header": "## 🏆 ¡Juego de trivia completo!"
+            },
+            "errors": {
+                "fetch_failed": "Error al obtener preguntas de trivia: {error}"
+            },
+            "messages": {
+                "game_exists": "❌ Ya hay un juego de trivia en ejecución en este canal!",
+                "game_starting": "## 🎯 ¡Comienzo del juego de trivia!\n\n**Jugadores ({count}):**\n{players}\n\nHaz clic en **Unirse al juego** para participar!\nHaz clic en **Iniciar juego** cuando todos se hayan unido.",
+                "game_started": "¡El juego ya ha comenzado!",
+                "already_joined": "¡Ya estás en el juego!",
+                "only_creator_start": "¡Solo la persona que inició el juego puede empezarlo!",
+                "only_creator_cancel": "¡Solo la persona que inició el juego puede cancelarlo!",
+                "need_players": "¡Se necesita al menos 1 jugador para iniciar!",
+                "starting_game": "🎯 Iniciando juego de trivia... ¡Obteniendo preguntas!",
+                "game_cancelled": "❌ Juego de trivia cancelado.",
+                "no_active_game": "❌ No se encontró ningún juego de trivia activo.",
+                "not_your_turn": "¡No es tu turno!",
+                "no_active_question": "❌ No hay juego activo.",
+                "failed_start": "❌ No se pudo iniciar el juego de trivia. Por favor, inténtalo más tarde.",
+                "preparing_next": "Preparando la siguiente pregunta...",
+                "tied_game": "🤝 ¡Juego empatado! ¡Sigue hasta que alguien marque!"
+            },
+            "question": {
+                "header": "## 🧠 Pregunta de trivia {current}/{total}",
+                "category": "**Categoría:** {category}",
+                "your_turn": "**{player}, ¡es tu turno!**",
+                "difficulty": "**Dificultad:** {difficulty}",
+                "question_text": "**{question}**"
+            },
+            "answer": {
+                "correct": "✅ **¡Correcto!**",
+                "incorrect": "❌ **¡Incorrecto!**",
+                "result_format": "{result}\n\n**Pregunta:** {question}\n**Tu respuesta:** {answer}\n**Respuesta correcta:** {correct}\n\n{preparing}"
+            },
+            "name": "trivia",
+            "description": "Iniciar un juego de trivia multijugador",
+            "buttons": {
+                "join": "🎯 Unirse al juego",
+                "start": "🚀 Iniciar juego",
+                "cancel": "❌ Cancelar"
+            }
+        },
+        "stocks": {
+            "labels": {
+                "marketcap": "Capitalización de mercado",
+                "nochart": "Datos del gráfico no disponibles para este período.",
+                "prevclose": "Cierre previo"
+            },
+            "buttons": {
+                "timeframes": {
+                    "1d": "1D",
+                    "5d": "5D",
+                    "1m": "1M",
+                    "3m": "3M",
+                    "1y": "1Y"
+                }
+            }
         }
     },
     "time": {
