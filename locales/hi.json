@@ -76,7 +76,28 @@
         "remind": {
             "reminderid": "रिमाइंडर ID: {reminderId}",
             "willtrigger": "Will trigger",
-            "originaltime": "मूल समय"
+            "originaltime": "मूल समय",
+            "name": "स्मरण",
+            "description": "स्मरण सेट करें",
+            "reminder": "स्मरण!",
+            "remindyou": "आपने मुझसे याद दिलाने के लिए कहा: {message}",
+            "timeelapsed": "समय बीता",
+            "errors": {
+                "base": "स्मरण सेट करते समय त्रुटि हुई। कृपया बाद में पुनः प्रयास करें।",
+                "failedtosave": "स्मरण सहेजने में विफल। कृपया बाद में पुनः प्रयास करें।",
+                "invalidformat": "अमान्य समय प्रारूप! संयोजनों का उपयोग करें: 1h30m, 45m, या 2h",
+                "providevalidchars": "कृपया एक वैध संदेश (1-1000 वर्ण) दें",
+                "atleastoneminute": "स्मरण समय कम से कम 1 मिनट होना चाहिए!",
+                "notlongerthanaday": "स्मरण समय 24 घंटे से अधिक नहीं हो सकता!"
+            },
+            "modal": {
+                "setreminder": "स्मरण सेट करें",
+                "whento": "आपको कब याद दिलाना है? (उदाहरण: 10m, 1h, 2h30m)"
+            },
+            "reminderset": "स्मरण सेट किया गया",
+            "iwillremindyou": "मैं आपको {message} के बारे में {time} में याद दिलाऊँगा",
+            "contextiwillremindyou": "मैं आपको इस संदेश के बारे में {time} में याद दिलाऊँगा",
+            "time": "समय"
         },
         "whois": {
             "description": "डोमेन या IP पते के लिए WHOIS जानकारी खोजें",
@@ -264,6 +285,13 @@
                 "name": "समय क्षेत्र",
                 "description": "जांचने के लिए समय क्षेत्र (उदाहरण के लिए Europe/Madrid)"
             }
+        },
+        "help": {
+            "embed": {
+                "description": "यहाँ उपलब्ध सभी कमांड्स हैं",
+                "title": "एथेल कमांड्स"
+            },
+            "nooptions": "कोई विकल्प नहीं"
         }
     },
     "categories": {
