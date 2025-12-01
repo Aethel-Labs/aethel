@@ -306,11 +306,37 @@
         },
         "trivia": {
             "game_end": {
-                "tie": "🤝 Es un empate entre {winners}!"
+                "tie": "🤝 Es un empate entre {winners}!",
+                "header": "## 🏆 ¡Juego de trivia completo!",
+                "final_scores": "**Puntuaciones finales:**",
+                "congratulations": "🎉 ¡Felicidades {winner}!"
             },
             "errors": {
                 "fetch_failed": "Falló al obtener preguntas de trivia: {error}",
                 "api_error": "Error de la API de trivia: {code}"
+            },
+            "messages": {
+                "no_active_game": "❌ No se encontró ningún juego de trivia activo.",
+                "not_your_turn": "¡No es tu turno!",
+                "no_active_question": "❌ No hay juego activo.",
+                "failed_start": "❌ Falló el inicio del juego de trivia. Por favor, inténtalo más tarde.",
+                "preparing_next": "Preparando la próxima pregunta...",
+                "tied_game": "🤝 ¡Juego empatado! Sigue jugando hasta que alguien marque!",
+                "need_players": "¡Necesitas al menos 1 jugador para comenzar!",
+                "starting_game": "🎯 Iniciando juego de trivia... ¡Obteniendo preguntas!",
+                "game_cancelled": "❌ Juego de trivia cancelado."
+            },
+            "question": {
+                "header": "## 🧠 Pregunta de trivia {current}/{total}",
+                "your_turn": "**{player}, ¡es tu turno!**",
+                "category": "**Categoría:** {category}",
+                "difficulty": "**Dificultad:** {difficulty}",
+                "question_text": "**{question}**"
+            },
+            "answer": {
+                "correct": "✅ **¡Correcto!**",
+                "incorrect": "❌ **¡Incorrecto!**",
+                "result_format": "{result}\n\n**Pregunta:** {question}\n**Tu respuesta:** {answer}\n**Respuesta correcta:** {correct}\n\n{preparing}"
             }
         }
     },
