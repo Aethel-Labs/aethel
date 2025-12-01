@@ -96,12 +96,21 @@
         },
         "help": {
             "name": "hilfe",
-            "description": "Zeige alle verfügbaren Befehle und deren Verwendung",
+            "description": "Informationen über Aethel erhalten",
             "embed": {
                 "title": "Aethel-Befehle",
                 "description": "Hier sind alle verfügbaren Befehle"
             },
-            "nooptions": "Keine Optionen"
+            "nooptions": "Keine Optionen",
+            "links_social": "Links & soziale Medien",
+            "features": "Funktionen",
+            "features_content": "**Spaßbefehle** - 8ball, Katzen/Haustier-Bilder und mehr\n**KI-Integration** - Angetrieben von OpenAI und anderen Anbietern\n**Erinnerungen** - Vergessen Sie nie wichtige Aufgaben\n**Dienstprogramme** - Wetter, Hilfe und Produktivitätstools\n**Mehrsprachigkeit** - Unterstützt mehrere Sprachen",
+            "dashboard": "Schauen Sie sich unser [Dashboard](https://aethel.xyz/login) an, um To‑Dos, Erinnerungen und benutzerdefinierte KI‑API‑Schlüssel zu verwalten.",
+            "title": "Aethel Bot",
+            "about": "Verbessern Sie Ihre Discord-Erfahrung mit KI-Chat, Wetteraktualisierungen, Erinnerungen und weiteren nützlichen Funktionen.",
+            "viewcommands": "Befehle anzeigen",
+            "supportserver": "Support-Server",
+            "back": "Zurück"
         },
         "remind": {
             "name": "erinnern",
@@ -203,6 +212,10 @@
                 "tiktok_original_audio": {
                     "name": "tiktok-original-audio",
                     "description": "TikTok-originales Audio einbeziehen"
+                },
+                "twitter_gif": {
+                    "description": "Als Twitter GIF herunterladen",
+                    "name": "twitter-gif"
                 }
             },
             "rate_limit": "⏳ **Rate-Limit überschritten.** Bitte versuchen Sie es später noch einmal.",
@@ -235,7 +248,30 @@
             }
         },
         "todo": {
-            "name": "todo"
+            "name": "todo",
+            "description": "Verwalte deine To-Do-Liste",
+            "add": {
+                "name": "hinzufügen",
+                "description": "Füge ein neues To-Do-Element hinzu"
+            },
+            "done": {
+                "name": "erledigt",
+                "description": "Markiere ein To-Do als erledigt"
+            },
+            "list": {
+                "name": "Liste",
+                "description": "Ihre To-Do-Liste anzeigen"
+            },
+            "added": "✅ To-Do hinzugefügt: **{item}**",
+            "add_error": "❌ Hinzufügen des To-Do fehlgeschlagen. Bitte versuchen Sie es später noch einmal.",
+            "empty": "Deine To-Do-Liste ist leer! 🎉",
+            "list_title": "📝 Deine To-Do-Liste",
+            "checked": "✅ To-Do als erledigt markiert: **{item}**",
+            "notfound": "❌ Das To-Do wurde nicht gefunden: **{item}**",
+            "done_error": "❌ Markieren des To-Do als erledigt fehlgeschlagen. Bitte versuchen Sie es später noch einmal.",
+            "todo_title": "To-Do",
+            "done_title": "Erledigt",
+            "none": "—"
         },
         "stocks": {
             "description": "Aktienkurse verfolgen und schnelle Diagramme anzeigen",
@@ -255,13 +291,30 @@
                 "unauthorized": "Nur die Person, die /stocks verwendet hat, kann mit diesen Schaltflächen interagieren."
             },
             "labels": {
-                "price": "Preis"
+                "price": "Preis",
+                "dayrange": "Tagesbereich",
+                "volume": "Volumen",
+                "prevclose": "Vorheriger Schlusskurs",
+                "marketcap": "Marktkapitalisierung",
+                "nochart": "Diagrammdaten für diesen Zeitraum nicht verfügbar."
             },
-            "name": "Aktien"
+            "name": "Aktien",
+            "buttons": {
+                "timeframes": {
+                    "1d": "1D",
+                    "5d": "5D",
+                    "1m": "1M",
+                    "3m": "3M",
+                    "1y": "1Y"
+                }
+            }
         },
         "trivia": {
             "name": "trivia",
-            "description": "Starte ein Mehrspieler-Trivia-Spiel"
+            "description": "Starte ein Mehrspieler-Trivia-Spiel",
+            "buttons": {
+                "join": "🎯 Spiel beitreten"
+            }
         },
         "meow": {
             "name": "miau",
