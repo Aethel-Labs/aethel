@@ -43,7 +43,8 @@
                 "mysourcessayno": "Minhas fontes dizem que não",
                 "outlooknotsogood": "Não parece bom",
                 "verydoubtful": "Muito duvidoso"
-            }
+            },
+            "askagain": "Pedir novamente"
         },
         "cat": {
             "name": "gato",
@@ -84,7 +85,7 @@
         "joke": {
             "name": "piada",
             "description": "Obtenha uma piada aleatória!",
-            "waitingpunchline": "A resposta aparecerá em {seconds} segundos…",
+            "waitingpunchline": "A piada aparecerá em {seconds} segundos…",
             "error": "Desculpe, tive problemas para buscar uma piada. Por favor, tente novamente mais tarde!",
             "type": {
                 "default": "Piada de {type}",
@@ -95,12 +96,21 @@
         },
         "help": {
             "name": "ajuda",
-            "description": "Mostra todos os comandos disponíveis e como usá-los",
+            "description": "Obter informações sobre Aethel",
             "embed": {
                 "title": "Comandos do Aethel",
                 "description": "Aqui estão todos os comandos disponíveis"
             },
-            "nooptions": "Sem opções"
+            "nooptions": "Sem opções",
+            "title": "Aethel Bot",
+            "about": "Melhore sua experiência no Discord com chat de IA, atualizações de clima, lembretes e outros recursos úteis.",
+            "viewcommands": "Ver Comandos",
+            "supportserver": "Servidor de Suporte",
+            "back": "Voltar",
+            "links_social": "Links & Mídia Social",
+            "features": "Recursos",
+            "features_content": "**Comandos Divertidos** - 8ball, imagens de gato/cão, e mais  \n**Integração de IA** - Impulsionado pelo OpenAI e outros provedores  \n**Lembretes** - Nunca esqueça tarefas importantes  \n**Utilitários** - Tempo, ajuda e ferramentas de produtividade  \n**Multi-idioma** - Suporta múltiplos idiomas",
+            "dashboard": "Veja nosso [painel](https://aethel.xyz/login) para gerenciar Tarefas, Lembretes e chaves de API de IA personalizadas"
         },
         "remind": {
             "name": "lembrar",
@@ -125,7 +135,8 @@
             "contextiwillremindyou": "Vou lembrar você sobre esta mensagem em {time}",
             "time": "Tempo",
             "willtrigger": "Será ativado",
-            "reminderid": "ID do lembrete: {reminderId}"
+            "reminderid": "ID do lembrete: {reminderId}",
+            "description": "Definir lembrete"
         },
         "whois": {
             "name": "whois",
@@ -162,14 +173,159 @@
             "nopendingrequest": "Nenhuma solicitação pendente encontrada. Por favor, tente o comando novamente.",
             "apicredssaved": "Credenciais de API salvas. Agora você pode usar o comando `/ai` sem reinserir suas credenciais. Para parar de usar sua chave, use `/ai custom_setup:false`",
             "process": {
-                "dailylimit": "Você atingiu seu limite diário de solicitações de IA",
+                "dailylimit": "Você atingiu seu limite diário de solicitações de IA. Vote no Aethel para obter mais solicitações: https://top.gg/bot/1371031984230371369/vote\nOu configure sua própria chave de API usando o comando \"/ai\".",
                 "noapikey": "Por favor, configure sua chave de API primeiro"
             },
             "errors": {
                 "failed": "Falha ao processar a resposta da IA",
                 "nores": "Sem resposta da IA",
                 "toolong": "A mensagem é muito longa"
+            },
+            "testfailed": "❌ Teste da chave de API falhou: {error}. Verifique suas credenciais e tente novamente.",
+            "testsuccess": "✅ Teste da chave de API bem-sucedido! Credenciais salvas.",
+            "testing": "Testando chave de API..."
+        },
+        "meow": {
+            "options": {
+                "text": {
+                    "name": "texto",
+                    "description": "O texto a ser traduzido para o idioma miau"
+                }
+            },
+            "name": "miau",
+            "description": "Traduzir texto para o idioma miau",
+            "noText": "Por favor, forneça algum texto para traduzir para o idioma miau!",
+            "response": "🐱 {meowText}"
+        },
+        "stocks": {
+            "name": "ações",
+            "description": "Acompanhe os preços das ações e veja gráficos rápidos",
+            "option": {
+                "ticker": {
+                    "name": "ticker",
+                    "description": "O símbolo do ticker da ação (ex.: AAPL, TSLA)"
+                },
+                "range": {
+                    "name": "intervalo",
+                    "description": "Período inicial para o gráfico"
+                }
+            },
+            "labels": {
+                "change": "Variação",
+                "dayrange": "Faixa de dia",
+                "volume": "Volume",
+                "prevclose": "Fechamento anterior",
+                "marketcap": "Capitalização de mercado",
+                "nochart": "Dados do gráfico indisponíveis para este período.",
+                "price": "Preço"
+            },
+            "buttons": {
+                "timeframes": {
+                    "1d": "1D",
+                    "5d": "5D",
+                    "1m": "1M",
+                    "3m": "3M",
+                    "1y": "1Y"
+                }
+            },
+            "errors": {
+                "noapikey": "A chave API do Massive.com está faltando. Peça ao proprietário do bot para configurar MASSIVE_API_KEY.",
+                "notfound": "Não consegui encontrar dados para {ticker}. Por favor, verifique o símbolo.",
+                "unauthorized": "Somente a pessoa que usou /stocks pode interagir com esses botões."
             }
+        },
+        "todo": {
+            "name": "todo",
+            "description": "Gerenciar sua lista de tarefas",
+            "add": {
+                "name": "add",
+                "description": "Adicionar um novo item de tarefa"
+            },
+            "done": {
+                "name": "done",
+                "description": "Marcar uma tarefa como concluída"
+            },
+            "list": {
+                "name": "list",
+                "description": "Visualizar sua lista de tarefas"
+            },
+            "added": "✅ Item adicionado: **{item}**",
+            "add_error": "❌ Falha ao adicionar sua tarefa. Tente novamente mais tarde.",
+            "empty": "Sua lista de tarefas está vazia! 🎉",
+            "list_title": "📝 Sua Lista de Tarefas",
+            "checked": "✅ Tarefa marcada como concluída: **{item}**",
+            "notfound": "❌ Essa tarefa não foi encontrada: **{item}**",
+            "done_error": "❌ Falha ao marcar sua tarefa como concluída. Tente novamente mais tarde.",
+            "done_title": "Done",
+            "todo_title": "A fazer"
+        },
+        "cobalt": {
+            "local_processing_not_supported": "⚠️ **Processamento local não suportado.** Tente uma URL ou opção diferente.",
+            "unknown_error": "Um erro desconhecido ocorreu.",
+            "rate_limit": "⏳ **Limite de taxa excedido.** Tente novamente mais tarde.",
+            "unknown_response": "❓ **Resposta desconhecida da API.** Tente novamente.",
+            "multiple_items": "📋 **Múltiplos itens encontrados para esta URL.** Forneça uma URL mais específica."
+        },
+        "time": {
+            "name": "tempo",
+            "description": "Obter o horário atual para um fuso horário",
+            "option_timezone": {
+                "name": "fuso horário",
+                "description": "O fuso horário a ser verificado (ex.: Europe/Madrid)"
+            },
+            "embed": {
+                "title_single": "Horário em {city}, {country}",
+                "title_multi": "Horário para {city}",
+                "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+                "notfound": "Cidade não encontrada.",
+                "field_day_of_week": "Dia da Semana",
+                "field_time": "Horário",
+                "field_date": "Data",
+                "footer": "Fuso horário: {timezone}",
+                "footer_multi": "Múltiplas cidades encontradas com nomes semelhantes",
+                "author": "Horário atual",
+                "multi_city_description": "Múltiplas cidades encontradas para '{city}':"
+            }
+        },
+        "trivia": {
+            "buttons": {
+                "join": "🎯 Join Game",
+                "start": "🚀 Start Game",
+                "cancel": "❌ Cancel"
+            },
+            "messages": {
+                "game_exists": "❌ There's already a trivia game running in this channel!",
+                "game_starting": "## 🎯 Trivia Game Starting!\n\n**Players ({count}):**\n{players}\n\nClick **Join Game** to participate!\nClick **Start Game** when everyone has joined.",
+                "game_started": "The game has already started!",
+                "already_joined": "You're already in the game!",
+                "only_creator_start": "Only the person who started the game can begin it!",
+                "only_creator_cancel": "Only the person who started the game can cancel it!",
+                "need_players": "Need at least 1 player to start!",
+                "starting_game": "🎯 Starting trivia game... Fetching questions!",
+                "game_cancelled": "❌ Trivia game cancelled.",
+                "no_active_game": "❌ No active trivia game found.",
+                "not_your_turn": "It's not your turn!",
+                "no_active_question": "❌ No active game.",
+                "failed_start": "❌ Failed to start the trivia game. Please try again later.",
+                "preparing_next": "Preparing next question...",
+                "tied_game": "🤝 Tied game! Keep going until someone scores!"
+            },
+            "name": "trivia",
+            "description": "Start a multiplayer trivia game"
+        },
+        "social": {
+            "refreshSuccess": "🔄 Atualização concluída. {count} nova(s) postagem(s) notificada(s).",
+            "refreshFailed": "❌ Falha na atualização: {message}",
+            "removeSuccess": "✅ Conta {account} da plataforma {platform} removida do acompanhamento.",
+            "removeNotFound": "❌ Não foi possível encontrar uma assinatura para a conta {account} da plataforma {platform}.",
+            "listNone": "Nenhuma conta de mídia social está sendo monitorada neste servidor.",
+            "listTitle": "📱 Contas de Mídia Social Monitoradas",
+            "listDescription": "Aqui estão todas as contas de mídia social sendo monitoradas neste servidor:",
+            "channelUnset": "Nenhum canal definido",
+            "fieldNoAccounts": "Nenhuma conta",
+            "guildOnly": "Este comando só pode ser usado em um servidor.",
+            "unknownSubcommand": "Subcomando desconhecido.",
+            "failedAction": "❌ Falha ao {action} assinatura: {message}"
         }
     },
     "categories": {
