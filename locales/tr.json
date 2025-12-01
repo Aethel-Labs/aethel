@@ -215,7 +215,13 @@
                     "description": "Ses için format (sadece ses seçeneği true olmalı)"
                 }
             },
-            "button_label": "İndir"
+            "button_label": "İndir",
+            "success": "✅ **İndirme hazır!**  \n🔗 {url}  \n📥 **Aşağıdaki düğmeye tıklayarak dosyanızı indirin.**",
+            "error": "❌ **Hata:** {error}",
+            "unknown_error": "Bilinmeyen bir hata oluştu.",
+            "unknown_response": "❓ **API'den bilinmeyen yanıt.** Lütfen tekrar deneyin.",
+            "multiple_items": "📋 **Bu URL için birden çok öğe bulundu.** Lütfen daha belirli bir URL sağlayın.",
+            "local_processing_not_supported": "⚠️ **Yerel işleme desteklenmiyor.** Lütfen farklı bir URL veya seçenek deneyin."
         },
         "meow": {
             "options": {
@@ -285,7 +291,49 @@
         },
         "time": {
             "embed": {
-                "notfound": "Şehir bulunamadı."
+                "notfound": "Şehir bulunamadı.",
+                "footer": "Saat Dilimi: {timezone}",
+                "footer_multi": "Benzer adlara sahip birden çok şehir bulundu",
+                "author": "Geçerli Zaman",
+                "multi_city_description": "Şehir '{city}' için benzer adlara sahip birden çok şehir bulundu:",
+                "title_single": "Şehir {city}, {country} içinde zaman",
+                "title_multi": "Şehir {city} için zaman",
+                "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+                "field_day_of_week": "Hafta Günü",
+                "field_time": "Zaman",
+                "field_date": "Tarih"
+            },
+            "name": "zaman",
+            "description": "Bir saat dilimi için geçerli zamanı alın",
+            "option_timezone": {
+                "name": "zaman dilimi",
+                "description": "Kontrol edilecek saat dilimi (örneğin, Europe/Madrid)"
+            }
+        },
+        "trivia": {
+            "name": ".trivya",
+            "description": "Çok oyunculu bir trivia oyunu başlat",
+            "buttons": {
+                "join": "🎯 Oyun Katıl",
+                "start": "🚀 Oyun Başlat",
+                "cancel": "❌ İptal"
+            },
+            "messages": {
+                "game_exists": "❌ Bu kanalda zaten bir trivia oyunu çalışıyor!",
+                "game_starting": "## 🎯 Trivia Oyunu Başlıyor!\n\n**Oyuncular ({count}):**\n{players}\n\nKatılmak için **Oyun Katıl** tıklayın!\nHerkes katıldığında **Oyun Başlat** tıklayın.",
+                "game_started": "Oyun zaten başladı!",
+                "already_joined": "Zaten oyunda!",
+                "only_creator_start": "Sadece oyunu başlatan kişi başlatabilir!",
+                "only_creator_cancel": "Sadece oyunu başlatan kişi iptal edebilir!",
+                "need_players": "Başlamak için en az 1 oyuncuya ihtiyacınız var!",
+                "starting_game": "🎯 Trivia oyunu başlatılıyor... Sorular çekiliyor!",
+                "game_cancelled": "❌ Trivia oyunu iptal edildi.",
+                "no_active_game": "❌ Aktif trivia oyunu bulunamadı.",
+                "not_your_turn": "Sizin sıraınız değil!",
+                "no_active_question": "❌ Aktif oyun yok.",
+                "failed_start": "❌ Trivia oyunu başlatılamadı. Lütfen daha sonra tekrar deneyin.",
+                "preparing_next": "Sıradaki soru hazırlanıyor...",
+                "tied_game": "🤝 Beraberlik! Birisi puan alana kadar devam edin!"
             }
         }
     },
