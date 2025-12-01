@@ -43,7 +43,8 @@
                 "mysourcessayno": "情報源はノーと言っています",
                 "outlooknotsogood": "あまり良くありません",
                 "verydoubtful": "とても疑わしいです"
-            }
+            },
+            "askagain": "再度尋ねる"
         },
         "cat": {
             "name": "猫",
@@ -84,7 +85,7 @@
         "joke": {
             "name": "ジョーク",
             "description": "ランダムなジョークを取得！",
-            "waitingpunchline": "オチは{seconds}秒後に表示されます…",
+            "waitingpunchline": "{seconds} 秒後にパンチラインが表示されます…",
             "error": "申し訳ありません、ジョークを取得できませんでした。後でもう一度お試しください！",
             "type": {
                 "default": "{type}ジョーク",
@@ -95,12 +96,19 @@
         },
         "help": {
             "name": "ヘルプ",
-            "description": "利用可能なすべてのコマンドとその使い方を表示",
+            "description": "Aethelに関する情報を取得する",
             "embed": {
                 "title": "Aethelコマンド一覧",
                 "description": "利用可能なコマンドはこちらです"
             },
-            "nooptions": "オプションなし"
+            "nooptions": "オプションなし",
+            "viewcommands": "コマンドを表示",
+            "supportserver": "サポートサーバー",
+            "back": "戻る",
+            "links_social": "リンクとソーシャルメディア",
+            "features": "機能",
+            "features_content": "**楽しいコマンド** - 8ball、猫/犬の画像、その他\n**AI統合** - OpenAIやその他のプロバイダーが提供\n**リマインダー** - 重要なタスクを忘れない\n**ユーティリティ** - 天気、ヘルプ、生産性ツール\n**多言語対応** - 複数の言語に対応",
+            "dashboard": "To-Dos、リマインダー、カスタムAI APIキーを管理するために、[ダッシュボード](https://aethel.xyz/login)をご覧ください"
         },
         "remind": {
             "name": "リマインダー",
@@ -125,7 +133,8 @@
             "contextiwillremindyou": "このメッセージについて{time}後にリマインドします",
             "time": "時間",
             "willtrigger": "トリガーされます",
-            "reminderid": "リマインダーID: {reminderId}"
+            "reminderid": "リマインダーID: {reminderId}",
+            "description": "リマインダーを設定する"
         },
         "whois": {
             "name": "whois",
@@ -157,19 +166,147 @@
                 "apiurlplaceholder": "あなたのAPIのURL",
                 "model": "モデル",
                 "modelplaceholder": "モデル名（例: gpt-4)",
-                "customsetup": "カスタム設定"
+                "customsetup": "カスタム設定",
+                "apiurl": "API URL"
             },
             "nopendingrequest": "保留中のリクエストが見つかりません。もう一度コマンドをお試しください。",
             "apicredssaved": "API認証情報が保存されました。これで認証情報を再入力することなく`/ai`コマンドを使用できます。キーの使用をやめるには、`/ai custom_setup:false`を実行してください",
             "process": {
-                "dailylimit": "AIリクエストの1日上限に達しました",
+                "dailylimit": "AIリクエストの1日の制限に達しました。Aethel に投票してより多くのリクエストを取得してください: https://top.gg/bot/1371031984230371369/vote または \"/ai\" コマンドを使用して独自の API キーを設定してください。",
                 "noapikey": "まずAPIキーを設定してください"
             },
             "errors": {
                 "failed": "AIの応答を処理できませんでした",
                 "nores": "AIからの応答がありません",
                 "toolong": "メッセージが長すぎます"
+            },
+            "testfailed": "❌ APIキーのテストに失敗しました: {error}。資格情報を確認して再試行してください。",
+            "testsuccess": "✅ APIキーのテストに成功しました！資格情報が保存されました。",
+            "testing": "APIキーをテストしています..."
+        },
+        "cobalt": {
+            "name": "コバルト",
+            "description": "指定されたURLからビデオまたはオーディオをダウンロードする",
+            "options": {
+                "url": {
+                    "name": "URL",
+                    "description": "ダウンロードするビデオのURL"
+                },
+                "video_quality": {
+                    "name": "ビデオ品質",
+                    "description": "ダウンロードするビデオの品質"
+                },
+                "audio_only": {
+                    "name": "オーディオのみ"
+                }
+            },
+            "rate_limit": "⏳ **レート制限が超過しました。** しばらくしてからもう一度お試しください。",
+            "unknown_response": "❓ **APIからの未知の応答です。** もう一度お試しください。",
+            "multiple_items": "📋 **このURLに複数の項目が見つかりました。** より具体的なURLを入力してください。",
+            "local_processing_not_supported": "⚠️ **ローカル処理はサポートされていません。** 別のURLまたはオプションをお試しください。"
+        },
+        "meow": {
+            "noText": "にゃーに変換するテキストを入力してください！",
+            "response": "🐱 {meowText}",
+            "options": {
+                "text": {
+                    "name": "テキスト",
+                    "description": "にゃーに変換するテキスト"
+                }
+            },
+            "name": "にゃー",
+            "description": "テキストをにゃー言語に変換する"
+        },
+        "stocks": {
+            "name": "株式",
+            "description": "株価を追跡し、クイックチャートを表示する",
+            "option": {
+                "ticker": {
+                    "name": "ティッカー"
+                }
             }
+        },
+        "todo": {
+            "add": {
+                "name": "追加",
+                "description": "新しいやること項目を追加"
+            },
+            "done": {
+                "name": "完了",
+                "description": "やることを完了にマーク"
+            },
+            "list": {
+                "name": "リスト",
+                "description": "やることリストを表示"
+            },
+            "added": "✅ やることを追加しました: **{item}**",
+            "add_error": "❌ やることの追加に失敗しました。しばらくしてから再試行してください。",
+            "empty": "やることリストは空です！ 🎉",
+            "description": "やることリストを管理",
+            "name": "todo"
+        },
+        "time": {
+            "description": "タイムゾーンの現在時刻を取得する",
+            "option_timezone": {
+                "name": "タイムゾーン",
+                "description": "チェックするタイムゾーン（例：Europe/Madrid）"
+            },
+            "embed": {
+                "title_single": "{city}, {country} の時刻",
+                "title_multi": "{city} の時刻",
+                "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+                "notfound": "都市が見つかりません。",
+                "field_day_of_week": "曜日",
+                "field_time": "時間",
+                "field_date": "日付",
+                "footer": "タイムゾーン: {timezone}",
+                "footer_multi": "類似した名前の複数の都市が見つかりました。",
+                "author": "現在時刻",
+                "multi_city_description": "'{city}' の複数の都市が見つかりました："
+            },
+            "name": "時間"
+        },
+        "trivia": {
+            "name": "雑学",
+            "description": "マルチプレイヤーのクイズゲームを開始する",
+            "buttons": {
+                "join": "🎯 ゲームに参加する",
+                "start": "🚀 ゲームを開始する",
+                "cancel": "❌ キャンセル"
+            },
+            "messages": {
+                "game_exists": "❌ すでにこのチャンネルでクイズゲームが実行中です！",
+                "game_starting": "## 🎯 クイズゲーム開始！\\n\\n**プレイヤー ({count}):**\\n{players}\\n\\n**Join Game**をクリックして参加してください！\\n全員が参加したら **Start Game**をクリックしてください。",
+                "game_started": "ゲームはすでに開始されています！",
+                "already_joined": "あなたはすでにゲームに参加しています！",
+                "only_creator_start": "ゲームを開始した人だけが開始できます！",
+                "only_creator_cancel": "ゲームを開始した人だけがキャンセルできます！",
+                "need_players": "開始するには最低1人のプレイヤーが必要です！",
+                "starting_game": "🎯 クイズゲームを開始しています…質問を取得しています！",
+                "game_cancelled": "❌ クイズゲームがキャンセルされました。",
+                "no_active_game": "❌ アクティブなクイズゲームが見つかりませんでした。",
+                "not_your_turn": "相手のターンです！",
+                "no_active_question": "❌ アクティブなゲームがありません。",
+                "failed_start": "❌ クイズゲームの開始に失敗しました。後ほどもう一度お試しください。",
+                "preparing_next": "次の質問を準備しています…",
+                "tied_game": "🤝 タイゲーム！誰かが得点するまで続けてください！"
+            },
+            "question": {
+                "header": "## 🧠 クイズの質問 {current}/{total}"
+            }
+        },
+        "social": {
+            "refreshFailed": "❌ 更新に失敗しました: {message}",
+            "removeSuccess": "✅ {platform} アカウント {account} を追跡から削除しました。",
+            "removeNotFound": "❌ {platform} アカウント {account} のサブスクリプションが見つかりません。",
+            "listNone": "このサーバーではソーシャルメディアアカウントは追跡されていません。",
+            "listTitle": "📱 追跡されているソーシャルメディアアカウント",
+            "listDescription": "このサーバーで追跡されているすべてのソーシャルメディアアカウントは次のとおりです:",
+            "unknownSubcommand": "不明なサブコマンドです。",
+            "failedAction": "❌ {action} サブスクリプションに失敗しました: {message}",
+            "channelUnset": "チャンネルが設定されていません",
+            "fieldNoAccounts": "アカウントがありません",
+            "guildOnly": "このコマンドはサーバー内でのみ使用できます。"
         }
     },
     "categories": {
