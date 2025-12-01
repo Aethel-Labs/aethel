@@ -95,7 +95,7 @@
         },
         "help": {
             "name": "ayuda",
-            "description": "Muestra todos los comandos disponibles y su uso",
+            "description": "Obtener información sobre Aethel",
             "embed": {
                 "title": "Comandos de Aethel",
                 "description": "Aquí están todos los comandos disponibles"
@@ -162,7 +162,7 @@
             "nopendingrequest": "No se encontró ninguna solicitud pendiente. Por favor, intenta el comando de nuevo.",
             "apicredssaved": "Credenciales de API guardadas. Ahora puedes usar el comando `/ai` sin volver a ingresar tus credenciales. Para dejar de usar tu clave, usa `/ai custom_setup:false`",
             "process": {
-                "dailylimit": "Has alcanzado tu límite diario de solicitudes de IA",
+                "dailylimit": "Has alcanzado tu límite diario de solicitudes de IA. Vota por Aethel para obtener más solicitudes: https://top.gg/bot/1371031984230371369/vote  \nO configura tu propia clave API usando el comando \"/ai\".",
                 "noapikey": "Por favor, configura primero tu clave API"
             },
             "errors": {
@@ -259,6 +259,21 @@
             "name": "cobalt",
             "multiple_items": "📋 **Múltiples elementos encontrados para esta URL.** Por favor, proporcione una URL más específica.",
             "success": "✅ **¡Descarga lista!**\n\n🔗 {url}\n📥 **Haz clic en el botón de abajo para descargar tu archivo.**"
+        },
+        "social": {
+            "notInitialized": "❌ Las funciones de redes sociales no están inicializadas.",
+            "refreshSuccess": "🔄 Actualización completa. Se notificaron {count} nueva(s) publicación(es).",
+            "refreshFailed": "❌ Falló la actualización: {message}",
+            "removeSuccess": "✅ Eliminada la cuenta {account} de la plataforma {platform} del seguimiento.",
+            "removeNotFound": "❌ No se encontró una suscripción para la cuenta {account} de la plataforma {platform}.",
+            "listNone": "No hay cuentas de redes sociales que se estén rastreando en este servidor.",
+            "listTitle": "📱 Cuentas de redes sociales rastreadas",
+            "listDescription": "Aquí están todas las cuentas de redes sociales que se están rastreando en este servidor:",
+            "channelUnset": "No se ha establecido canal",
+            "fieldNoAccounts": "No hay cuentas",
+            "guildOnly": "Este comando solo se puede usar en un servidor.",
+            "unknownSubcommand": "Subcomando desconocido.",
+            "failedAction": "❌ Falló al {action} la suscripción: {message}"
         }
     },
     "time": {
