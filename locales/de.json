@@ -1,362 +1,362 @@
 {
-    "cooldown": "Bitte warte {cooldown} Sekunde(n), bevor du diesen Befehl erneut verwendest.",
-    "failedrequest": "Beim Verarbeiten deiner Anfrage ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
-    "unexpectederror": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut.",
-    "poweredby": "Technologie von",
-    "providedby": "Daten bereitgestellt von",
-    "reddit": {
-        "from": "Von r/{subreddit}"
+  "cooldown": "Bitte warte {cooldown} Sekunde(n), bevor du diesen Befehl erneut verwendest.",
+  "failedrequest": "Beim Verarbeiten deiner Anfrage ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
+  "unexpectederror": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut.",
+  "poweredby": "Technologie von",
+  "providedby": "Daten bereitgestellt von",
+  "reddit": {
+    "from": "Von r/{subreddit}"
+  },
+  "error": "Fehler!",
+  "common": {
+    "ogmessage": "Ursprüngliche Nachricht",
+    "jumptomessage": "Zur Nachricht springen",
+    "messagelink": "Nachrichtenlink"
+  },
+  "commands": {
+    "8ball": {
+      "name": "8ball",
+      "description": "Stelle der magischen 8-Ball eine Frage",
+      "says": "Die magische 8-Ball sagt…",
+      "question": "Frage",
+      "answer": "Antwort",
+      "anotherfortune": "Frag nochmal für eine weitere Vorhersage!",
+      "spoken": "Die magische 8-Ball hat gesprochen!",
+      "responces": {
+        "itiscertain": "Es ist sicher",
+        "itisdecidedlyso": "Ganz bestimmt",
+        "withoutadoubt": "Ohne Zweifel",
+        "yesdefinitely": "Ja, definitiv",
+        "youmayrelyonit": "Du kannst dich darauf verlassen",
+        "asiseeityes": "So wie ich es sehe, ja",
+        "mostlikely": "Höchstwahrscheinlich",
+        "outlookgood": "Sieht gut aus",
+        "yes": "Ja",
+        "signspointtoyes": "Anzeichen deuten auf Ja",
+        "replyhazytryagain": "Antwort unklar, versuche es erneut",
+        "askagainlater": "Frag später nochmal",
+        "betternottellyounow": "Besser, ich sage es dir jetzt nicht",
+        "cannotpredictnow": "Kann jetzt nicht vorhersagen",
+        "concentrateandaskagain": "Konzentriere dich und frage erneut",
+        "dontcountonit": "Verlass dich nicht darauf",
+        "myreplyisno": "Meine Antwort ist nein",
+        "mysourcessayno": "Meine Quellen sagen nein",
+        "outlooknotsogood": "Sieht nicht so gut aus",
+        "verydoubtful": "Sehr zweifelhaft"
+      },
+      "askagain": "Erneut fragen"
     },
-    "error": "Fehler!",
-    "common": {
-        "ogmessage": "Ursprüngliche Nachricht",
-        "jumptomessage": "Zur Nachricht springen",
-        "messagelink": "Nachrichtenlink"
+    "cat": {
+      "name": "katze",
+      "description": "Erhalte ein zufälliges Katzenbild!",
+      "randomcat": "Zufällige Katze",
+      "newcat": "Neue Katze",
+      "error": "Entschuldigung, ich konnte kein Katzenbild abrufen. Bitte versuche es später erneut!"
     },
-    "commands": {
-        "8ball": {
-            "name": "8ball",
-            "description": "Stelle der magischen 8-Ball eine Frage",
-            "says": "Die magische 8-Ball sagt…",
-            "question": "Frage",
-            "answer": "Antwort",
-            "anotherfortune": "Frag nochmal für eine weitere Vorhersage!",
-            "spoken": "Die magische 8-Ball hat gesprochen!",
-            "responces": {
-                "itiscertain": "Es ist sicher",
-                "itisdecidedlyso": "Ganz bestimmt",
-                "withoutadoubt": "Ohne Zweifel",
-                "yesdefinitely": "Ja, definitiv",
-                "youmayrelyonit": "Du kannst dich darauf verlassen",
-                "asiseeityes": "So wie ich es sehe, ja",
-                "mostlikely": "Höchstwahrscheinlich",
-                "outlookgood": "Sieht gut aus",
-                "yes": "Ja",
-                "signspointtoyes": "Anzeichen deuten auf Ja",
-                "replyhazytryagain": "Antwort unklar, versuche es erneut",
-                "askagainlater": "Frag später nochmal",
-                "betternottellyounow": "Besser, ich sage es dir jetzt nicht",
-                "cannotpredictnow": "Kann jetzt nicht vorhersagen",
-                "concentrateandaskagain": "Konzentriere dich und frage erneut",
-                "dontcountonit": "Verlass dich nicht darauf",
-                "myreplyisno": "Meine Antwort ist nein",
-                "mysourcessayno": "Meine Quellen sagen nein",
-                "outlooknotsogood": "Sieht nicht so gut aus",
-                "verydoubtful": "Sehr zweifelhaft"
-            },
-            "askagain": "Erneut fragen"
+    "dog": {
+      "name": "hund",
+      "description": "Erhalte ein zufälliges Hundebild!",
+      "randomdog": "Zufälliger Hund",
+      "newdog": "Neuer Hund",
+      "error": "Entschuldigung, ich konnte kein Hundebild abrufen. Bitte versuche es später erneut!"
+    },
+    "wiki": {
+      "name": "wiki",
+      "description": "Suche ein Thema bei Wikipedia",
+      "pedia": "Wikipedia: {article}",
+      "error": "Entschuldigung, ich konnte den Wikipedia-Artikel nicht abrufen. Bitte versuche es später erneut!",
+      "nosummary": "Keine Zusammenfassung verfügbar",
+      "readmoreonwiki": "Mehr lesen"
+    },
+    "weather": {
+      "name": "wetter",
+      "description": "Erhalte das aktuelle Wetter für einen Ort",
+      "temperature": "Temperatur",
+      "feelslike": "Gefühlte Temperatur",
+      "default": "Wetter",
+      "humidity": "Luftfeuchtigkeit",
+      "windspeed": "Windgeschwindigkeit",
+      "pressure": "Luftdruck",
+      "weatherin": "Wetter in {location}",
+      "error": "Entschuldigung, ich konnte das Wetter nicht abrufen. Bitte versuche es später erneut!",
+      "nolocation": "Ort nicht gefunden. Bitte überprüfe den Stadtnamen und versuche es erneut.",
+      "apikeymissing": "OpenWeather API-Schlüssel fehlt oder ist ungültig."
+    },
+    "joke": {
+      "name": "witz",
+      "description": "Erhalte einen zufälligen Witz!",
+      "waitingpunchline": "Die Pointe erscheint in {seconds} Sekunden…",
+      "error": "Entschuldigung, ich konnte keinen Witz abrufen. Bitte versuche es später erneut!",
+      "type": {
+        "default": "{type}-Witz",
+        "general": "Allgemein",
+        "programming": "Programmierung",
+        "dad": "Papa"
+      }
+    },
+    "help": {
+      "name": "hilfe",
+      "description": "Informationen über Aethel erhalten",
+      "embed": {
+        "title": "Aethel-Befehle",
+        "description": "Hier sind alle verfügbaren Befehle"
+      },
+      "nooptions": "Keine Optionen",
+      "links_social": "Links & soziale Medien",
+      "features": "Funktionen",
+      "features_content": "**Spaßbefehle** - 8ball, Katzen/Haustier-Bilder und mehr\n**KI-Integration** - Angetrieben von OpenAI und anderen Anbietern\n**Erinnerungen** - Vergessen Sie nie wichtige Aufgaben\n**Dienstprogramme** - Wetter, Hilfe und Produktivitätstools\n**Mehrsprachigkeit** - Unterstützt mehrere Sprachen",
+      "dashboard": "Schauen Sie sich unser [Dashboard](https://aethel.xyz/login) an, um To‑Dos, Erinnerungen und benutzerdefinierte KI‑API‑Schlüssel zu verwalten.",
+      "title": "Aethel Bot",
+      "about": "Verbessern Sie Ihre Discord-Erfahrung mit KI-Chat, Wetteraktualisierungen, Erinnerungen und weiteren nützlichen Funktionen.",
+      "viewcommands": "Befehle anzeigen",
+      "supportserver": "Support-Server",
+      "back": "Zurück"
+    },
+    "remind": {
+      "name": "erinnern",
+      "reminder": "Erinnerung!",
+      "remindyou": "Du hast mich gebeten, dich an folgendes zu erinnern: {message}",
+      "timeelapsed": "Verstrichene Zeit",
+      "originaltime": "Ursprüngliche Zeit",
+      "errors": {
+        "base": "Beim Einrichten deiner Erinnerung ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
+        "failedtosave": "Deine Erinnerung konnte nicht gespeichert werden. Bitte versuche es später erneut.",
+        "invalidformat": "Ungültiges Zeitformat! Verwende Kombinationen wie: 1h30m, 45m oder 2h",
+        "providevalidchars": "Bitte gib eine gültige Nachricht ein (1-1000 Zeichen)",
+        "atleastoneminute": "Die Erinnerung muss mindestens 1 Minute betragen!",
+        "notlongerthanaday": "Die Erinnerung darf nicht länger als 24 Stunden sein!"
+      },
+      "modal": {
+        "setreminder": "Erinnerung einstellen",
+        "whento": "Wann soll ich dich erinnern? (z.B. 10m, 1h, 2h30m)"
+      },
+      "reminderset": "Erinnerung eingestellt",
+      "iwillremindyou": "Ich werde dich an {message} in {time} erinnern",
+      "contextiwillremindyou": "Ich werde dich an diese Nachricht in {time} erinnern",
+      "time": "Zeit",
+      "willtrigger": "Wird ausgelöst",
+      "reminderid": "Erinnerungs-ID: {reminderId}",
+      "description": "Erinnerung einstellen"
+    },
+    "whois": {
+      "name": "whois",
+      "description": "WHOIS-Informationen für eine Domain oder IP-Adresse abrufen",
+      "error": "Entschuldigung, ich konnte die WHOIS-Daten nicht abrufen. Bitte versuche es später erneut!",
+      "nodata": "Keine WHOIS-Daten für die angegebene Domain oder IP gefunden.",
+      "notvalid": "Bitte gib einen gültigen Domainnamen oder eine gültige IP-Adresse an."
+    },
+    "ai": {
+      "name": "ai",
+      "description": "Chatte mit einem KI-Assistenten",
+      "optioins": {
+        "prompt": {
+          "name": "eingabe",
+          "description": "Deine Nachricht an die KI"
         },
-        "cat": {
-            "name": "katze",
-            "description": "Erhalte ein zufälliges Katzenbild!",
-            "randomcat": "Zufällige Katze",
-            "newcat": "Neue Katze",
-            "error": "Entschuldigung, ich konnte kein Katzenbild abrufen. Bitte versuche es später erneut!"
+        "customapi": "Eigener API-Schlüssel verwenden?",
+        "reset": "Deinen KI-Chatverlauf zurücksetzen"
+      },
+      "request": {
+        "inprogress": "Du hast bereits eine laufende Anfrage. Bitte warte, bis sie abgeschlossen ist."
+      },
+      "reset": "Dein KI-Chatverlauf wurde zurückgesetzt.",
+      "defaultapi": " Zurück zur Standard-API gewechselt. Dein eigener API-Schlüssel wurde entfernt und das Standardmodell wird verwendet.",
+      "modal": {
+        "title": "Gib deine API-Zugangsdaten ein",
+        "apikey": "API-Schlüssel",
+        "apikeyplaceholder": "Um deinen Schlüssel nicht mehr zu verwenden: /ai custom_setup:false",
+        "apiurl": "API-URL",
+        "apiurlplaceholder": "Deine API-URL",
+        "model": "Modell",
+        "modelplaceholder": "Modellname (z.B. gpt-4)"
+      },
+      "nopendingrequest": "Keine ausstehende Anfrage gefunden. Bitte versuche den Befehl erneut.",
+      "apicredssaved": "API-Zugangsdaten gespeichert. Du kannst jetzt den Befehl `/ai` verwenden, ohne deine Zugangsdaten erneut einzugeben. Um deinen Schlüssel nicht mehr zu verwenden, nutze `/ai custom_setup:false`",
+      "process": {
+        "dailylimit": "Du hast dein tägliches Limit an KI-Anfragen erreicht",
+        "noapikey": "Bitte richte zuerst deinen API-Schlüssel ein"
+      },
+      "errors": {
+        "failed": "KI-Antwort konnte nicht verarbeitet werden",
+        "nores": "Keine Antwort von der KI",
+        "toolong": "Nachricht ist zu lang"
+      },
+      "testing": "API-Schlüssel testen...",
+      "testfailed": "❌ API-Schlüssel-Test fehlgeschlagen: {error}. Bitte prüfen Sie Ihre Anmeldedaten und versuchen Sie es erneut.",
+      "testsuccess": "✅ API-Schlüssel-Test erfolgreich! Anmeldedaten gespeichert."
+    },
+    "cobalt": {
+      "name": "cobalt",
+      "description": "Ein Video oder Audio von einer angegebenen URL herunterladen",
+      "options": {
+        "url": {
+          "name": "url",
+          "description": "Die URL des Videos, das heruntergeladen werden soll"
         },
-        "dog": {
-            "name": "hund",
-            "description": "Erhalte ein zufälliges Hundebild!",
-            "randomdog": "Zufälliger Hund",
-            "newdog": "Neuer Hund",
-            "error": "Entschuldigung, ich konnte kein Hundebild abrufen. Bitte versuche es später erneut!"
+        "video_quality": {
+          "name": "video-quality",
+          "description": "Die Videoqualität, die heruntergeladen werden soll"
         },
-        "wiki": {
-            "name": "wiki",
-            "description": "Suche ein Thema bei Wikipedia",
-            "pedia": "Wikipedia: {article}",
-            "error": "Entschuldigung, ich konnte den Wikipedia-Artikel nicht abrufen. Bitte versuche es später erneut!",
-            "nosummary": "Keine Zusammenfassung verfügbar",
-            "readmoreonwiki": "Mehr lesen"
+        "audio_only": {
+          "name": "audio-only",
+          "description": "Nur Audio herunterladen"
         },
-        "weather": {
-            "name": "wetter",
-            "description": "Erhalte das aktuelle Wetter für einen Ort",
-            "temperature": "Temperatur",
-            "feelslike": "Gefühlte Temperatur",
-            "default": "Wetter",
-            "humidity": "Luftfeuchtigkeit",
-            "windspeed": "Windgeschwindigkeit",
-            "pressure": "Luftdruck",
-            "weatherin": "Wetter in {location}",
-            "error": "Entschuldigung, ich konnte das Wetter nicht abrufen. Bitte versuche es später erneut!",
-            "nolocation": "Ort nicht gefunden. Bitte überprüfe den Stadtnamen und versuche es erneut.",
-            "apikeymissing": "OpenWeather API-Schlüssel fehlt oder ist ungültig."
+        "mute_audio": {
+          "name": "mute-audio",
+          "description": "Audio stummschalten"
         },
-        "joke": {
-            "name": "witz",
-            "description": "Erhalte einen zufälligen Witz!",
-            "waitingpunchline": "Die Pointe erscheint in {seconds} Sekunden…",
-            "error": "Entschuldigung, ich konnte keinen Witz abrufen. Bitte versuche es später erneut!",
-            "type": {
-                "default": "{type}-Witz",
-                "general": "Allgemein",
-                "programming": "Programmierung",
-                "dad": "Papa"
-            }
+        "audio_format": {
+          "name": "audio-format",
+          "description": "Format für Audio (Audio-only muss wahr sein)"
         },
-        "help": {
-            "name": "hilfe",
-            "description": "Informationen über Aethel erhalten",
-            "embed": {
-                "title": "Aethel-Befehle",
-                "description": "Hier sind alle verfügbaren Befehle"
-            },
-            "nooptions": "Keine Optionen",
-            "links_social": "Links & soziale Medien",
-            "features": "Funktionen",
-            "features_content": "**Spaßbefehle** - 8ball, Katzen/Haustier-Bilder und mehr\n**KI-Integration** - Angetrieben von OpenAI und anderen Anbietern\n**Erinnerungen** - Vergessen Sie nie wichtige Aufgaben\n**Dienstprogramme** - Wetter, Hilfe und Produktivitätstools\n**Mehrsprachigkeit** - Unterstützt mehrere Sprachen",
-            "dashboard": "Schauen Sie sich unser [Dashboard](https://aethel.xyz/login) an, um To‑Dos, Erinnerungen und benutzerdefinierte KI‑API‑Schlüssel zu verwalten.",
-            "title": "Aethel Bot",
-            "about": "Verbessern Sie Ihre Discord-Erfahrung mit KI-Chat, Wetteraktualisierungen, Erinnerungen und weiteren nützlichen Funktionen.",
-            "viewcommands": "Befehle anzeigen",
-            "supportserver": "Support-Server",
-            "back": "Zurück"
+        "tiktok_original_audio": {
+          "name": "tiktok-original-audio",
+          "description": "TikTok-originales Audio einbeziehen"
         },
-        "remind": {
-            "name": "erinnern",
-            "reminder": "Erinnerung!",
-            "remindyou": "Du hast mich gebeten, dich an folgendes zu erinnern: {message}",
-            "timeelapsed": "Verstrichene Zeit",
-            "originaltime": "Ursprüngliche Zeit",
-            "errors": {
-                "base": "Beim Einrichten deiner Erinnerung ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
-                "failedtosave": "Deine Erinnerung konnte nicht gespeichert werden. Bitte versuche es später erneut.",
-                "invalidformat": "Ungültiges Zeitformat! Verwende Kombinationen wie: 1h30m, 45m oder 2h",
-                "providevalidchars": "Bitte gib eine gültige Nachricht ein (1-1000 Zeichen)",
-                "atleastoneminute": "Die Erinnerung muss mindestens 1 Minute betragen!",
-                "notlongerthanaday": "Die Erinnerung darf nicht länger als 24 Stunden sein!"
-            },
-            "modal": {
-                "setreminder": "Erinnerung einstellen",
-                "whento": "Wann soll ich dich erinnern? (z.B. 10m, 1h, 2h30m)"
-            },
-            "reminderset": "Erinnerung eingestellt",
-            "iwillremindyou": "Ich werde dich an {message} in {time} erinnern",
-            "contextiwillremindyou": "Ich werde dich an diese Nachricht in {time} erinnern",
-            "time": "Zeit",
-            "willtrigger": "Wird ausgelöst",
-            "reminderid": "Erinnerungs-ID: {reminderId}",
-            "description": "Erinnerung einstellen"
-        },
-        "whois": {
-            "name": "whois",
-            "description": "WHOIS-Informationen für eine Domain oder IP-Adresse abrufen",
-            "error": "Entschuldigung, ich konnte die WHOIS-Daten nicht abrufen. Bitte versuche es später erneut!",
-            "nodata": "Keine WHOIS-Daten für die angegebene Domain oder IP gefunden.",
-            "notvalid": "Bitte gib einen gültigen Domainnamen oder eine gültige IP-Adresse an."
-        },
-        "ai": {
-            "name": "ai",
-            "description": "Chatte mit einem KI-Assistenten",
-            "optioins": {
-                "prompt": {
-                    "name": "eingabe",
-                    "description": "Deine Nachricht an die KI"
-                },
-                "customapi": "Eigener API-Schlüssel verwenden?",
-                "reset": "Deinen KI-Chatverlauf zurücksetzen"
-            },
-            "request": {
-                "inprogress": "Du hast bereits eine laufende Anfrage. Bitte warte, bis sie abgeschlossen ist."
-            },
-            "reset": "Dein KI-Chatverlauf wurde zurückgesetzt.",
-            "defaultapi": " Zurück zur Standard-API gewechselt. Dein eigener API-Schlüssel wurde entfernt und das Standardmodell wird verwendet.",
-            "modal": {
-                "title": "Gib deine API-Zugangsdaten ein",
-                "apikey": "API-Schlüssel",
-                "apikeyplaceholder": "Um deinen Schlüssel nicht mehr zu verwenden: /ai custom_setup:false",
-                "apiurl": "API-URL",
-                "apiurlplaceholder": "Deine API-URL",
-                "model": "Modell",
-                "modelplaceholder": "Modellname (z.B. gpt-4)"
-            },
-            "nopendingrequest": "Keine ausstehende Anfrage gefunden. Bitte versuche den Befehl erneut.",
-            "apicredssaved": "API-Zugangsdaten gespeichert. Du kannst jetzt den Befehl `/ai` verwenden, ohne deine Zugangsdaten erneut einzugeben. Um deinen Schlüssel nicht mehr zu verwenden, nutze `/ai custom_setup:false`",
-            "process": {
-                "dailylimit": "Du hast dein tägliches Limit an KI-Anfragen erreicht",
-                "noapikey": "Bitte richte zuerst deinen API-Schlüssel ein"
-            },
-            "errors": {
-                "failed": "KI-Antwort konnte nicht verarbeitet werden",
-                "nores": "Keine Antwort von der KI",
-                "toolong": "Nachricht ist zu lang"
-            },
-            "testing": "API-Schlüssel testen...",
-            "testfailed": "❌ API-Schlüssel-Test fehlgeschlagen: {error}. Bitte prüfen Sie Ihre Anmeldedaten und versuchen Sie es erneut.",
-            "testsuccess": "✅ API-Schlüssel-Test erfolgreich! Anmeldedaten gespeichert."
-        },
-        "cobalt": {
-            "name": "cobalt",
-            "description": "Ein Video oder Audio von einer angegebenen URL herunterladen",
-            "options": {
-                "url": {
-                    "name": "url",
-                    "description": "Die URL des Videos, das heruntergeladen werden soll"
-                },
-                "video_quality": {
-                    "name": "video-quality",
-                    "description": "Die Videoqualität, die heruntergeladen werden soll"
-                },
-                "audio_only": {
-                    "name": "audio-only",
-                    "description": "Nur Audio herunterladen"
-                },
-                "mute_audio": {
-                    "name": "mute-audio",
-                    "description": "Audio stummschalten"
-                },
-                "audio_format": {
-                    "name": "audio-format",
-                    "description": "Format für Audio (Audio-only muss wahr sein)"
-                },
-                "tiktok_original_audio": {
-                    "name": "tiktok-original-audio",
-                    "description": "TikTok-originales Audio einbeziehen"
-                },
-                "twitter_gif": {
-                    "description": "Als Twitter GIF herunterladen",
-                    "name": "twitter-gif"
-                }
-            },
-            "rate_limit": "⏳ **Rate-Limit überschritten.** Bitte versuchen Sie es später noch einmal.",
-            "unknown_response": "❓ **Unbekannte Antwort von der API.** Bitte versuchen Sie es erneut.",
-            "multiple_items": "📋 **Mehrere Elemente für diese URL gefunden.** Bitte geben Sie eine spezifischere URL an.",
-            "local_processing_not_supported": "⚠️ **Lokale Verarbeitung wird nicht unterstützt.** Bitte versuchen Sie eine andere URL oder Option.",
-            "button_label": "Herunterladen",
-            "success": "✅ **Download bereit!**\n🔗 {url}\n📥 **Klicken Sie unten auf die Schaltfläche, um Ihre Datei herunterzuladen.**",
-            "error": "❌ **Fehler:** {error}",
-            "unknown_error": "Ein unbekannter Fehler ist aufgetreten."
-        },
-        "time": {
-            "name": "time",
-            "description": "Aktuelle Zeit für eine Zeitzone abfragen",
-            "option_timezone": {
-                "name": "Zeitzone",
-                "description": "Die zu überprüfende Zeitzone (z. B. Europe/Madrid)"
-            },
-            "embed": {
-                "title_single": "Uhrzeit in {city}, {country}",
-                "title_multi": "Zeit für {city}",
-                "time_format": "dddd, MMMM D, YYYY, h:mm A z",
-                "notfound": "Stadt nicht gefunden.",
-                "field_time": "Zeit",
-                "field_date": "Datum",
-                "footer": "Zeitzone: {timezone}",
-                "footer_multi": "Mehrere Städte mit ähnlichen Namen gefunden",
-                "author": "Aktuelle Uhrzeit",
-                "multi_city_description": "Mehrere Städte gefunden für '{city}':"
-            }
-        },
-        "todo": {
-            "name": "todo",
-            "description": "Verwalte deine To-Do-Liste",
-            "add": {
-                "name": "hinzufügen",
-                "description": "Füge ein neues To-Do-Element hinzu"
-            },
-            "done": {
-                "name": "erledigt",
-                "description": "Markiere ein To-Do als erledigt"
-            },
-            "list": {
-                "name": "Liste",
-                "description": "Ihre To-Do-Liste anzeigen"
-            },
-            "added": "✅ To-Do hinzugefügt: **{item}**",
-            "add_error": "❌ Hinzufügen des To-Do fehlgeschlagen. Bitte versuchen Sie es später noch einmal.",
-            "empty": "Deine To-Do-Liste ist leer! 🎉",
-            "list_title": "📝 Deine To-Do-Liste",
-            "checked": "✅ To-Do als erledigt markiert: **{item}**",
-            "notfound": "❌ Das To-Do wurde nicht gefunden: **{item}**",
-            "done_error": "❌ Markieren des To-Do als erledigt fehlgeschlagen. Bitte versuchen Sie es später noch einmal.",
-            "todo_title": "To-Do",
-            "done_title": "Erledigt",
-            "none": "—"
-        },
-        "stocks": {
-            "description": "Aktienkurse verfolgen und schnelle Diagramme anzeigen",
-            "option": {
-                "ticker": {
-                    "name": "Ticker",
-                    "description": "Das Börsenticker-Symbol (z. B. AAPL, TSLA)"
-                },
-                "range": {
-                    "name": "Zeitraum",
-                    "description": "Anfangszeitrahmen für das Diagramm"
-                }
-            },
-            "errors": {
-                "noapikey": "Der Massive.com-API-Schlüssel fehlt. Bitten Sie den Bot-Besitzer, MASSIVE_API_KEY einzurichten.",
-                "notfound": "Ich konnte keine Daten für {ticker} finden. Bitte prüfen Sie das Symbol noch einmal.",
-                "unauthorized": "Nur die Person, die /stocks verwendet hat, kann mit diesen Schaltflächen interagieren."
-            },
-            "labels": {
-                "price": "Preis",
-                "dayrange": "Tagesbereich",
-                "volume": "Volumen",
-                "prevclose": "Vorheriger Schlusskurs",
-                "marketcap": "Marktkapitalisierung",
-                "nochart": "Diagrammdaten für diesen Zeitraum nicht verfügbar.",
-                "change": "Änderung"
-            },
-            "name": "Aktien",
-            "buttons": {
-                "timeframes": {
-                    "1d": "1D",
-                    "5d": "5D",
-                    "1m": "1M",
-                    "3m": "3M",
-                    "1y": "1Y"
-                }
-            }
-        },
-        "trivia": {
-            "name": "trivia",
-            "description": "Starte ein Mehrspieler-Trivia-Spiel",
-            "buttons": {
-                "join": "🎯 Spiel beitreten",
-                "start": "🚀 Spiel starten",
-                "cancel": "❌ Abbrechen"
-            },
-            "messages": {
-                "tied_game": "🤝 Unentschieden! Weiter spielen, bis jemand einen Punkt erzielt!",
-                "game_exists": "❌ Es läuft bereits ein Trivia-Spiel in diesem Kanal!",
-                "game_starting": "## 🎯 Trivia-Spiel startet!\n\n**Spieler ({count}):**\n{players}\n\nKlicken Sie auf **Beitreten** um teilzunehmen!\nKlicken Sie auf **Spiel starten** wenn alle beigetreten sind.",
-                "game_started": "Das Spiel hat bereits begonnen!",
-                "already_joined": "Du bist bereits im Spiel!",
-                "only_creator_start": "Nur die Person, die das Spiel gestartet hat, kann es beginnen!",
-                "only_creator_cancel": "Nur die Person, die das Spiel gestartet hat, kann es abbrechen!",
-                "need_players": "Mindestens 1 Spieler benötigt, um zu starten!",
-                "starting_game": "🎯 Trivia-Spiel startet... Fragen werden abgerufen!",
-                "game_cancelled": "❌ Trivia-Spiel wurde abgebrochen.",
-                "no_active_game": "❌ Kein aktives Trivia-Spiel gefunden.",
-                "not_your_turn": "Es ist nicht dein Zug!",
-                "no_active_question": "❌ Kein aktives Spiel.",
-                "failed_start": "❌ Trivia-Spiel konnte nicht gestartet werden. Bitte später erneut versuchen.",
-                "preparing_next": "Nächste Frage wird vorbereitet..."
-            },
-            "question": {
-                "header": "## 🧠 Trivia-Frage {current}/{total}",
-                "your_turn": "**{player}, es ist dein Zug!**",
-                "category": "**Kategorie:** {category}"
-            }
-        },
-        "meow": {
-            "name": "miau",
-            "description": "Text in Miau-Sprache übersetzen",
-            "noText": "Bitte geben Sie einen Text ein, der in Miau übersetzt werden soll!",
-            "response": "🐱 {meowText}",
-            "options": {
-                "text": {
-                    "name": "Text",
-                    "description": "Der Text, der in Miau übersetzt werden soll"
-                }
-            }
+        "twitter_gif": {
+          "description": "Als Twitter GIF herunterladen",
+          "name": "twitter-gif"
         }
+      },
+      "rate_limit": "⏳ **Rate-Limit überschritten.** Bitte versuchen Sie es später noch einmal.",
+      "unknown_response": "❓ **Unbekannte Antwort von der API.** Bitte versuchen Sie es erneut.",
+      "multiple_items": "📋 **Mehrere Elemente für diese URL gefunden.** Bitte geben Sie eine spezifischere URL an.",
+      "local_processing_not_supported": "⚠️ **Lokale Verarbeitung wird nicht unterstützt.** Bitte versuchen Sie eine andere URL oder Option.",
+      "button_label": "Herunterladen",
+      "success": "✅ **Download bereit!**\n🔗 {url}\n📥 **Klicken Sie unten auf die Schaltfläche, um Ihre Datei herunterzuladen.**",
+      "error": "❌ **Fehler:** {error}",
+      "unknown_error": "Ein unbekannter Fehler ist aufgetreten."
     },
-    "categories": {
-        "fun": "Spaß",
-        "info": "Info",
-        "utilities": "Dienstprogramme"
+    "time": {
+      "name": "time",
+      "description": "Aktuelle Zeit für eine Zeitzone abfragen",
+      "option_timezone": {
+        "name": "Zeitzone",
+        "description": "Die zu überprüfende Zeitzone (z. B. Europe/Madrid)"
+      },
+      "embed": {
+        "title_single": "Uhrzeit in {city}, {country}",
+        "title_multi": "Zeit für {city}",
+        "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+        "notfound": "Stadt nicht gefunden.",
+        "field_time": "Zeit",
+        "field_date": "Datum",
+        "footer": "Zeitzone: {timezone}",
+        "footer_multi": "Mehrere Städte mit ähnlichen Namen gefunden",
+        "author": "Aktuelle Uhrzeit",
+        "multi_city_description": "Mehrere Städte gefunden für '{city}':"
+      }
+    },
+    "todo": {
+      "name": "todo",
+      "description": "Verwalte deine To-Do-Liste",
+      "add": {
+        "name": "hinzufügen",
+        "description": "Füge ein neues To-Do-Element hinzu"
+      },
+      "done": {
+        "name": "erledigt",
+        "description": "Markiere ein To-Do als erledigt"
+      },
+      "list": {
+        "name": "Liste",
+        "description": "Ihre To-Do-Liste anzeigen"
+      },
+      "added": "✅ To-Do hinzugefügt: **{item}**",
+      "add_error": "❌ Hinzufügen des To-Do fehlgeschlagen. Bitte versuchen Sie es später noch einmal.",
+      "empty": "Deine To-Do-Liste ist leer! 🎉",
+      "list_title": "📝 Deine To-Do-Liste",
+      "checked": "✅ To-Do als erledigt markiert: **{item}**",
+      "notfound": "❌ Das To-Do wurde nicht gefunden: **{item}**",
+      "done_error": "❌ Markieren des To-Do als erledigt fehlgeschlagen. Bitte versuchen Sie es später noch einmal.",
+      "todo_title": "To-Do",
+      "done_title": "Erledigt",
+      "none": "—"
+    },
+    "stocks": {
+      "description": "Aktienkurse verfolgen und schnelle Diagramme anzeigen",
+      "option": {
+        "ticker": {
+          "name": "Ticker",
+          "description": "Das Börsenticker-Symbol (z. B. AAPL, TSLA)"
+        },
+        "range": {
+          "name": "Zeitraum",
+          "description": "Anfangszeitrahmen für das Diagramm"
+        }
+      },
+      "errors": {
+        "noapikey": "Der Massive.com-API-Schlüssel fehlt. Bitten Sie den Bot-Besitzer, MASSIVE_API_KEY einzurichten.",
+        "notfound": "Ich konnte keine Daten für {ticker} finden. Bitte prüfen Sie das Symbol noch einmal.",
+        "unauthorized": "Nur die Person, die /stocks verwendet hat, kann mit diesen Schaltflächen interagieren."
+      },
+      "labels": {
+        "price": "Preis",
+        "dayrange": "Tagesbereich",
+        "volume": "Volumen",
+        "prevclose": "Vorheriger Schlusskurs",
+        "marketcap": "Marktkapitalisierung",
+        "nochart": "Diagrammdaten für diesen Zeitraum nicht verfügbar.",
+        "change": "Änderung"
+      },
+      "name": "Aktien",
+      "buttons": {
+        "timeframes": {
+          "1d": "1D",
+          "5d": "5D",
+          "1m": "1M",
+          "3m": "3M",
+          "1y": "1Y"
+        }
+      }
+    },
+    "trivia": {
+      "name": "trivia",
+      "description": "Starte ein Mehrspieler-Trivia-Spiel",
+      "buttons": {
+        "join": "🎯 Spiel beitreten",
+        "start": "🚀 Spiel starten",
+        "cancel": "❌ Abbrechen"
+      },
+      "messages": {
+        "tied_game": "🤝 Unentschieden! Weiter spielen, bis jemand einen Punkt erzielt!",
+        "game_exists": "❌ Es läuft bereits ein Trivia-Spiel in diesem Kanal!",
+        "game_starting": "## 🎯 Trivia-Spiel startet!\n\n**Spieler ({count}):**\n{players}\n\nKlicken Sie auf **Beitreten** um teilzunehmen!\nKlicken Sie auf **Spiel starten** wenn alle beigetreten sind.",
+        "game_started": "Das Spiel hat bereits begonnen!",
+        "already_joined": "Du bist bereits im Spiel!",
+        "only_creator_start": "Nur die Person, die das Spiel gestartet hat, kann es beginnen!",
+        "only_creator_cancel": "Nur die Person, die das Spiel gestartet hat, kann es abbrechen!",
+        "need_players": "Mindestens 1 Spieler benötigt, um zu starten!",
+        "starting_game": "🎯 Trivia-Spiel startet... Fragen werden abgerufen!",
+        "game_cancelled": "❌ Trivia-Spiel wurde abgebrochen.",
+        "no_active_game": "❌ Kein aktives Trivia-Spiel gefunden.",
+        "not_your_turn": "Es ist nicht dein Zug!",
+        "no_active_question": "❌ Kein aktives Spiel.",
+        "failed_start": "❌ Trivia-Spiel konnte nicht gestartet werden. Bitte später erneut versuchen.",
+        "preparing_next": "Nächste Frage wird vorbereitet..."
+      },
+      "question": {
+        "header": "## 🧠 Trivia-Frage {current}/{total}",
+        "your_turn": "**{player}, es ist dein Zug!**",
+        "category": "**Kategorie:** {category}"
+      }
+    },
+    "meow": {
+      "name": "miau",
+      "description": "Text in Miau-Sprache übersetzen",
+      "noText": "Bitte geben Sie einen Text ein, der in Miau übersetzt werden soll!",
+      "response": "🐱 {meowText}",
+      "options": {
+        "text": {
+          "name": "Text",
+          "description": "Der Text, der in Miau übersetzt werden soll"
+        }
+      }
     }
+  },
+  "categories": {
+    "fun": "Spaß",
+    "info": "Info",
+    "utilities": "Dienstprogramme"
+  }
 }

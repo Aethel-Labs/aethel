@@ -1,345 +1,345 @@
 {
-    "cooldown": "Bu komutu tekrar kullanmadan önce lütfen {cooldown} saniye bekleyin.",
-    "failedrequest": "İsteğiniz işlenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
-    "unexpectederror": "Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
-    "poweredby": "Destekleyen",
-    "providedby": "Veri sağlayıcı",
-    "reddit": {
-        "from": "r/{subreddit} tarafından"
+  "cooldown": "Bu komutu tekrar kullanmadan önce lütfen {cooldown} saniye bekleyin.",
+  "failedrequest": "İsteğiniz işlenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+  "unexpectederror": "Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+  "poweredby": "Destekleyen",
+  "providedby": "Veri sağlayıcı",
+  "reddit": {
+    "from": "r/{subreddit} tarafından"
+  },
+  "error": "Hata!",
+  "common": {
+    "ogmessage": "Orijinal Mesaj",
+    "jumptomessage": "Mesaja git",
+    "messagelink": "Mesaj bağlantısı"
+  },
+  "commands": {
+    "8ball": {
+      "name": "8ball",
+      "description": "Sihirli 8 topuna bir soru sor",
+      "says": "Sihirli 8 Topu diyor ki…",
+      "question": "Soru",
+      "answer": "Cevap",
+      "anotherfortune": "Başka bir kehanet için tekrar sor!",
+      "spoken": "Sihirli 8 topu konuştu!",
+      "responces": {
+        "itiscertain": "Bu kesin",
+        "itisdecidedlyso": "Kesinlikle öyle",
+        "withoutadoubt": "Şüphesiz",
+        "yesdefinitely": "Evet, kesinlikle",
+        "youmayrelyonit": "Ona güvenebilirsin",
+        "asiseeityes": "Gördüğüm kadarıyla evet",
+        "mostlikely": "Büyük olasılıkla",
+        "outlookgood": "Görünüm iyi",
+        "yes": "Evet",
+        "signspointtoyes": "İşaretler eveti gösteriyor",
+        "replyhazytryagain": "Cevap belirsiz, tekrar dene",
+        "askagainlater": "Daha sonra tekrar sor",
+        "betternottellyounow": "Şimdi söylemesem daha iyi",
+        "cannotpredictnow": "Şu anda tahmin edemem",
+        "concentrateandaskagain": "Odaklan ve tekrar sor",
+        "dontcountonit": "Buna güvenme",
+        "myreplyisno": "Cevabım hayır",
+        "mysourcessayno": "Kaynaklarım hayır diyor",
+        "outlooknotsogood": "Görünüm pek iyi değil",
+        "verydoubtful": "Çok şüpheli"
+      },
+      "askagain": "Tekrar Sor"
     },
-    "error": "Hata!",
-    "common": {
-        "ogmessage": "Orijinal Mesaj",
-        "jumptomessage": "Mesaja git",
-        "messagelink": "Mesaj bağlantısı"
+    "cat": {
+      "name": "kedi",
+      "description": "Rastgele bir kedi resmi al!",
+      "randomcat": "Rastgele kedi",
+      "newcat": "Yeni kedi",
+      "error": "Üzgünüm, bir kedi resmi getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!"
     },
-    "commands": {
-        "8ball": {
-            "name": "8ball",
-            "description": "Sihirli 8 topuna bir soru sor",
-            "says": "Sihirli 8 Topu diyor ki…",
-            "question": "Soru",
-            "answer": "Cevap",
-            "anotherfortune": "Başka bir kehanet için tekrar sor!",
-            "spoken": "Sihirli 8 topu konuştu!",
-            "responces": {
-                "itiscertain": "Bu kesin",
-                "itisdecidedlyso": "Kesinlikle öyle",
-                "withoutadoubt": "Şüphesiz",
-                "yesdefinitely": "Evet, kesinlikle",
-                "youmayrelyonit": "Ona güvenebilirsin",
-                "asiseeityes": "Gördüğüm kadarıyla evet",
-                "mostlikely": "Büyük olasılıkla",
-                "outlookgood": "Görünüm iyi",
-                "yes": "Evet",
-                "signspointtoyes": "İşaretler eveti gösteriyor",
-                "replyhazytryagain": "Cevap belirsiz, tekrar dene",
-                "askagainlater": "Daha sonra tekrar sor",
-                "betternottellyounow": "Şimdi söylemesem daha iyi",
-                "cannotpredictnow": "Şu anda tahmin edemem",
-                "concentrateandaskagain": "Odaklan ve tekrar sor",
-                "dontcountonit": "Buna güvenme",
-                "myreplyisno": "Cevabım hayır",
-                "mysourcessayno": "Kaynaklarım hayır diyor",
-                "outlooknotsogood": "Görünüm pek iyi değil",
-                "verydoubtful": "Çok şüpheli"
-            },
-            "askagain": "Tekrar Sor"
+    "dog": {
+      "name": "köpek",
+      "description": "Rastgele bir köpek resmi al!",
+      "randomdog": "Rastgele köpek",
+      "newdog": "Yeni köpek",
+      "error": "Üzgünüm, bir köpek resmi getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!"
+    },
+    "wiki": {
+      "name": "wiki",
+      "description": "Bir konu için Vikipedi'de ara",
+      "pedia": "Vikipedi: {article}",
+      "error": "Üzgünüm, Vikipedi makalesi getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
+      "nosummary": "Özet mevcut değil",
+      "readmoreonwiki": "Daha fazlası"
+    },
+    "weather": {
+      "name": "hava",
+      "description": "Bir konumun güncel hava durumunu al",
+      "temperature": "Sıcaklık",
+      "feelslike": "Hissedilen",
+      "default": "Hava",
+      "humidity": "Nem",
+      "windspeed": "Rüzgar hızı",
+      "pressure": "Basınç",
+      "weatherin": "{location} için hava durumu",
+      "error": "Üzgünüm, hava durumu alınırken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
+      "nolocation": "Konum bulunamadı. Lütfen şehir adını kontrol edip tekrar deneyin.",
+      "apikeymissing": "OpenWeather API anahtarı eksik veya geçersiz."
+    },
+    "joke": {
+      "name": "fıkra",
+      "description": "Rastgele bir fıkra al!",
+      "waitingpunchline": "Espri {seconds} saniye içinde görünecek…",
+      "error": "Üzgünüm, bir fıkra getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
+      "type": {
+        "default": "{type} fıkrası",
+        "general": "Genel",
+        "programming": "Programlama",
+        "dad": "Baba"
+      }
+    },
+    "help": {
+      "name": "yardım",
+      "description": "Aethel hakkında bilgi alın",
+      "embed": {
+        "title": "Aethel komutları",
+        "description": "İşte tüm mevcut komutlar"
+      },
+      "nooptions": "Seçenek yok",
+      "dashboard": "To-Dos, hatırlatıcılar ve özel AI API anahtarlarını yönetmek için [panelimizi](https://aethel.xyz/login) inceleyin.",
+      "back": "Geri",
+      "links_social": "Linkler & Sosyal Medya",
+      "features": "Özellikler",
+      "features_content": "**Eğlence Komutları** - 8ball, kedi/kopek resimleri ve daha fazlası\n**Yapay Zeka Entegrasyonu** - OpenAI ve diğer sağlayıcılar tarafından desteklenir\n**Hatırlatıcılar** - Önemli görevleri asla unutmayın\n**Yardımcılar** - Hava, yardım ve üretkenlik araçları\n**Çoklu Dil** - Birden fazla dili destekler"
+    },
+    "remind": {
+      "name": "hatırlat",
+      "reminder": "Hatırlatma!",
+      "remindyou": "Bana şunu hatırlatmamı istedin: {message}",
+      "timeelapsed": "Geçen süre",
+      "originaltime": "Orijinal Zaman",
+      "errors": {
+        "base": "Hatırlatıcı ayarlanırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+        "failedtosave": "Hatırlatıcı kaydedilemedi. Lütfen daha sonra tekrar deneyin.",
+        "invalidformat": "Geçersiz zaman formatı! Şu kombinasyonları kullanın: 1s30d, 45d veya 2s",
+        "providevalidchars": "Lütfen geçerli bir mesaj girin (1-1000 karakter)",
+        "atleastoneminute": "Hatırlatıcı süresi en az 1 dakika olmalı!",
+        "notlongerthanaday": "Hatırlatıcı süresi 24 saatten uzun olamaz!"
+      },
+      "modal": {
+        "setreminder": "Hatırlatıcı ayarla",
+        "whento": "Ne zaman hatırlatayım? (örn. 10d, 1s, 2s30d)"
+      },
+      "reminderset": "Hatırlatıcı ayarlandı",
+      "iwillremindyou": "{message} hakkında {time} sonra hatırlatacağım",
+      "contextiwillremindyou": "Bu mesajı {time} sonra hatırlatacağım",
+      "time": "Zaman",
+      "willtrigger": "Tetiklenecek",
+      "reminderid": "Hatırlatıcı ID: {reminderId}",
+      "description": "Hatırlatıcı ayarla"
+    },
+    "whois": {
+      "name": "whois",
+      "description": "Bir alan adı veya IP adresi için WHOIS bilgisi sorgula",
+      "error": "Üzgünüm, WHOIS verisi alınırken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
+      "nodata": "Belirtilen alan adı veya IP için WHOIS verisi bulunamadı.",
+      "notvalid": "Lütfen geçerli bir alan adı veya IP adresi girin."
+    },
+    "ai": {
+      "name": "ai",
+      "description": "Bir yapay zeka asistanı ile sohbet et",
+      "optioins": {
+        "prompt": {
+          "name": "istem",
+          "description": "Yapay zekaya mesajınız"
         },
-        "cat": {
-            "name": "kedi",
-            "description": "Rastgele bir kedi resmi al!",
-            "randomcat": "Rastgele kedi",
-            "newcat": "Yeni kedi",
-            "error": "Üzgünüm, bir kedi resmi getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!"
+        "customapi": "Kendi API anahtarınızı kullanmak ister misiniz?",
+        "reset": "AI sohbet geçmişinizi sıfırlayın"
+      },
+      "request": {
+        "inprogress": "Zaten devam eden bir isteğiniz var. Lütfen tamamlanmasını bekleyin."
+      },
+      "reset": "AI sohbet geçmişiniz sıfırlandı.",
+      "defaultapi": " Varsayılan API'ya geçildi. Özel API anahtarınız temizlendi ve varsayılan model kullanılacak.",
+      "modal": {
+        "title": "API Kimlik Bilgilerinizi Girin",
+        "apikey": "API Anahtarı",
+        "apikeyplaceholder": "Kendi anahtarınızı kullanmayı bırakmak için: /ai custom_setup:false",
+        "apiurl": "API Adresi",
+        "apiurlplaceholder": "API Adresiniz",
+        "model": "Model",
+        "modelplaceholder": "Model adı (örn. gpt-4)"
+      },
+      "nopendingrequest": "Bekleyen bir istek bulunamadı. Lütfen komutu tekrar deneyin.",
+      "apicredssaved": "API kimlik bilgileri kaydedildi. Artık `/ai` komutunu anahtarınızı tekrar girmeden kullanabilirsiniz. Kendi anahtarınızı kullanmayı bırakmak için /ai custom_setup:false yazın",
+      "process": {
+        "dailylimit": "Günlük AI talep sınırınıza ulaştınız. Daha fazla talep için Aethel'e oy verin: https://top.gg/bot/1371031984230371369/vote\nVeya \"/ai\" komutunu kullanarak kendi API anahtarınızı ayarlayın.",
+        "noapikey": "Lütfen önce API anahtarınızı ayarlayın"
+      },
+      "errors": {
+        "failed": "AI yanıtı işlenemedi",
+        "nores": "AI'dan yanıt yok",
+        "toolong": "Mesaj çok uzun"
+      },
+      "testing": "API anahtarı test ediliyor...",
+      "testfailed": "❌ API anahtarı testi başarısız: {error}. Lütfen kimlik bilgilerinizi kontrol edin ve tekrar deneyin.",
+      "testsuccess": "✅ API anahtarı testi başarılı! Kimlik bilgileri kaydedildi."
+    },
+    "cobalt": {
+      "name": "kobalt",
+      "rate_limit": "⏳ **Hız sınırı aşıldı.** Lütfen daha sonra tekrar deneyin.",
+      "description": "Belirli bir URL'den video veya ses indirin",
+      "options": {
+        "url": {
+          "name": "url",
+          "description": "İndirilecek videonun URL'si"
         },
-        "dog": {
-            "name": "köpek",
-            "description": "Rastgele bir köpek resmi al!",
-            "randomdog": "Rastgele köpek",
-            "newdog": "Yeni köpek",
-            "error": "Üzgünüm, bir köpek resmi getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!"
+        "video_quality": {
+          "name": "video-quality",
+          "description": "İndirilecek videonun kalitesi"
         },
-        "wiki": {
-            "name": "wiki",
-            "description": "Bir konu için Vikipedi'de ara",
-            "pedia": "Vikipedi: {article}",
-            "error": "Üzgünüm, Vikipedi makalesi getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
-            "nosummary": "Özet mevcut değil",
-            "readmoreonwiki": "Daha fazlası"
+        "audio_only": {
+          "name": "audio-only",
+          "description": "Sadece ses indirin"
         },
-        "weather": {
-            "name": "hava",
-            "description": "Bir konumun güncel hava durumunu al",
-            "temperature": "Sıcaklık",
-            "feelslike": "Hissedilen",
-            "default": "Hava",
-            "humidity": "Nem",
-            "windspeed": "Rüzgar hızı",
-            "pressure": "Basınç",
-            "weatherin": "{location} için hava durumu",
-            "error": "Üzgünüm, hava durumu alınırken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
-            "nolocation": "Konum bulunamadı. Lütfen şehir adını kontrol edip tekrar deneyin.",
-            "apikeymissing": "OpenWeather API anahtarı eksik veya geçersiz."
+        "mute_audio": {
+          "name": "mute-audio",
+          "description": "Sesi kapat"
         },
-        "joke": {
-            "name": "fıkra",
-            "description": "Rastgele bir fıkra al!",
-            "waitingpunchline": "Espri {seconds} saniye içinde görünecek…",
-            "error": "Üzgünüm, bir fıkra getirirken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
-            "type": {
-                "default": "{type} fıkrası",
-                "general": "Genel",
-                "programming": "Programlama",
-                "dad": "Baba"
-            }
+        "twitter_gif": {
+          "name": "twitter-gif",
+          "description": "Twitter GIF olarak indirin"
         },
-        "help": {
-            "name": "yardım",
-            "description": "Aethel hakkında bilgi alın",
-            "embed": {
-                "title": "Aethel komutları",
-                "description": "İşte tüm mevcut komutlar"
-            },
-            "nooptions": "Seçenek yok",
-            "dashboard": "To-Dos, hatırlatıcılar ve özel AI API anahtarlarını yönetmek için [panelimizi](https://aethel.xyz/login) inceleyin.",
-            "back": "Geri",
-            "links_social": "Linkler & Sosyal Medya",
-            "features": "Özellikler",
-            "features_content": "**Eğlence Komutları** - 8ball, kedi/kopek resimleri ve daha fazlası\n**Yapay Zeka Entegrasyonu** - OpenAI ve diğer sağlayıcılar tarafından desteklenir\n**Hatırlatıcılar** - Önemli görevleri asla unutmayın\n**Yardımcılar** - Hava, yardım ve üretkenlik araçları\n**Çoklu Dil** - Birden fazla dili destekler"
+        "tiktok_original_audio": {
+          "name": "tiktok-original-audio",
+          "description": "TikTok'un orijinal sesini dahil edin"
         },
-        "remind": {
-            "name": "hatırlat",
-            "reminder": "Hatırlatma!",
-            "remindyou": "Bana şunu hatırlatmamı istedin: {message}",
-            "timeelapsed": "Geçen süre",
-            "originaltime": "Orijinal Zaman",
-            "errors": {
-                "base": "Hatırlatıcı ayarlanırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
-                "failedtosave": "Hatırlatıcı kaydedilemedi. Lütfen daha sonra tekrar deneyin.",
-                "invalidformat": "Geçersiz zaman formatı! Şu kombinasyonları kullanın: 1s30d, 45d veya 2s",
-                "providevalidchars": "Lütfen geçerli bir mesaj girin (1-1000 karakter)",
-                "atleastoneminute": "Hatırlatıcı süresi en az 1 dakika olmalı!",
-                "notlongerthanaday": "Hatırlatıcı süresi 24 saatten uzun olamaz!"
-            },
-            "modal": {
-                "setreminder": "Hatırlatıcı ayarla",
-                "whento": "Ne zaman hatırlatayım? (örn. 10d, 1s, 2s30d)"
-            },
-            "reminderset": "Hatırlatıcı ayarlandı",
-            "iwillremindyou": "{message} hakkında {time} sonra hatırlatacağım",
-            "contextiwillremindyou": "Bu mesajı {time} sonra hatırlatacağım",
-            "time": "Zaman",
-            "willtrigger": "Tetiklenecek",
-            "reminderid": "Hatırlatıcı ID: {reminderId}",
-            "description": "Hatırlatıcı ayarla"
-        },
-        "whois": {
-            "name": "whois",
-            "description": "Bir alan adı veya IP adresi için WHOIS bilgisi sorgula",
-            "error": "Üzgünüm, WHOIS verisi alınırken sorun yaşadım. Lütfen daha sonra tekrar deneyin!",
-            "nodata": "Belirtilen alan adı veya IP için WHOIS verisi bulunamadı.",
-            "notvalid": "Lütfen geçerli bir alan adı veya IP adresi girin."
-        },
-        "ai": {
-            "name": "ai",
-            "description": "Bir yapay zeka asistanı ile sohbet et",
-            "optioins": {
-                "prompt": {
-                    "name": "istem",
-                    "description": "Yapay zekaya mesajınız"
-                },
-                "customapi": "Kendi API anahtarınızı kullanmak ister misiniz?",
-                "reset": "AI sohbet geçmişinizi sıfırlayın"
-            },
-            "request": {
-                "inprogress": "Zaten devam eden bir isteğiniz var. Lütfen tamamlanmasını bekleyin."
-            },
-            "reset": "AI sohbet geçmişiniz sıfırlandı.",
-            "defaultapi": " Varsayılan API'ya geçildi. Özel API anahtarınız temizlendi ve varsayılan model kullanılacak.",
-            "modal": {
-                "title": "API Kimlik Bilgilerinizi Girin",
-                "apikey": "API Anahtarı",
-                "apikeyplaceholder": "Kendi anahtarınızı kullanmayı bırakmak için: /ai custom_setup:false",
-                "apiurl": "API Adresi",
-                "apiurlplaceholder": "API Adresiniz",
-                "model": "Model",
-                "modelplaceholder": "Model adı (örn. gpt-4)"
-            },
-            "nopendingrequest": "Bekleyen bir istek bulunamadı. Lütfen komutu tekrar deneyin.",
-            "apicredssaved": "API kimlik bilgileri kaydedildi. Artık `/ai` komutunu anahtarınızı tekrar girmeden kullanabilirsiniz. Kendi anahtarınızı kullanmayı bırakmak için /ai custom_setup:false yazın",
-            "process": {
-                "dailylimit": "Günlük AI talep sınırınıza ulaştınız. Daha fazla talep için Aethel'e oy verin: https://top.gg/bot/1371031984230371369/vote\nVeya \"/ai\" komutunu kullanarak kendi API anahtarınızı ayarlayın.",
-                "noapikey": "Lütfen önce API anahtarınızı ayarlayın"
-            },
-            "errors": {
-                "failed": "AI yanıtı işlenemedi",
-                "nores": "AI'dan yanıt yok",
-                "toolong": "Mesaj çok uzun"
-            },
-            "testing": "API anahtarı test ediliyor...",
-            "testfailed": "❌ API anahtarı testi başarısız: {error}. Lütfen kimlik bilgilerinizi kontrol edin ve tekrar deneyin.",
-            "testsuccess": "✅ API anahtarı testi başarılı! Kimlik bilgileri kaydedildi."
-        },
-        "cobalt": {
-            "name": "kobalt",
-            "rate_limit": "⏳ **Hız sınırı aşıldı.** Lütfen daha sonra tekrar deneyin.",
-            "description": "Belirli bir URL'den video veya ses indirin",
-            "options": {
-                "url": {
-                    "name": "url",
-                    "description": "İndirilecek videonun URL'si"
-                },
-                "video_quality": {
-                    "name": "video-quality",
-                    "description": "İndirilecek videonun kalitesi"
-                },
-                "audio_only": {
-                    "name": "audio-only",
-                    "description": "Sadece ses indirin"
-                },
-                "mute_audio": {
-                    "name": "mute-audio",
-                    "description": "Sesi kapat"
-                },
-                "twitter_gif": {
-                    "name": "twitter-gif",
-                    "description": "Twitter GIF olarak indirin"
-                },
-                "tiktok_original_audio": {
-                    "name": "tiktok-original-audio",
-                    "description": "TikTok'un orijinal sesini dahil edin"
-                },
-                "audio_format": {
-                    "name": "audio-format",
-                    "description": "Ses için format (sadece ses seçeneği true olmalı)"
-                }
-            },
-            "button_label": "İndir",
-            "success": "✅ **İndirme hazır!**  \n🔗 {url}  \n📥 **Aşağıdaki düğmeye tıklayarak dosyanızı indirin.**",
-            "error": "❌ **Hata:** {error}",
-            "unknown_error": "Bilinmeyen bir hata oluştu.",
-            "unknown_response": "❓ **API'den bilinmeyen yanıt.** Lütfen tekrar deneyin.",
-            "multiple_items": "📋 **Bu URL için birden çok öğe bulundu.** Lütfen daha belirli bir URL sağlayın.",
-            "local_processing_not_supported": "⚠️ **Yerel işleme desteklenmiyor.** Lütfen farklı bir URL veya seçenek deneyin."
-        },
-        "meow": {
-            "options": {
-                "text": {
-                    "description": "Miyav çevirilecek metin",
-                    "name": "metin"
-                }
-            },
-            "name": "miyav",
-            "description": "Metni miyav diline çevir",
-            "noText": "Lütfen çevirilecek bir metin sağlayın!",
-            "response": "🐱 {meowText}"
-        },
-        "stocks": {
-            "name": "hisseler",
-            "description": "Hisse fiyatlarını takip edin ve hızlı grafikleri görüntüleyin.",
-            "option": {
-                "ticker": {
-                    "name": "seçici sembol",
-                    "description": "Hisse senedi ticker sembolü (örneğin, AAPL, TSLA)"
-                },
-                "range": {
-                    "name": "aralık",
-                    "description": "Grafik için başlangıç süresi"
-                }
-            }
-        },
-        "todo": {
-            "name": "yapılacaklar",
-            "description": "Yapılacaklar listenizi yönetin",
-            "add": {
-                "name": "ekle",
-                "description": "Yeni bir yapılacaklar öğesi ekleyin"
-            },
-            "done": {
-                "name": "tamamla",
-                "description": "Bir yapılacakları tamamlandı olarak işaretleyin"
-            },
-            "list": {
-                "name": "liste",
-                "description": "Yapılacaklar listenizi görüntüleyin"
-            },
-            "added": "✅ Yapılacaklar eklendi: **{item}**",
-            "add_error": "❌ Yapılacaklar eklenemedi. Lütfen daha sonra tekrar deneyin.",
-            "empty": "Yapılacaklar listeniz boş! 🎉",
-            "list_title": "📝 Yapılacaklar Listeniz",
-            "checked": "✅ Yapılacaklar tamamlandı olarak işaretlendi: **{item}**",
-            "notfound": "❌ Bu yapılacak iş bulunamadı: **{item}**",
-            "done_error": "❌ Yapılacak işinizi tamamlandı olarak işaretleme başarısız oldu. Lütfen daha sonra tekrar deneyin.",
-            "done_title": "Tamamlandı",
-            "none": "—",
-            "todo_title": "Yapılacak"
-        },
-        "social": {
-            "refreshSuccess": "🔄 Yenileme tamamlandı. {count} yeni gönderi(ler) bildirim edildi.",
-            "refreshFailed": "❌ Yenileme başarısız: {message}",
-            "removeSuccess": "✅ {platform} hesabı {account} izlemeden çıkarıldı.",
-            "removeNotFound": "❌ {platform} hesabı {account} için abonelik bulunamadı.",
-            "listNone": "Bu sunucuda sosyal medya hesapları izlenmiyor.",
-            "listTitle": "📱 İzlenen Sosyal Medya Hesapları",
-            "listDescription": "Aşağıda bu sunucuda izlenen tüm sosyal medya hesapları listelenmiştir:",
-            "channelUnset": "Kanal ayarlı değil",
-            "fieldNoAccounts": "Hesap yok",
-            "guildOnly": "Bu komut yalnızca bir sunucuda kullanılabilir.",
-            "unknownSubcommand": "Bilinmeyen alt komut.",
-            "failedAction": "❌ {action} aboneliği başarısız: {message}"
-        },
-        "time": {
-            "embed": {
-                "notfound": "Şehir bulunamadı.",
-                "footer": "Saat Dilimi: {timezone}",
-                "footer_multi": "Benzer adlara sahip birden çok şehir bulundu",
-                "author": "Geçerli Zaman",
-                "multi_city_description": "Şehir '{city}' için benzer adlara sahip birden çok şehir bulundu:",
-                "title_single": "Şehir {city}, {country} içinde zaman",
-                "title_multi": "Şehir {city} için zaman",
-                "time_format": "dddd, MMMM D, YYYY, h:mm A z",
-                "field_day_of_week": "Hafta Günü",
-                "field_time": "Zaman",
-                "field_date": "Tarih"
-            },
-            "name": "zaman",
-            "description": "Bir saat dilimi için geçerli zamanı alın",
-            "option_timezone": {
-                "name": "zaman dilimi",
-                "description": "Kontrol edilecek saat dilimi (örneğin, Europe/Madrid)"
-            }
-        },
-        "trivia": {
-            "name": ".trivya",
-            "description": "Çok oyunculu bir trivia oyunu başlat",
-            "buttons": {
-                "join": "🎯 Oyun Katıl",
-                "start": "🚀 Oyun Başlat",
-                "cancel": "❌ İptal"
-            },
-            "messages": {
-                "game_exists": "❌ Bu kanalda zaten bir trivia oyunu çalışıyor!",
-                "game_starting": "## 🎯 Trivia Oyunu Başlıyor!\n\n**Oyuncular ({count}):**\n{players}\n\nKatılmak için **Oyun Katıl** tıklayın!\nHerkes katıldığında **Oyun Başlat** tıklayın.",
-                "game_started": "Oyun zaten başladı!",
-                "already_joined": "Zaten oyunda!",
-                "only_creator_start": "Sadece oyunu başlatan kişi başlatabilir!",
-                "only_creator_cancel": "Sadece oyunu başlatan kişi iptal edebilir!",
-                "need_players": "Başlamak için en az 1 oyuncuya ihtiyacınız var!",
-                "starting_game": "🎯 Trivia oyunu başlatılıyor... Sorular çekiliyor!",
-                "game_cancelled": "❌ Trivia oyunu iptal edildi.",
-                "no_active_game": "❌ Aktif trivia oyunu bulunamadı.",
-                "not_your_turn": "Sizin sıraınız değil!",
-                "no_active_question": "❌ Aktif oyun yok.",
-                "failed_start": "❌ Trivia oyunu başlatılamadı. Lütfen daha sonra tekrar deneyin.",
-                "preparing_next": "Sıradaki soru hazırlanıyor...",
-                "tied_game": "🤝 Beraberlik! Birisi puan alana kadar devam edin!"
-            }
+        "audio_format": {
+          "name": "audio-format",
+          "description": "Ses için format (sadece ses seçeneği true olmalı)"
         }
+      },
+      "button_label": "İndir",
+      "success": "✅ **İndirme hazır!**  \n🔗 {url}  \n📥 **Aşağıdaki düğmeye tıklayarak dosyanızı indirin.**",
+      "error": "❌ **Hata:** {error}",
+      "unknown_error": "Bilinmeyen bir hata oluştu.",
+      "unknown_response": "❓ **API'den bilinmeyen yanıt.** Lütfen tekrar deneyin.",
+      "multiple_items": "📋 **Bu URL için birden çok öğe bulundu.** Lütfen daha belirli bir URL sağlayın.",
+      "local_processing_not_supported": "⚠️ **Yerel işleme desteklenmiyor.** Lütfen farklı bir URL veya seçenek deneyin."
     },
-    "categories": {
-        "fun": "Eğlence",
-        "info": "Bilgi",
-        "utilities": "Araçlar"
+    "meow": {
+      "options": {
+        "text": {
+          "description": "Miyav çevirilecek metin",
+          "name": "metin"
+        }
+      },
+      "name": "miyav",
+      "description": "Metni miyav diline çevir",
+      "noText": "Lütfen çevirilecek bir metin sağlayın!",
+      "response": "🐱 {meowText}"
+    },
+    "stocks": {
+      "name": "hisseler",
+      "description": "Hisse fiyatlarını takip edin ve hızlı grafikleri görüntüleyin.",
+      "option": {
+        "ticker": {
+          "name": "seçici sembol",
+          "description": "Hisse senedi ticker sembolü (örneğin, AAPL, TSLA)"
+        },
+        "range": {
+          "name": "aralık",
+          "description": "Grafik için başlangıç süresi"
+        }
+      }
+    },
+    "todo": {
+      "name": "yapılacaklar",
+      "description": "Yapılacaklar listenizi yönetin",
+      "add": {
+        "name": "ekle",
+        "description": "Yeni bir yapılacaklar öğesi ekleyin"
+      },
+      "done": {
+        "name": "tamamla",
+        "description": "Bir yapılacakları tamamlandı olarak işaretleyin"
+      },
+      "list": {
+        "name": "liste",
+        "description": "Yapılacaklar listenizi görüntüleyin"
+      },
+      "added": "✅ Yapılacaklar eklendi: **{item}**",
+      "add_error": "❌ Yapılacaklar eklenemedi. Lütfen daha sonra tekrar deneyin.",
+      "empty": "Yapılacaklar listeniz boş! 🎉",
+      "list_title": "📝 Yapılacaklar Listeniz",
+      "checked": "✅ Yapılacaklar tamamlandı olarak işaretlendi: **{item}**",
+      "notfound": "❌ Bu yapılacak iş bulunamadı: **{item}**",
+      "done_error": "❌ Yapılacak işinizi tamamlandı olarak işaretleme başarısız oldu. Lütfen daha sonra tekrar deneyin.",
+      "done_title": "Tamamlandı",
+      "none": "—",
+      "todo_title": "Yapılacak"
+    },
+    "social": {
+      "refreshSuccess": "🔄 Yenileme tamamlandı. {count} yeni gönderi(ler) bildirim edildi.",
+      "refreshFailed": "❌ Yenileme başarısız: {message}",
+      "removeSuccess": "✅ {platform} hesabı {account} izlemeden çıkarıldı.",
+      "removeNotFound": "❌ {platform} hesabı {account} için abonelik bulunamadı.",
+      "listNone": "Bu sunucuda sosyal medya hesapları izlenmiyor.",
+      "listTitle": "📱 İzlenen Sosyal Medya Hesapları",
+      "listDescription": "Aşağıda bu sunucuda izlenen tüm sosyal medya hesapları listelenmiştir:",
+      "channelUnset": "Kanal ayarlı değil",
+      "fieldNoAccounts": "Hesap yok",
+      "guildOnly": "Bu komut yalnızca bir sunucuda kullanılabilir.",
+      "unknownSubcommand": "Bilinmeyen alt komut.",
+      "failedAction": "❌ {action} aboneliği başarısız: {message}"
+    },
+    "time": {
+      "embed": {
+        "notfound": "Şehir bulunamadı.",
+        "footer": "Saat Dilimi: {timezone}",
+        "footer_multi": "Benzer adlara sahip birden çok şehir bulundu",
+        "author": "Geçerli Zaman",
+        "multi_city_description": "Şehir '{city}' için benzer adlara sahip birden çok şehir bulundu:",
+        "title_single": "Şehir {city}, {country} içinde zaman",
+        "title_multi": "Şehir {city} için zaman",
+        "time_format": "dddd, MMMM D, YYYY, h:mm A z",
+        "field_day_of_week": "Hafta Günü",
+        "field_time": "Zaman",
+        "field_date": "Tarih"
+      },
+      "name": "zaman",
+      "description": "Bir saat dilimi için geçerli zamanı alın",
+      "option_timezone": {
+        "name": "zaman dilimi",
+        "description": "Kontrol edilecek saat dilimi (örneğin, Europe/Madrid)"
+      }
+    },
+    "trivia": {
+      "name": ".trivya",
+      "description": "Çok oyunculu bir trivia oyunu başlat",
+      "buttons": {
+        "join": "🎯 Oyun Katıl",
+        "start": "🚀 Oyun Başlat",
+        "cancel": "❌ İptal"
+      },
+      "messages": {
+        "game_exists": "❌ Bu kanalda zaten bir trivia oyunu çalışıyor!",
+        "game_starting": "## 🎯 Trivia Oyunu Başlıyor!\n\n**Oyuncular ({count}):**\n{players}\n\nKatılmak için **Oyun Katıl** tıklayın!\nHerkes katıldığında **Oyun Başlat** tıklayın.",
+        "game_started": "Oyun zaten başladı!",
+        "already_joined": "Zaten oyunda!",
+        "only_creator_start": "Sadece oyunu başlatan kişi başlatabilir!",
+        "only_creator_cancel": "Sadece oyunu başlatan kişi iptal edebilir!",
+        "need_players": "Başlamak için en az 1 oyuncuya ihtiyacınız var!",
+        "starting_game": "🎯 Trivia oyunu başlatılıyor... Sorular çekiliyor!",
+        "game_cancelled": "❌ Trivia oyunu iptal edildi.",
+        "no_active_game": "❌ Aktif trivia oyunu bulunamadı.",
+        "not_your_turn": "Sizin sıraınız değil!",
+        "no_active_question": "❌ Aktif oyun yok.",
+        "failed_start": "❌ Trivia oyunu başlatılamadı. Lütfen daha sonra tekrar deneyin.",
+        "preparing_next": "Sıradaki soru hazırlanıyor...",
+        "tied_game": "🤝 Beraberlik! Birisi puan alana kadar devam edin!"
+      }
     }
+  },
+  "categories": {
+    "fun": "Eğlence",
+    "info": "Bilgi",
+    "utilities": "Araçlar"
+  }
 }

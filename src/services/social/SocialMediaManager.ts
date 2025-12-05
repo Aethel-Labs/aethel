@@ -97,13 +97,6 @@ class NotificationService {
     subscription: SocialMediaSubscription,
   ): Promise<void> {
     try {
-      if (this.isNSFWPost(post)) {
-        logger.warn(
-          `Skipping NSFW ${post.platform} post from ${post.author} in guild ${subscription.guildId}`,
-        );
-        return;
-      }
-
       const guild = this.client.guilds.cache.get(subscription.guildId);
       if (!guild) {
         logger.info(
@@ -150,51 +143,6 @@ class NotificationService {
     }
   }
 
-  private isNSFWPost(post: SocialMediaPost): boolean {
-    const nsfwTags = ['#nsfw', '#adult', '#18+', '#porn', '#xxx', '#nudity', '#sensitive'];
-    const lowerText = post.text?.toLowerCase() || '';
-
-    if (nsfwTags.some((tag) => lowerText.includes(tag))) {
-      logger.debug(`Post from ${post.author} contains NSFW tag in text`);
-      return true;
-    }
-
-    if (post.platform === 'fediverse' && post.sensitive === true) {
-      logger.debug(`Fediverse post from ${post.author} is marked as sensitive`);
-      return true;
-    }
-
-    if (
-      post.platform === 'bluesky' &&
-      post.labels &&
-      post.labels.some((label) =>
-        ['nsfw', 'sexual', 'nudity', 'porn', 'explicit'].includes(label.val),
-      )
-    ) {
-      logger.debug(
-        `Bluesky post from ${post.author} has NSFW content label: ${post.labels.map((l) => l.val).join(', ')}`,
-      );
-      return true;
-    }
-
-    if (post.platform === 'fediverse' && post.spoiler_text && post.spoiler_text.length > 0) {
-      const spoilerText = post.spoiler_text.toLowerCase();
-      if (
-        nsfwTags.some((tag) => spoilerText.includes(tag.replace('#', ''))) ||
-        spoilerText.includes('nsfw') ||
-        spoilerText.includes('adult') ||
-        spoilerText.includes('18+')
-      ) {
-        logger.debug(
-          `Fediverse post from ${post.author} has NSFW content warning: ${post.spoiler_text}`,
-        );
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   private createEmbed(post: SocialMediaPost): EmbedBuilder {
     const authorIcon = post.authorAvatarUrl ?? this.getPlatformIcon(post.platform);
     const authorName =
@@ -222,40 +170,60 @@ class NotificationService {
     }
 
     if (post.openGraphData) {
-      if (post.openGraphData.image && this.isValidImageUrl(post.openGraphData.image)) {
-        embed.setImage(post.openGraphData.image);
-      }
-
       if (post.openGraphData.title && post.openGraphData.title !== post.text) {
         const domain = this.getDomainFromUrl(
           post.openGraphData.url || post.openGraphData.sourceUrl || '',
         );
         const title = post.openGraphData.title;
         const desc = post.openGraphData.description
-          ? `\n${this.truncateText(post.openGraphData.description, 200)}`
+          ? `\n> ${this.truncateText(post.openGraphData.description, 200)}`
           : '';
 
         embed.addFields({
           name: `🔗 ${domain}`,
-          value: `**[${title}](${post.openGraphData.url || post.openGraphData.sourceUrl})**${desc}`,
+          value: `> **[${title}](${post.openGraphData.url || post.openGraphData.sourceUrl})**${desc}`,
         });
       }
     }
 
-    if (post.mediaUrls && post.mediaUrls.length > 0) {
-      const firstMedia = post.mediaUrls[0];
-      if (this.isValidImageUrl(firstMedia)) {
-        embed.setImage(firstMedia);
-      }
+    const isSensitive = this.isContentSensitive(post);
 
-      if (post.mediaUrls.length > 1) {
-        const remaining = post.mediaUrls.length - 1;
-        const fieldVal = `+ ${remaining} more image${remaining > 1 ? 's' : ''} (Click 'View Post' to see all)`;
-        embed.addFields({ name: '📷 Media', value: fieldVal });
+    if (post.mediaUrls && post.mediaUrls.length > 0) {
+      if (isSensitive) {
+        embed.addFields({
+          name: '🔞 Sensitive Content',
+          value: `This post contains ${post.mediaUrls.length} image${post.mediaUrls.length > 1 ? 's' : ''} marked as sensitive. Click 'View Post' to see them.`,
+        });
+      } else {
+        const firstMedia = post.mediaUrls[0];
+        if (this.isValidImageUrl(firstMedia)) {
+          embed.setImage(firstMedia);
+        }
+
+        if (post.mediaUrls.length > 1) {
+          const remaining = post.mediaUrls.length - 1;
+          const fieldVal = `+ ${remaining} more image${remaining > 1 ? 's' : ''} (Click 'View Post' to see all)`;
+          embed.addFields({ name: '📷 Media', value: fieldVal });
+        }
       }
     }
 
     return embed;
+  }
+
+  private isContentSensitive(post: SocialMediaPost): boolean {
+    if (post.sensitive) {
+      return true;
+    }
+
+    if (post.labels && post.labels.length > 0) {
+      const nsfwLabels = ['sexual', 'porn', 'nudity', 'nsfw', 'adult', 'graphic-media'];
+      return post.labels.some((label) =>
+        nsfwLabels.some((nsfw) => label.val.toLowerCase().includes(nsfw)),
+      );
+    }
+
+    return false;
   }
 
   private getDomainFromUrl(url: string): string {
