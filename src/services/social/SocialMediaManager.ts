@@ -1,37 +1,62 @@
 import { Client, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { Pool } from 'pg';
+import { HandleResolver } from '@atproto/identity';
 import { SocialMediaService } from './SocialMediaService';
 import { BlueskyFetcher, FediverseFetcher } from './fetchers/UnifiedFetcher';
-import { SocialMediaFetcher } from '../../types/social';
+import { JetstreamClient, JetstreamPostEvent } from './streams/JetstreamClient';
+import { FediversePoller } from './streams/FediversePoller';
+import { SocialMediaFetcher, SocialPlatform } from '../../types/social';
 import { SocialMediaPost, SocialMediaSubscription, OpenGraphData } from '../../types/social';
 import logger from '../../utils/logger';
 
 export class SocialMediaManager {
   private socialService: SocialMediaService;
   private notificationService: NotificationService;
-  private poller: SocialMediaPoller;
+  private hybridPoller: HybridSocialMediaPoller;
   private isInitialized = false;
+  private blueskyFetcher: BlueskyFetcher;
 
   constructor(
     private client: Client,
     private pool: Pool,
   ) {
-    const fetchers: SocialMediaFetcher[] = [new BlueskyFetcher(), new FediverseFetcher()];
+    this.blueskyFetcher = new BlueskyFetcher();
+    const fetchers: SocialMediaFetcher[] = [this.blueskyFetcher, new FediverseFetcher()];
 
     this.socialService = new SocialMediaService(pool, fetchers);
     this.notificationService = new NotificationService(client);
-    this.poller = new SocialMediaPoller(client, this.socialService, this.notificationService);
+    this.hybridPoller = new HybridSocialMediaPoller(
+      client,
+      this.socialService,
+      this.notificationService,
+      this.blueskyFetcher,
+    );
   }
 
   public async initialize(): Promise<void> {
     if (this.isInitialized) return;
 
-    this.poller.start();
+    await this.hybridPoller.start();
     this.isInitialized = true;
+    logger.info('SocialMediaManager initialized with hybrid streaming/polling architecture');
   }
 
   public getService(): SocialMediaService {
     return this.socialService;
+  }
+
+  public async onSubscriptionAdded(platform: SocialPlatform, accountHandle: string): Promise<void> {
+    await this.hybridPoller.addAccount(platform, accountHandle);
+  }
+
+  public async onSubscriptionRemoved(
+    platform: SocialPlatform,
+    accountHandle: string,
+  ): Promise<void> {
+    const remaining = await this.socialService.getSubscriptionsForAccount(platform, accountHandle);
+    if (remaining.length === 0) {
+      this.hybridPoller.removeAccount(platform, accountHandle);
+    }
   }
 
   public async refreshOnce(): Promise<number> {
@@ -42,17 +67,25 @@ export class SocialMediaManager {
         await this.notificationService.sendNotification(post, subscription);
         count++;
       } catch (error) {
-        console.error('Error sending notification during manual refresh:', error);
+        logger.error('Error sending notification during manual refresh:', error);
       }
     }
     return count;
   }
 
+  public getStats(): {
+    jetstream: { connected: boolean; watchedDids: number; cursor: number | null };
+    fediverse: { isRunning: boolean; accountCount: number; averageInterval: number };
+  } {
+    return this.hybridPoller.getStats();
+  }
+
   public async cleanup(): Promise<void> {
-    if (this.poller) {
-      this.poller.stop();
+    if (this.hybridPoller) {
+      this.hybridPoller.stop();
     }
     this.isInitialized = false;
+    logger.info('SocialMediaManager cleaned up');
   }
 }
 
@@ -104,7 +137,11 @@ class NotificationService {
 
       const embed = this.createEmbed(post);
       const button = this.createViewPostButton(post);
-      await channel.send({ embeds: [embed], components: [button] });
+
+      await channel.send({
+        embeds: [embed],
+        components: [button],
+      });
       logger.info(
         `Successfully sent notification for ${post.platform} post in guild ${subscription.guildId}`,
       );
@@ -162,39 +199,71 @@ class NotificationService {
     const authorIcon = post.authorAvatarUrl ?? this.getPlatformIcon(post.platform);
     const authorName =
       post.authorDisplayName && post.authorDisplayName.trim().length > 0
-        ? `${post.authorDisplayName} (${post.author})`
-        : post.author;
+        ? `${post.authorDisplayName} (@${post.author})`
+        : `@${post.author}`;
+
     const cleanText = this.processPostText(post.text ?? '', post.openGraphData);
 
     const embed = new EmbedBuilder()
       .setColor(this.getPlatformColor(post.platform))
-      .setAuthor({ name: authorName, iconURL: authorIcon })
+      .setAuthor({ name: authorName, iconURL: authorIcon, url: this.getPostUrl(post) })
       .setTimestamp(post.timestamp)
       .setFooter({
-        text: `New post on ${this.formatPlatformName(post.platform)}`,
+        text: `${this.formatPlatformName(post.platform)}`,
         iconURL: this.getPlatformIcon(post.platform),
       });
 
     if (cleanText && cleanText.trim().length > 0) {
-      embed.setDescription(this.truncateText(cleanText, 1000));
+      embed.setDescription(this.truncateText(cleanText, 4000));
+    }
+
+    if (post.spoiler_text && post.spoiler_text.trim().length > 0) {
+      embed.setTitle(`⚠️ ${post.spoiler_text}`);
     }
 
     if (post.openGraphData) {
-      this.addOpenGraphFields(embed, post.openGraphData);
-      logger.debug('Added OpenGraph data to embed:', {
-        platform: post.platform,
-        author: post.author,
-        ogTitle: post.openGraphData.title,
-      });
+      if (post.openGraphData.image && this.isValidImageUrl(post.openGraphData.image)) {
+        embed.setImage(post.openGraphData.image);
+      }
+
+      if (post.openGraphData.title && post.openGraphData.title !== post.text) {
+        const domain = this.getDomainFromUrl(
+          post.openGraphData.url || post.openGraphData.sourceUrl || '',
+        );
+        const title = post.openGraphData.title;
+        const desc = post.openGraphData.description
+          ? `\n${this.truncateText(post.openGraphData.description, 200)}`
+          : '';
+
+        embed.addFields({
+          name: `🔗 ${domain}`,
+          value: `**[${title}](${post.openGraphData.url || post.openGraphData.sourceUrl})**${desc}`,
+        });
+      }
     }
 
-    if (post.openGraphData?.image && this.isValidImageUrl(post.openGraphData.image)) {
-      embed.setImage(post.openGraphData.image);
-    } else if (post.mediaUrls && post.mediaUrls.length > 0) {
-      embed.setImage(post.mediaUrls[0]);
+    if (post.mediaUrls && post.mediaUrls.length > 0) {
+      const firstMedia = post.mediaUrls[0];
+      if (this.isValidImageUrl(firstMedia)) {
+        embed.setImage(firstMedia);
+      }
+
+      if (post.mediaUrls.length > 1) {
+        const remaining = post.mediaUrls.length - 1;
+        const fieldVal = `+ ${remaining} more image${remaining > 1 ? 's' : ''} (Click 'View Post' to see all)`;
+        embed.addFields({ name: '📷 Media', value: fieldVal });
+      }
     }
 
     return embed;
+  }
+
+  private getDomainFromUrl(url: string): string {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return 'Link';
+    }
   }
 
   private getPlatformColor(platform: string): number {
@@ -225,7 +294,7 @@ class NotificationService {
 
   private createViewPostButton(post: SocialMediaPost) {
     const button = new ButtonBuilder()
-      .setLabel('🔗 View Post')
+      .setLabel('View Post')
       .setStyle(ButtonStyle.Link)
       .setURL(this.getPostUrl(post));
 
@@ -235,7 +304,8 @@ class NotificationService {
   private getPostUrl(post: SocialMediaPost): string {
     switch (post.platform) {
       case 'bluesky': {
-        const handle = post.author.split('@')[0];
+        if (post.uri.startsWith('http')) return post.uri;
+        const handle = post.author;
         const postId = post.uri.split('/').pop();
         return `https://bsky.app/profile/${handle}/post/${postId}`;
       }
@@ -254,11 +324,11 @@ class NotificationService {
   private processPostText(text: string, openGraphData?: OpenGraphData): string {
     let processedText = this.preserveSpacing(text);
 
-    if (openGraphData && openGraphData.sourceUrl) {
-      processedText = this.removeSpecificUrlFromText(processedText, openGraphData.sourceUrl);
-
-      if (!processedText || processedText.trim().length === 0) {
-        processedText = 'Shared a link';
+    if (openGraphData?.sourceUrl) {
+      if (openGraphData.sourceUrl.startsWith('https://')) {
+        processedText = this.removeSpecificUrlFromText(processedText, openGraphData.sourceUrl);
+      } else {
+        processedText = this.removeSpecificUrlFromText(processedText, openGraphData.sourceUrl);
       }
     } else {
       processedText = this.addProtocolToUrls(processedText);
@@ -268,19 +338,29 @@ class NotificationService {
   }
 
   private preserveSpacing(text: string): string {
-    return text
+    if (!text) return '';
+
+    let result = text
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
-      .replace(/&amp;/g, '&')
-      .replace(/[ \t]+/g, ' ')
+      .replace(/&amp;/g, '&');
+
+    result = result
       .replace(/\r\n/g, '\n')
       .replace(/\r/g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
       .replace(/^\s+/gm, '')
       .replace(/\s+$/gm, '')
-      .replace(/\n{3,}/g, '\n\n')
+      .replace(/[ \t]+/g, ' ')
       .trim();
+
+    result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+      return `[${text}](${url})`;
+    });
+
+    return result;
   }
 
   private removeSpecificUrlFromText(text: string, sourceUrl: string): string {
@@ -311,24 +391,27 @@ class NotificationService {
       return line;
     });
 
-    const result = processedLines
+    return processedLines
       .filter((line) => line.trim().length > 0)
       .join('\n')
       .replace(/\n{3,}/g, '\n\n')
       .trim();
-
-    return result.length > 0 ? result : text;
   }
 
   private addProtocolToUrls(text: string): string {
     const protocolLessUrlRegex =
-      /(?<!https?:\/\/)(?<![\w.-])([a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]*\.(?:com|org|net|edu|gov|mil|int|xyz|io|co|me|ly|app|dev|tech|info|biz|name|tv|cc|uk|de|fr|jp|cn|au|us|ca|nl|be|it|es|ru|in|br|mx|ch|se|no|dk|fi|pl|cz|hu|ro|bg|hr|sk|si|ee|lv|lt|gr|pt|ie|at|lu)(?:\/[^\s<>]*)?)\b/g;
+      /(?<!['"])(?<!https?:\/\/)(?<![\w.-])([a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]*\.(?:com|org|net|edu|gov|mil|int|xyz|io|co|me|ly|app|dev|tech|info|biz|name|tv|cc|uk|de|fr|jp|cn|au|us|ca|nl|be|it|es|ru|in|br|mx|ch|se|no|dk|fi|pl|cz|hu|ro|bg|hr|sk|si|ee|lv|lt|gr|pt|ie|at|lu)(?:\/[^\s<>]*)?)\b/g;
 
     return text.replace(protocolLessUrlRegex, (match, url) => {
       if (text.indexOf('@' + url) !== -1) {
         return match;
       }
-      return 'https://' + url;
+
+      if (!match.startsWith('http://') && !match.startsWith('https://')) {
+        return 'https://' + url;
+      }
+
+      return match;
     });
   }
 
@@ -370,9 +453,23 @@ class NotificationService {
   }
 
   private addOpenGraphFields(embed: EmbedBuilder, ogData: OpenGraphData): void {
+    if (!ogData.sourceUrl || !ogData.sourceUrl.startsWith('https://')) {
+      return;
+    }
+
     if (ogData.title || ogData.description) {
       let linkTitle = ogData.title || 'Link Preview';
       let linkDescription = ogData.description || 'No description available';
+
+      linkTitle = linkTitle
+        .replace(/[\r\n\t]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      linkDescription = linkDescription
+        .replace(/[\r\n\t]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
 
       if (linkTitle.length > 100) {
         linkTitle = linkTitle.substring(0, 97) + '...';
@@ -383,9 +480,13 @@ class NotificationService {
       }
 
       const titleWithLink = ogData.url ? `[${linkTitle}](${ogData.url})` : linkTitle;
-
       const siteName = ogData.siteName ? ` • ${ogData.siteName}` : '';
-      const quotedContent = `> **${titleWithLink}**${siteName}\n> ${linkDescription}`;
+
+      let quotedContent = `> **${titleWithLink}**${siteName}`;
+
+      if (linkDescription.toLowerCase() !== linkTitle.toLowerCase()) {
+        quotedContent += `\n> ${linkDescription}`;
+      }
 
       const finalContent =
         quotedContent.length > 1020 ? quotedContent.substring(0, 1017) + '...' : quotedContent;
@@ -412,7 +513,381 @@ class NotificationService {
   }
 }
 
-class SocialMediaPoller {
+class HybridSocialMediaPoller {
+  private jetstreamClient: JetstreamClient | null = null;
+  private fediversePoller: FediversePoller | null = null;
+  private handleResolver = new HandleResolver();
+  private didToHandleMap = new Map<string, string>();
+  private handleToDidMap = new Map<string, string>();
+  private isRunning = false;
+  private activityDecayInterval: NodeJS.Timeout | null = null;
+
+  private fallbackPollInterval: NodeJS.Timeout | null = null;
+  private readonly FALLBACK_POLL_INTERVAL_MS = 2 * 60 * 1000;
+
+  private fediverseFetcher: FediverseFetcher;
+
+  constructor(
+    private readonly client: Client,
+    private readonly socialService: SocialMediaService,
+    private readonly notificationService: NotificationService,
+    private readonly blueskyFetcher: BlueskyFetcher,
+  ) {
+    this.fediverseFetcher = new FediverseFetcher();
+  }
+
+  public async start(): Promise<void> {
+    if (this.isRunning) {
+      logger.warn('HybridSocialMediaPoller: Already running');
+      return;
+    }
+
+    this.isRunning = true;
+    logger.info('HybridSocialMediaPoller: Starting hybrid architecture...');
+
+    await this.initializeJetstream();
+    await this.initializeFediversePoller();
+
+    this.activityDecayInterval = setInterval(
+      () => {
+        this.fediversePoller?.decayActivityCounts();
+      },
+      60 * 60 * 1000,
+    );
+
+    this.startFallbackPolling();
+
+    logger.info('HybridSocialMediaPoller: Started successfully');
+  }
+
+  public stop(): void {
+    if (!this.isRunning) return;
+
+    logger.info('HybridSocialMediaPoller: Stopping...');
+    this.isRunning = false;
+
+    this.jetstreamClient?.disconnect();
+    this.jetstreamClient = null;
+    this.fediversePoller?.stop();
+    this.fediversePoller = null;
+
+    if (this.activityDecayInterval) {
+      clearInterval(this.activityDecayInterval);
+      this.activityDecayInterval = null;
+    }
+
+    if (this.fallbackPollInterval) {
+      clearInterval(this.fallbackPollInterval);
+      this.fallbackPollInterval = null;
+    }
+
+    logger.info('HybridSocialMediaPoller: Stopped');
+  }
+
+  public async addAccount(platform: SocialPlatform, accountHandle: string): Promise<void> {
+    if (platform === 'bluesky') {
+      await this.addBlueskyAccount(accountHandle);
+      await this.immediateCheck(platform, accountHandle);
+    } else if (platform === 'fediverse') {
+      this.fediversePoller?.addAccount(accountHandle);
+      await this.immediateCheck(platform, accountHandle);
+    }
+  }
+
+  private async immediateCheck(platform: SocialPlatform, accountHandle: string): Promise<void> {
+    try {
+      logger.debug(
+        `HybridSocialMediaPoller: Performing immediate check for ${platform}:${accountHandle}`,
+      );
+
+      const subscriptions = await this.socialService.getSubscriptionsForAccount(
+        platform,
+        accountHandle,
+      );
+      if (subscriptions.length === 0) return;
+
+      const fetcher = platform === 'bluesky' ? this.blueskyFetcher : this.fediverseFetcher;
+      const post = await fetcher.fetchLatestPost(accountHandle);
+      if (!post) {
+        logger.debug(`HybridSocialMediaPoller: No posts found for ${accountHandle}`);
+        return;
+      }
+
+      const normalizedUri = post.uri.trim().toLowerCase();
+
+      for (const sub of subscriptions) {
+        if (!sub.lastPostTimestamp) {
+          await this.socialService.batchUpdateLastPost([sub.id], normalizedUri, post.timestamp);
+          await this.notificationService.sendNotification(post, sub);
+
+          logger.info(
+            `HybridSocialMediaPoller: Announced initial post for ${accountHandle} to guild ${sub.guildId}`,
+          );
+        }
+      }
+    } catch (error) {
+      logger.warn(`HybridSocialMediaPoller: Immediate check failed for ${accountHandle}:`, error);
+    }
+  }
+
+  public removeAccount(platform: SocialPlatform, accountHandle: string): void {
+    if (platform === 'bluesky') {
+      const did = this.handleToDidMap.get(accountHandle.toLowerCase());
+      if (did) {
+        this.jetstreamClient?.removeDid(did);
+        this.didToHandleMap.delete(did);
+        this.handleToDidMap.delete(accountHandle.toLowerCase());
+      }
+    } else if (platform === 'fediverse') {
+      this.fediversePoller?.removeAccount(accountHandle);
+    }
+  }
+
+  public getStats(): {
+    jetstream: { connected: boolean; watchedDids: number; cursor: number | null };
+    fediverse: { isRunning: boolean; accountCount: number; averageInterval: number };
+  } {
+    const jetstreamStats = this.jetstreamClient?.getStats() ?? {
+      connected: false,
+      watchedDids: 0,
+      cursor: null,
+      reconnectAttempts: 0,
+      lastMessageTime: 0,
+    };
+
+    const fediverseStats = this.fediversePoller?.getStats() ?? {
+      isRunning: false,
+      accountCount: 0,
+      averageInterval: 0,
+      failedAccounts: 0,
+    };
+
+    return {
+      jetstream: {
+        connected: jetstreamStats.connected,
+        watchedDids: jetstreamStats.watchedDids,
+        cursor: jetstreamStats.cursor,
+      },
+      fediverse: {
+        isRunning: fediverseStats.isRunning,
+        accountCount: fediverseStats.accountCount,
+        averageInterval: fediverseStats.averageInterval,
+      },
+    };
+  }
+
+  private async initializeJetstream(): Promise<void> {
+    try {
+      const blueskyAccounts = await this.socialService.getBlueskyAccounts();
+      logger.info(
+        `HybridSocialMediaPoller: Resolving ${blueskyAccounts.length} Bluesky accounts to DIDs...`,
+      );
+
+      const dids: string[] = [];
+      for (const handle of blueskyAccounts) {
+        try {
+          const did = await this.resolveDid(handle);
+          if (did) {
+            dids.push(did);
+            this.didToHandleMap.set(did, handle.toLowerCase());
+            this.handleToDidMap.set(handle.toLowerCase(), did);
+          }
+        } catch (error) {
+          logger.warn(`HybridSocialMediaPoller: Failed to resolve DID for ${handle}:`, error);
+        }
+      }
+
+      logger.info(
+        `HybridSocialMediaPoller: Resolved ${dids.length}/${blueskyAccounts.length} DIDs`,
+      );
+
+      this.jetstreamClient = new JetstreamClient({
+        wantedCollections: ['app.bsky.feed.post'],
+        wantedDids: dids,
+      });
+
+      this.jetstreamClient.on('post', (event) => this.handleJetstreamPost(event));
+      this.jetstreamClient.on('connected', () => {
+        logger.info(`HybridSocialMediaPoller: Jetstream connected, watching ${dids.length} DIDs`);
+      });
+      this.jetstreamClient.on('disconnected', (code, reason) => {
+        logger.warn(`HybridSocialMediaPoller: Jetstream disconnected: ${code} - ${reason}`);
+      });
+      this.jetstreamClient.on('error', (error) => {
+        logger.error('HybridSocialMediaPoller: Jetstream error:', error);
+      });
+
+      this.jetstreamClient.connect();
+    } catch (error) {
+      logger.error('HybridSocialMediaPoller: Failed to initialize Jetstream:', error);
+    }
+  }
+
+  private async initializeFediversePoller(): Promise<void> {
+    try {
+      const fediverseAccounts = await this.socialService.getFediverseAccounts();
+      logger.info(
+        `HybridSocialMediaPoller: Setting up poller for ${fediverseAccounts.length} Fediverse accounts`,
+      );
+
+      this.fediversePoller = new FediversePoller({
+        baseInterval: 60_000,
+        minInterval: 30_000,
+        maxInterval: 5 * 60_000,
+      });
+
+      this.fediversePoller.addAccounts(fediverseAccounts);
+      this.fediversePoller.on('post', async (post, handle) => {
+        await this.handleFediversePost(post, handle);
+      });
+
+      this.fediversePoller.on('error', (error, handle) => {
+        logger.warn(`HybridSocialMediaPoller: Fediverse error for ${handle}:`, error.message);
+      });
+
+      this.fediversePoller.start();
+    } catch (error) {
+      logger.error('HybridSocialMediaPoller: Failed to initialize Fediverse poller:', error);
+    }
+  }
+
+  private async handleJetstreamPost(event: JetstreamPostEvent): Promise<void> {
+    try {
+      const handle = this.didToHandleMap.get(event.did);
+      if (!handle) {
+        return;
+      }
+
+      const subscriptions = await this.socialService.getSubscriptionsForAccount('bluesky', handle);
+      if (subscriptions.length === 0) {
+        logger.debug(`HybridSocialMediaPoller: No subscriptions for ${handle}`);
+        return;
+      }
+
+      const post = await this.blueskyFetcher.fetchLatestPost(handle);
+      if (!post) {
+        logger.warn(`HybridSocialMediaPoller: Failed to fetch full post data for ${handle}`);
+        return;
+      }
+
+      for (const sub of subscriptions) {
+        const normalizedUri = post.uri.trim().toLowerCase();
+
+        const isNew =
+          !sub.lastPostTimestamp ||
+          post.timestamp > sub.lastPostTimestamp ||
+          (post.timestamp.getTime() === sub.lastPostTimestamp?.getTime() &&
+            normalizedUri !== sub.lastPostUri);
+
+        if (isNew) {
+          await this.socialService.batchUpdateLastPost([sub.id], normalizedUri, post.timestamp);
+
+          await this.notificationService.sendNotification(post, sub);
+
+          logger.info(
+            `HybridSocialMediaPoller: Sent real-time notification for ${handle} to guild ${sub.guildId}`,
+          );
+        }
+      }
+    } catch (error) {
+      logger.error('HybridSocialMediaPoller: Error handling Jetstream post:', error);
+    }
+  }
+
+  private async handleFediversePost(post: SocialMediaPost, handle: string): Promise<void> {
+    try {
+      const subscriptions = await this.socialService.getSubscriptionsForAccount(
+        'fediverse',
+        handle,
+      );
+      if (subscriptions.length === 0) {
+        return;
+      }
+
+      for (const sub of subscriptions) {
+        const normalizedUri = post.uri.trim().toLowerCase();
+
+        const isNew =
+          !sub.lastPostTimestamp ||
+          post.timestamp > sub.lastPostTimestamp ||
+          (post.timestamp.getTime() === sub.lastPostTimestamp?.getTime() &&
+            normalizedUri !== sub.lastPostUri);
+
+        if (isNew) {
+          await this.socialService.batchUpdateLastPost([sub.id], normalizedUri, post.timestamp);
+          await this.notificationService.sendNotification(post, sub);
+
+          logger.info(
+            `HybridSocialMediaPoller: Sent notification for Fediverse ${handle} to guild ${sub.guildId}`,
+          );
+        }
+      }
+    } catch (error) {
+      logger.error('HybridSocialMediaPoller: Error handling Fediverse post:', error);
+    }
+  }
+
+  private async addBlueskyAccount(handle: string): Promise<void> {
+    try {
+      const did = await this.resolveDid(handle);
+      if (did) {
+        this.didToHandleMap.set(did, handle.toLowerCase());
+        this.handleToDidMap.set(handle.toLowerCase(), did);
+        this.jetstreamClient?.addDid(did);
+        logger.debug(`HybridSocialMediaPoller: Added Bluesky account ${handle} (${did})`);
+      }
+    } catch (error) {
+      logger.warn(`HybridSocialMediaPoller: Failed to add Bluesky account ${handle}:`, error);
+    }
+  }
+
+  private async resolveDid(handle: string): Promise<string | null> {
+    if (handle.startsWith('did:')) {
+      return handle;
+    }
+
+    let normalized = handle.startsWith('@') ? handle.slice(1) : handle;
+    normalized = normalized.toLowerCase();
+    if (!normalized.includes('.')) {
+      normalized = `${normalized}.bsky.social`;
+    }
+
+    try {
+      const did = await this.handleResolver.resolve(normalized);
+      if (typeof did === 'string' && did.startsWith('did:')) {
+        return did;
+      }
+    } catch (error) {
+      logger.warn(`HybridSocialMediaPoller: Failed to resolve DID for ${handle}:`, error);
+    }
+
+    return null;
+  }
+
+  private startFallbackPolling(): void {
+    this.fallbackPollInterval = setInterval(async () => {
+      if (!this.isRunning) return;
+
+      try {
+        const updates = await this.socialService.checkForUpdates();
+
+        for (const { post, subscription } of updates) {
+          await this.notificationService.sendNotification(post, subscription);
+        }
+
+        if (updates.length > 0) {
+          logger.debug(
+            `HybridSocialMediaPoller: Fallback poll found ${updates.length} missed updates`,
+          );
+        }
+      } catch (error) {
+        logger.error('HybridSocialMediaPoller: Fallback poll error:', error);
+      }
+    }, this.FALLBACK_POLL_INTERVAL_MS);
+  }
+}
+
+class _SocialMediaPoller {
   private isRunning = false;
   private inProgress = false;
   private pollInterval: NodeJS.Timeout | null = null;

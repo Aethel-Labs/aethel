@@ -15,6 +15,16 @@ interface BlueskyPost {
   record: {
     text: string;
     createdAt: string;
+    reply?: {
+      parent?: {
+        uri: string;
+        cid: string;
+      };
+      root?: {
+        uri: string;
+        cid: string;
+      };
+    };
   };
   embed?:
     | {
@@ -58,6 +68,27 @@ interface CachedResult {
 }
 
 const DEFAULT_FETCH_TIMEOUT_MS = 10_000;
+const DEFAULT_MAX_RETRIES = 3;
+const DEFAULT_RETRY_BASE_DELAY_MS = 1000;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableError(error: unknown, response?: Response): boolean {
+  if (error instanceof Error) {
+    if (error.name === 'AbortError') return true;
+    if (error.message.includes('network')) return true;
+    if (error.message.includes('ECONNRESET')) return true;
+    if (error.message.includes('ETIMEDOUT')) return true;
+  }
+
+  if (response && response.status >= 500) return true;
+
+  if (response && response.status === 429) return true;
+
+  return false;
+}
 
 async function fetchWithTimeout(
   input: string,
@@ -73,13 +104,63 @@ async function fetchWithTimeout(
   }
 }
 
+async function fetchWithRetry(
+  input: string,
+  init?: RequestInit,
+  options: {
+    maxRetries?: number;
+    baseDelay?: number;
+    timeoutMs?: number;
+  } = {},
+): Promise<Response> {
+  const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
+  const baseDelay = options.baseDelay ?? DEFAULT_RETRY_BASE_DELAY_MS;
+  const timeoutMs = options.timeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS;
+
+  let lastError: Error | null = null;
+  let lastResponse: Response | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetchWithTimeout(input, init, timeoutMs);
+
+      if (response.ok || !isRetryableError(null, response)) {
+        return response;
+      }
+
+      lastResponse = response;
+
+      const retryAfter = response.headers.get('Retry-After');
+      if (retryAfter && attempt < maxRetries) {
+        const retryDelay = parseInt(retryAfter, 10) * 1000 || baseDelay * Math.pow(2, attempt);
+        await sleep(Math.min(retryDelay, 30000));
+        continue;
+      }
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      if (!isRetryableError(error) || attempt === maxRetries) {
+        throw lastError;
+      }
+    }
+
+    if (attempt < maxRetries) {
+      const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 500;
+      await sleep(delay);
+    }
+  }
+
+  if (lastResponse) return lastResponse;
+  throw lastError || new Error('Fetch failed after retries');
+}
+
 export class BlueskyFetcher implements SocialMediaFetcher {
   platform: SocialPlatform = 'bluesky';
   private readonly baseUrl = 'https://public.api.bsky.app';
   private readonly handleResolver = new HandleResolver();
   private cache = new Map<string, CachedResult>();
   private lastRequest = 0;
-  private readonly CACHE_TTL = 15 * 1000;
+  private readonly CACHE_TTL = 60 * 1000;
   private readonly MIN_REQUEST_INTERVAL = 1000;
 
   async fetchLatestPost(account: string): Promise<SocialMediaPost | null> {
@@ -99,9 +180,9 @@ export class BlueskyFetcher implements SocialMediaFetcher {
       this.lastRequest = Date.now();
 
       const actor = await this.resolveActor(account);
-      const url = `${this.baseUrl}/xrpc/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(actor)}&limit=1`;
+      const url = `${this.baseUrl}/xrpc/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(actor)}&limit=10`; // Increased limit to find own posts
 
-      const response = await fetchWithTimeout(url);
+      const response = await fetchWithRetry(url);
       if (!response.ok) {
         this.cacheResult(account, null);
         return null;
@@ -109,12 +190,15 @@ export class BlueskyFetcher implements SocialMediaFetcher {
 
       const data = await response.json();
       const items = (data?.feed as BlueskyFeedItem[]) || [];
+
       if (!Array.isArray(items) || items.length === 0) {
         this.cacheResult(account, null);
         return null;
       }
 
-      const post = items[0]?.post;
+      const postItem = items.find((item) => item.post?.author?.did === actor);
+      const post = postItem?.post;
+
       if (!post || !post.record) {
         this.cacheResult(account, null);
         return null;
@@ -226,7 +310,88 @@ export class BlueskyFetcher implements SocialMediaFetcher {
       mediaUrls.push(...post.embed.images.map((img) => img.fullsize));
     }
 
-    const text = post.record?.text ?? '';
+    if (post.embed?.$type === 'app.bsky.embed.recordWithMedia#view') {
+      const recordWithMedia = post.embed as Record<string, unknown>;
+      const media = recordWithMedia.media as Record<string, unknown> | undefined;
+
+      if (media?.$type === 'app.bsky.embed.images#view' && Array.isArray(media.images)) {
+        mediaUrls.push(
+          ...media.images.map((img: Record<string, unknown>) => img.fullsize as string),
+        );
+      }
+      if (media?.$type === 'app.bsky.embed.video#view' && typeof media.thumbnail === 'string') {
+        mediaUrls.push(media.thumbnail);
+      }
+      if (media?.$type === 'app.bsky.embed.external#view') {
+        const external = media.external as {
+          uri: string;
+          title: string;
+          description: string;
+          thumb?: string;
+        };
+        if (external && external.thumb) {
+          mediaUrls.push(external.thumb);
+        }
+      }
+    }
+
+    if (post.embed?.$type === 'app.bsky.embed.video#view') {
+      const videoEmbed = post.embed as Record<string, unknown>;
+      if (typeof videoEmbed.thumbnail === 'string') {
+        mediaUrls.push(videoEmbed.thumbnail);
+      }
+    }
+
+    if (post.embed?.$type === 'app.bsky.embed.external#view') {
+      const embedData = post.embed as Record<string, unknown>;
+      const external = embedData.external as Record<string, unknown> | undefined;
+
+      if (external?.uri && typeof external.uri === 'string') {
+        const url = external.uri;
+        const title = (typeof external.title === 'string' ? external.title : '') || '';
+        const description =
+          (typeof external.description === 'string' ? external.description : '') || '';
+
+        const isVideoUrl =
+          url.match(/\.(mp4|webm|mov|avi|mkv|m4v)$/i) ||
+          url.includes('youtube.com') ||
+          url.includes('youtu.be') ||
+          url.includes('vimeo.com') ||
+          url.includes('tiktok.com') ||
+          url.includes('instagram.com/p/') ||
+          url.includes('twitter.com/') ||
+          url.includes('x.com/');
+
+        const isVideoContent =
+          title.toLowerCase().includes('video') ||
+          description.toLowerCase().includes('video') ||
+          title.toLowerCase().includes('watch') ||
+          description.toLowerCase().includes('watch');
+
+        if (isVideoUrl || isVideoContent) {
+          // nothing here yet
+        }
+
+        if (external.thumb && typeof external.thumb === 'string') {
+          mediaUrls.push(external.thumb);
+        }
+      }
+    }
+    let text = post.record?.text ?? '';
+    if (post.record?.reply) {
+      try {
+        const parentUri = post.record.reply.parent?.uri;
+        if (parentUri) {
+          const parentPost = await this.fetchPost(parentUri);
+          if (parentPost && parentPost.author && parentPost.author.handle) {
+            text = `> Replying to @${parentPost.author.handle}\n\n${text}`;
+          }
+        }
+      } catch (_e) {
+        // Ignore
+      }
+    }
+
     const createdAt = post.record?.createdAt ?? new Date().toISOString();
     const author = post.author?.handle ?? 'unknown';
 
@@ -288,12 +453,30 @@ export class BlueskyFetcher implements SocialMediaFetcher {
     return socialPost;
   }
 
+  private async fetchPost(uri: string): Promise<BlueskyPost | null> {
+    try {
+      if (!uri.startsWith('at://')) return null;
+
+      const url = `${this.baseUrl}/xrpc/app.bsky.feed.getPosts?uris=${encodeURIComponent(uri)}`;
+      const res = await fetchWithRetry(url, undefined, { maxRetries: 2 });
+      if (!res.ok) return null;
+
+      const data = await res.json();
+      if (data && data.posts && Array.isArray(data.posts) && data.posts.length > 0) {
+        return data.posts[0] as BlueskyPost;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
   private async fetchBlueskyProfile(
     actor: string,
   ): Promise<{ avatar?: string; displayName?: string } | null> {
     try {
       const url = `${this.baseUrl}/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(actor)}`;
-      const res = await fetchWithTimeout(url);
+      const res = await fetchWithRetry(url, undefined, { maxRetries: 2 });
       if (!res.ok) {
         return null;
       }
@@ -311,7 +494,7 @@ export class FediverseFetcher implements SocialMediaFetcher {
   platform: SocialPlatform = 'fediverse';
   private cache = new Map<string, CachedResult>();
   private domainRequests = new Map<string, number>();
-  private readonly CACHE_TTL = 15 * 1000;
+  private readonly CACHE_TTL = 60 * 1000;
   private readonly MIN_DOMAIN_INTERVAL = 3 * 1000;
   private readonly timeout = 10000;
   private readonly userAgent = 'Aethel/2.0 (+https://aethel.xyz)';
@@ -430,7 +613,7 @@ export class FediverseFetcher implements SocialMediaFetcher {
 
       let items: Record<string, unknown>[] = [];
       if (outbox.orderedItems && Array.isArray(outbox.orderedItems)) {
-        items = outbox.orderedItems.slice(0, 5);
+        items = outbox.orderedItems.slice(0, 10);
       } else if (outbox.first) {
         const firstPageUrl =
           typeof outbox.first === 'string' ? outbox.first : (outbox.first as string);
@@ -438,7 +621,7 @@ export class FediverseFetcher implements SocialMediaFetcher {
           await new Promise((resolve) => setTimeout(resolve, 100));
           const firstPage = await this.fetchActivityPubObject(firstPageUrl);
           if (firstPage && firstPage.orderedItems && Array.isArray(firstPage.orderedItems)) {
-            items = firstPage.orderedItems.slice(0, 5);
+            items = firstPage.orderedItems.slice(0, 10);
           }
         }
       }
@@ -450,10 +633,23 @@ export class FediverseFetcher implements SocialMediaFetcher {
             typeof postObject === 'object' &&
             postObject &&
             'type' in postObject &&
-            (postObject.type === 'Note' || postObject.type === 'Article') &&
-            !('inReplyTo' in postObject && postObject.inReplyTo)
+            (postObject.type === 'Note' ||
+              postObject.type === 'Article' ||
+              postObject.type === 'Page')
           ) {
-            return await this.mapActivityPubPostToSocialMediaPost(postObject, actor, domain);
+            const attributedTo = postObject.attributedTo;
+            const actorId = actor.id as string;
+
+            let isAuthoredByActor = false;
+            if (typeof attributedTo === 'string' && attributedTo === actorId) {
+              isAuthoredByActor = true;
+            } else if (Array.isArray(attributedTo) && attributedTo.includes(actorId)) {
+              isAuthoredByActor = true;
+            }
+
+            if (isAuthoredByActor || !attributedTo) {
+              return await this.mapActivityPubPostToSocialMediaPost(postObject, actor, domain);
+            }
           }
         }
       }
@@ -502,7 +698,7 @@ export class FediverseFetcher implements SocialMediaFetcher {
       if (typeof post.content === 'string') {
         content = this.convertHtmlToText(post.content);
       } else if (Array.isArray(post.content)) {
-        content = this.convertHtmlToText(post.content.join(' '));
+        content = this.convertHtmlToText(post.content.join('\n'));
       } else if (
         typeof post.content === 'object' &&
         post.content &&
@@ -526,10 +722,45 @@ export class FediverseFetcher implements SocialMediaFetcher {
       content = this.convertHtmlToText(summaryText);
     }
 
+    const inReplyTo = post.inReplyTo;
+
+    if (inReplyTo) {
+      try {
+        const replyToUrl =
+          typeof inReplyTo === 'string'
+            ? inReplyTo
+            : (inReplyTo as { id?: string })?.id || (inReplyTo as { url?: string })?.url;
+
+        if (replyToUrl && typeof replyToUrl === 'string') {
+          const replyData = await this.fetchActivityPubObject(replyToUrl);
+          if (replyData) {
+            const replyActor = await this.fetchActivityPubObject(replyData.attributedTo as string);
+            const replyAuthor =
+              (typeof replyActor?.name === 'string' ? replyActor.name : null) ||
+              (typeof replyActor?.preferredUsername === 'string'
+                ? replyActor.preferredUsername
+                : null) ||
+              (typeof replyActor?.url === 'string' ? replyActor.url.split('/').pop() : null);
+
+            if (replyAuthor && typeof replyAuthor === 'string') {
+              content = `> Replying to @${replyAuthor}\n\n${content}`;
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to fetch reply context:', error);
+      }
+    }
+
     const mediaUrls: string[] = [];
     if (post.attachment && Array.isArray(post.attachment)) {
       for (const attachment of post.attachment) {
-        if (attachment.type === 'Document' && attachment.url) {
+        if (
+          (attachment.type === 'Document' ||
+            attachment.type === 'Image' ||
+            attachment.type === 'Video') &&
+          attachment.url
+        ) {
           mediaUrls.push(attachment.url);
         }
       }
@@ -557,7 +788,9 @@ export class FediverseFetcher implements SocialMediaFetcher {
     }
 
     const socialPost: SocialMediaPost = {
-      uri: (typeof post.id === 'string' ? post.id : null) || `unknown-${Date.now()}`,
+      uri:
+        (typeof post.id === 'string' ? post.id : null) ||
+        (typeof post.url === 'string' ? post.url : `unknown-${Date.now()}`),
       text: content,
       author: authorHandle,
       timestamp:
@@ -604,13 +837,20 @@ export class FediverseFetcher implements SocialMediaFetcher {
 
   private convertHtmlToText(html: string): string {
     const sanitized = sanitizeHtml(html, {
-      allowedTags: [],
+      allowedTags: ['br', 'p', 'div'],
       allowedAttributes: {},
     });
-    return he
-      .decode(sanitized)
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
+
+    let text = sanitized
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<\/div>/gi, '\n');
+
+    text = he.decode(text);
+
+    text = text.replace(/<[^>]*>/g, '');
+
+    return text.replace(/\n{3,}/g, '\n\n').trim();
   }
 }
 
@@ -619,7 +859,7 @@ export class UnifiedFetcher implements SocialMediaFetcher {
   private blueskyFetcher: BlueskyFetcher;
   private fediverseFetcher: FediverseFetcher;
   private cache = new Map<string, CachedResult>();
-  private readonly CACHE_TTL = 15 * 1000;
+  private readonly CACHE_TTL = 60 * 1000;
 
   constructor() {
     this.blueskyFetcher = new BlueskyFetcher();

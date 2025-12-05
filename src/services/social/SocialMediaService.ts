@@ -5,12 +5,15 @@ import {
   SocialPlatform,
   SocialMediaFetcher,
 } from '../../types/social';
+import logger from '../../utils/logger';
 
 export class SocialMediaService {
   private pool: Pool;
   private fetchers: Map<SocialPlatform, SocialMediaFetcher>;
   private isPolling = false;
-  private pollInterval: number = 5 * 60 * 1000;
+  private isPollInProgress = false;
+  private pollInterval: number = 2 * 60 * 1000;
+  private pollTimeout: NodeJS.Timeout | null = null;
 
   constructor(pool: Pool, fetchers: SocialMediaFetcher[]) {
     this.pool = pool;
@@ -78,42 +81,59 @@ export class SocialMediaService {
     const newPosts: { post: SocialMediaPost; subscription: SocialMediaSubscription }[] = [];
     const failedAccounts = new Set<string>();
 
+    const accountGroups = new Map<string, SocialMediaSubscription[]>();
     for (const sub of subscriptions) {
-      const accountKey = `${sub.platform}:${sub.accountHandle}`;
+      const accountKey = `${sub.platform}:${sub.accountHandle.toLowerCase()}`;
+      const existing = accountGroups.get(accountKey) || [];
+      accountGroups.set(accountKey, [...existing, sub]);
+    }
 
+    logger.debug(
+      `Checking ${accountGroups.size} unique accounts for ${subscriptions.length} subscriptions`,
+    );
+
+    for (const [accountKey, subs] of accountGroups) {
       if (failedAccounts.has(accountKey)) {
         continue;
       }
 
+      const firstSub = subs[0];
+
       try {
-        const fetcher = this.fetchers.get(sub.platform as SocialPlatform);
+        const fetcher = this.fetchers.get(firstSub.platform as SocialPlatform);
         if (!fetcher) {
-          console.warn(`No fetcher found for platform: ${sub.platform}`);
+          logger.warn(`No fetcher found for platform: ${firstSub.platform}`);
           continue;
         }
 
-        const latestPost = await fetcher.fetchLatestPost(sub.accountHandle);
+        const latestPost = await fetcher.fetchLatestPost(firstSub.accountHandle);
         if (!latestPost) {
           continue;
         }
 
         const normalizedUri = this.normalizeUri(latestPost.uri);
 
-        if (!sub.lastPostTimestamp) {
-          await this.updateLastPost(sub.id, normalizedUri, latestPost.timestamp);
-          continue;
-        }
+        for (const sub of subs) {
+          if (!sub.lastPostTimestamp) {
+            await this.updateLastPost(sub.id, normalizedUri, latestPost.timestamp);
+            newPosts.push({
+              post: { ...latestPost, uri: normalizedUri },
+              subscription: sub,
+            });
+            continue;
+          }
 
-        if (this.isNewerPostWithLogging(latestPost, sub, normalizedUri)) {
-          await this.updateLastPost(sub.id, normalizedUri, latestPost.timestamp);
-          newPosts.push({
-            post: { ...latestPost, uri: normalizedUri },
-            subscription: sub,
-          });
+          if (this.isNewerPostWithLogging(latestPost, sub, normalizedUri)) {
+            await this.updateLastPost(sub.id, normalizedUri, latestPost.timestamp);
+            newPosts.push({
+              post: { ...latestPost, uri: normalizedUri },
+              subscription: sub,
+            });
+          }
         }
       } catch (error) {
-        console.warn(
-          `Failed to check ${sub.platform} account ${sub.accountHandle}:`,
+        logger.warn(
+          `Failed to check ${firstSub.platform} account ${firstSub.accountHandle}:`,
           error instanceof Error ? error.message : 'Unknown error',
         );
 
@@ -122,8 +142,8 @@ export class SocialMediaService {
     }
 
     if (newPosts.length > 0) {
-      console.info(
-        `Found ${newPosts.length} new social media posts across ${subscriptions.length} subscriptions`,
+      logger.info(
+        `Found ${newPosts.length} new social media posts across ${subscriptions.length} subscriptions (${accountGroups.size} unique accounts)`,
       );
     }
 
@@ -131,33 +151,141 @@ export class SocialMediaService {
   }
 
   startPolling(): void {
-    if (this.isPolling) return;
+    if (this.isPolling) {
+      logger.debug('Polling already started');
+      return;
+    }
 
     this.isPolling = true;
+    logger.info('Starting social media polling...');
+
     const poll = async () => {
-      if (!this.isPolling) return;
+      if (!this.isPolling || this.isPollInProgress) {
+        logger.debug('Poll already in progress or stopped, skipping...');
+        this.scheduleNextPoll();
+        return;
+      }
+
+      this.isPollInProgress = true;
+      const startTime = Date.now();
 
       try {
-        await this.checkForUpdates();
+        logger.debug('Starting social media update check...');
+        const updates = await this.checkForUpdates();
+        logger.debug(`Social media update check completed, found ${updates.length} updates`);
       } catch (error) {
-        console.error('Error during social media polling:', error);
+        logger.error('Error during social media polling:', error);
+        this.pollInterval = Math.min(60 * 1000, this.pollInterval * 2);
       } finally {
-        if (this.isPolling) {
-          setTimeout(poll, this.pollInterval);
+        const elapsed = Date.now() - startTime;
+        logger.debug(`Poll completed in ${elapsed}ms`);
+
+        this.isPollInProgress = false;
+
+        if (this.pollInterval !== 2 * 60 * 1000) {
+          this.pollInterval = 2 * 60 * 1000;
         }
+
+        this.scheduleNextPoll();
       }
     };
 
-    poll();
+    poll().catch((error) => logger.error('Initial poll error:', error));
+  }
+
+  private scheduleNextPoll() {
+    if (!this.isPolling) return;
+
+    if (this.pollTimeout) {
+      clearTimeout(this.pollTimeout);
+    }
+
+    logger.debug(`Scheduling next poll in ${this.pollInterval}ms`);
+    this.pollTimeout = setTimeout(() => {
+      this.poll().catch((error) => logger.error('Poll error:', error));
+    }, this.pollInterval);
+  }
+
+  private async poll() {
+    if (this.isPollInProgress) {
+      logger.debug('Poll already in progress, skipping...');
+      return;
+    }
+
+    this.isPollInProgress = true;
+    const startTime = Date.now();
+
+    try {
+      logger.debug('Starting social media update check...');
+      const updates = await this.checkForUpdates();
+      logger.debug(`Social media update check completed, found ${updates.length} updates`);
+      return updates;
+    } catch (error) {
+      logger.error('Error during social media polling:', error);
+      throw error;
+    } finally {
+      const elapsed = Date.now() - startTime;
+      logger.debug(`Poll completed in ${elapsed}ms`);
+      this.isPollInProgress = false;
+    }
   }
 
   stopPolling(): void {
+    logger.info('Stopping social media polling...');
     this.isPolling = false;
+
+    if (this.pollTimeout) {
+      clearTimeout(this.pollTimeout);
+      this.pollTimeout = null;
+    }
+
+    logger.info('Social media polling stopped');
   }
 
   private async getAllActiveSubscriptions(): Promise<SocialMediaSubscription[]> {
     const result = await this.pool.query(`SELECT * FROM server_social_subscriptions`);
     return result.rows.map(this.mapDbToSubscription);
+  }
+
+  async getBlueskyAccounts(): Promise<string[]> {
+    const result = await this.pool.query(
+      `SELECT DISTINCT account_handle FROM server_social_subscriptions WHERE platform = 'bluesky'`,
+    );
+    return result.rows.map((row) => row.account_handle);
+  }
+
+  async getFediverseAccounts(): Promise<string[]> {
+    const result = await this.pool.query(
+      `SELECT DISTINCT account_handle FROM server_social_subscriptions WHERE platform = 'fediverse'`,
+    );
+    return result.rows.map((row) => row.account_handle);
+  }
+
+  async getSubscriptionsForAccount(
+    platform: SocialPlatform,
+    accountHandle: string,
+  ): Promise<SocialMediaSubscription[]> {
+    const normalizedHandle = this.normalizeAccountHandle(platform, accountHandle);
+    const result = await this.pool.query(
+      `SELECT * FROM server_social_subscriptions WHERE platform = $1::social_platform AND lower(account_handle) = lower($2)`,
+      [platform, normalizedHandle],
+    );
+    return result.rows.map(this.mapDbToSubscription);
+  }
+
+  async batchUpdateLastPost(
+    subscriptionIds: number[],
+    postUri: string,
+    postTimestamp: Date,
+  ): Promise<void> {
+    if (subscriptionIds.length === 0) return;
+
+    await this.pool.query(
+      `UPDATE server_social_subscriptions
+       SET last_post_uri = $1, last_post_timestamp = $2
+       WHERE id = ANY($3)`,
+      [postUri, postTimestamp, subscriptionIds],
+    );
   }
 
   private async updateLastPost(
@@ -186,7 +314,9 @@ export class SocialMediaService {
     subscription: SocialMediaSubscription,
     normalizedUri: string,
   ): boolean {
-    if (!subscription.lastPostTimestamp) return false;
+    if (!subscription.lastPostTimestamp) {
+      return true;
+    }
 
     const isNewer =
       post.timestamp > subscription.lastPostTimestamp ||

@@ -369,6 +369,12 @@
         "api_error": "Trivia API error: {code}"
       }
     },
+    "lmgtfy": {
+      "name": "lmgtfy",
+      "description": "Send someone a Let Me Google That For You link",
+      "response": "Here you go: {url}",
+      "responseWithUser": "{user} Here you go: {url}"
+    },
     "social": {
       "name": "social",
       "description": "Get notifications of posts from Fediverse and Bluesky accounts",

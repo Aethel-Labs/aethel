@@ -15,7 +15,6 @@ import todosRoutes from './routes/todos';
 import apiKeysRoutes from './routes/apiKeys';
 import remindersRoutes from './routes/reminders';
 import voteWebhookRoutes from './routes/voteWebhook';
-import { resetOldStrikes } from './utils/userStrikes';
 import logger from './utils/logger';
 
 config();
@@ -113,13 +112,6 @@ app.get(/^\/(?!api\/).*/, (req, res) => {
 app.use((req, res) => {
   return res.status(404).json({ status: 404, message: 'Not Found' });
 });
-
-setInterval(
-  () => {
-    resetOldStrikes().catch(logger.error);
-  },
-  60 * 60 * 1000,
-);
 
 const server = app.listen(PORT, async () => {
   logger.debug('Aethel is live on', `http://localhost:${PORT}`);

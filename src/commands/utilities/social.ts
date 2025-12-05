@@ -128,6 +128,8 @@ const command: SocialCommand = {
       .getService()
       .addSubscription(interaction.guildId!, platform, account, channel.id);
 
+    await client.socialMediaManager.onSubscriptionAdded(platform, account);
+
     const success = await client.getLocaleText(
       'commands.social.addSuccess',
       interaction.locale || 'en-US',
@@ -188,6 +190,8 @@ const command: SocialCommand = {
       .removeSubscription(interaction.guildId!, platform, account);
 
     if (removed) {
+      await client.socialMediaManager.onSubscriptionRemoved(platform, account);
+
       const msg = await client.getLocaleText(
         'commands.social.removeSuccess',
         interaction.locale || 'en-US',
