@@ -150,14 +150,16 @@ class NotificationService {
         ? `${post.authorDisplayName} (@${post.author})`
         : `@${post.author}`;
 
-    const cleanText = this.processPostText(post.text ?? '', post.openGraphData);
+    let cleanText = this.processPostText(post.text ?? '', post.openGraphData);
+
+    cleanText = this.removeMediaServiceUrls(cleanText);
 
     const embed = new EmbedBuilder()
       .setColor(this.getPlatformColor(post.platform))
       .setAuthor({ name: authorName, iconURL: authorIcon, url: this.getPostUrl(post) })
       .setTimestamp(post.timestamp)
       .setFooter({
-        text: `${this.formatPlatformName(post.platform)}`,
+        text: this.formatPlatformName(post.platform),
         iconURL: this.getPlatformIcon(post.platform),
       });
 
@@ -169,19 +171,21 @@ class NotificationService {
       embed.setTitle(`⚠️ ${post.spoiler_text}`);
     }
 
-    if (post.openGraphData) {
+    if (
+      post.openGraphData &&
+      !this.isMediaServiceUrl(post.openGraphData.sourceUrl || post.openGraphData.url || '')
+    ) {
       if (post.openGraphData.title && post.openGraphData.title !== post.text) {
-        const domain = this.getDomainFromUrl(
-          post.openGraphData.url || post.openGraphData.sourceUrl || '',
-        );
-        const title = post.openGraphData.title;
+        const url = post.openGraphData.url || post.openGraphData.sourceUrl || '';
+        const domain = this.getDomainFromUrl(url);
+        const title = this.truncateText(post.openGraphData.title, 100);
         const desc = post.openGraphData.description
-          ? `\n> ${this.truncateText(post.openGraphData.description, 200)}`
+          ? `\n> ${this.truncateText(post.openGraphData.description, 150)}`
           : '';
 
         embed.addFields({
           name: `🔗 ${domain}`,
-          value: `> **[${title}](${post.openGraphData.url || post.openGraphData.sourceUrl})**${desc}`,
+          value: `> **[${title}](${url})**${desc}`,
         });
       }
     }
@@ -192,7 +196,7 @@ class NotificationService {
       if (isSensitive) {
         embed.addFields({
           name: '🔞 Sensitive Content',
-          value: `This post contains ${post.mediaUrls.length} image${post.mediaUrls.length > 1 ? 's' : ''} marked as sensitive. Click 'View Post' to see them.`,
+          value: `This post contains ${post.mediaUrls.length} image${post.mediaUrls.length > 1 ? 's' : ''} marked as sensitive.`,
         });
       } else {
         const firstMedia = post.mediaUrls[0];
@@ -202,13 +206,42 @@ class NotificationService {
 
         if (post.mediaUrls.length > 1) {
           const remaining = post.mediaUrls.length - 1;
-          const fieldVal = `+ ${remaining} more image${remaining > 1 ? 's' : ''} (Click 'View Post' to see all)`;
-          embed.addFields({ name: '📷 Media', value: fieldVal });
+          embed.addFields({ name: '📷', value: `+${remaining} more`, inline: true });
         }
       }
     }
 
     return embed;
+  }
+
+  private isMediaServiceUrl(url: string): boolean {
+    if (!url) return false;
+    const mediaServices = [
+      'tenor.com',
+      'giphy.com',
+      'imgur.com',
+      'gfycat.com',
+      'media.tenor.com',
+      'media.giphy.com',
+      'i.imgur.com',
+    ];
+    try {
+      const hostname = new URL(url).hostname.toLowerCase();
+      return mediaServices.some((service) => hostname.includes(service));
+    } catch {
+      return false;
+    }
+  }
+
+  private removeMediaServiceUrls(text: string): string {
+    if (!text) return '';
+    return text
+      .replace(
+        /https?:\/\/(?:www\.)?(?:tenor\.com|giphy\.com|imgur\.com|gfycat\.com|media\.tenor\.com|media\.giphy\.com|i\.imgur\.com)[^\s]*/gi,
+        '',
+      )
+      .replace(/\n{2,}/g, '\n\n')
+      .trim();
   }
 
   private isContentSensitive(post: SocialMediaPost): boolean {
@@ -319,14 +352,9 @@ class NotificationService {
       .replace(/\r\n/g, '\n')
       .replace(/\r/g, '\n')
       .replace(/\n{3,}/g, '\n\n')
-      .replace(/^\s+/gm, '')
       .replace(/\s+$/gm, '')
       .replace(/[ \t]+/g, ' ')
       .trim();
-
-    result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
-      return `[${text}](${url})`;
-    });
 
     return result;
   }

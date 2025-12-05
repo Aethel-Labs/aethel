@@ -203,31 +203,13 @@ export default function Home() {
           </Link>
         </div>
         <div className="mb-4">
-          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Powered by</p>
           <a
-            href="https://royalehosting.net/?aff=8033?utm_source=aethel.xyz&utm_medium=referral&utm_campaign=powered_by&utm_content=footer"
+            href="https://scanash.com/oss-hosting"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block hover:opacity-80 transition-opacity"
+            className="inline-block hover:opacity-80 transition-opacity text-sm text-gray-600 dark:text-gray-400 hover:text-pink-500"
           >
-            <img
-              src="/royale_logo.svg"
-              alt="Royale Hosting"
-              className="h-8 mx-auto dark:hidden object-contain"
-              width={160}
-              height={32}
-              loading="lazy"
-              decoding="async"
-            />
-            <img
-              src="/royale_logo_dark.svg"
-              alt="Royale Hosting"
-              className="h-8 mx-auto hidden dark:block object-contain"
-              width={160}
-              height={32}
-              loading="lazy"
-              decoding="async"
-            />
+            Hosted by Scan's OSS Hosting
           </a>
         </div>
         <p className="hover:text-pink-500 transition-colors">
