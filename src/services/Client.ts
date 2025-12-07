@@ -37,7 +37,7 @@ export default class BotClient extends Client {
         status: 'online',
         activities: [
           {
-            name: '/weather | /ai',
+            name: 'Ping me! | /help',
           },
         ],
       },
