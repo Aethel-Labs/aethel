@@ -5,8 +5,8 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "start": "node dist/index.js",
-    "dev": "tsx watch src/index.ts",
+    "start": "concurrently \"node dist/index.js\" \"node dist/mcp/server.js\"",
+    "dev": "concurrently \"tsx watch src/index.ts\" \"tsx watch src/mcp/server.ts\"",
     "build": "tsc && node scripts/fix-imports.js",
     "migrate": "node scripts/run-migrations.js",
     "do": "pnpm run migrate && pnpm run build && pnpm run start",

@@ -238,11 +238,32 @@ You can use tools by placing commands in {curly braces}. Available tools:
 - {dog:} - Get a dog picture, if user asks for a dog picture, use this tool.
 - {joke: or {joke: {type: "general/knock-knock/programming/dad"}} } - Get a joke
 - {weather:{"location":"city"}} - Check weather, use if user asks for weather.
-- {wiki:{"search":"query"}} - Wikipedia search, if user asks for a wikipedia search, use this tool, and also use it if user asks something out of your dated knowledge.
+- {wiki:{"search":"query"}} - Wikipedia search for encyclopedic information.
+- {tavily:{"query":"search query"}} - Web search for current/real-time information.
 
-Use the wikipedia search when you want to look for information outside of your knowledge, state it came from Wikipedia if used.
+**TAVILY WEB SEARCH (IMPORTANT):**
+- USE TAVILY when you need current, real-time, or up-to-date information
+- USE TAVILY for: recent events, news, prices, releases, memes, slang, trends, anything after your knowledge cutoff
+- USE TAVILY when the user asks "what is [something recent]" or "what does [slang] mean"
+- Formulate clear, specific search queries - include context like dates or platforms
 
-When you use a tool, you'll receive a JSON response with the command results if needed.
+**TAVILY PARAMETERS:**
+- query (required): The search query string
+- max_results (optional, 1-10): Number of results to return, default 5
+- include_images (optional, boolean): Whether to include image results
+
+**TAVILY EXAMPLES:**
+- Basic: {tavily:{"query":"67 meme meaning TikTok 2025"}}
+- More results: {tavily:{"query":"Bitcoin price December 2025","max_results":5}}
+- With images: {tavily:{"query":"iPhone 16 design","include_images":true}}
+- After receiving results, summarize them naturally and cite your sources
+
+**WIKI vs TAVILY:**
+- Use {wiki:} for established facts, historical information, scientific concepts, biographies
+- Use {tavily:} for ANYTHING current, trending, recent, or time-sensitive
+- When in doubt about recency, use tavily
+
+When you use a tool, you'll receive a JSON response with the results.
 
 **IMPORTANT:** The {reaction:} and {newmessage:} tools are NOT available in slash commands. Only use the tools listed above.`;
 
@@ -845,13 +866,18 @@ async function makeAIRequestInternal(
         content = content.replace(reasoningMatch[0], '').trim();
       }
 
-      if (toolCalls.length > 0 && interaction && client) {
+      const executableToolCalls = toolCalls.filter((tc) => {
+        const name = tc.name?.toLowerCase();
+        return name !== 'reaction' && name !== 'newmessage';
+      });
+
+      if (executableToolCalls.length > 0 && interaction && client) {
         currentConversation.push({
           role: 'assistant',
           content: content,
         });
 
-        for (const toolCall of toolCalls) {
+        for (const toolCall of executableToolCalls) {
           try {
             const toolResult = await executeToolCall(toolCall, interaction, client);
 
@@ -1070,6 +1096,36 @@ async function sendAIResponse(
 
     fullResponse += aiResponse.content;
 
+    if (!fullResponse || !fullResponse.trim()) {
+      if (aiResponse.toolResults) {
+        try {
+          const toolResults = Array.isArray(aiResponse.toolResults)
+            ? aiResponse.toolResults
+            : [aiResponse.toolResults];
+
+          for (const result of toolResults) {
+            const toolResult = typeof result === 'string' ? JSON.parse(result) : result;
+
+            if (toolResult.content) {
+              fullResponse = toolResult.content;
+              break;
+            }
+            if (toolResult.answer) {
+              fullResponse = toolResult.answer;
+              break;
+            }
+          }
+        } catch (_e) {
+          // Ignore parse errors
+        }
+      }
+
+      if (!fullResponse || !fullResponse.trim()) {
+        fullResponse =
+          "I processed your request but couldn't generate a response. Please try again.";
+      }
+    }
+
     try {
       if (aiResponse.citations && aiResponse.citations.length && fullResponse) {
         fullResponse = fullResponse.replace(/\[(\d+)\](?!\()/g, (match: string, numStr: string) => {
@@ -1087,40 +1143,45 @@ async function sendAIResponse(
 
     if (aiResponse.toolResults) {
       try {
-        const toolResults = Array.isArray(aiResponse.toolResults)
-          ? aiResponse.toolResults
-          : [aiResponse.toolResults];
+        let toolResultsArray: unknown[];
 
-        for (const result of toolResults) {
-          try {
-            let toolResult;
-            if (typeof result === 'string') {
+        if (Array.isArray(aiResponse.toolResults)) {
+          toolResultsArray = aiResponse.toolResults;
+        } else if (typeof aiResponse.toolResults === 'string') {
+          toolResultsArray = aiResponse.toolResults
+            .split('\n')
+            .filter((line) => line.trim().startsWith('{'))
+            .map((line) => {
               try {
-                toolResult = JSON.parse(result);
-              } catch (parseError) {
-                logger.error(`[AI] Error parsing tool result JSON:`, {
-                  error: parseError,
-                  result: result.substring(0, 200) + '...',
-                });
-                continue;
+                return JSON.parse(line.trim());
+              } catch {
+                return null;
               }
-            } else {
-              toolResult = result;
-            }
+            })
+            .filter((result) => result !== null);
+        } else {
+          toolResultsArray = [aiResponse.toolResults];
+        }
 
-            if ((toolResult.type === 'cat' || toolResult.type === 'dog') && toolResult.url) {
+        for (const toolResult of toolResultsArray) {
+          try {
+            if (!toolResult || typeof toolResult !== 'object') continue;
+
+            const result = toolResult as Record<string, unknown>;
+
+            if ((result.type === 'cat' || result.type === 'dog') && result.url) {
               let cleanContent = aiResponse.content || '';
-              if (toolResult.url) {
+              if (result.url && typeof result.url === 'string') {
                 cleanContent = cleanContent.replace(/!\[[^\]]*\]\([^)]*\)/g, '').trim();
-                cleanContent = cleanContent.replace(toolResult.url, '').trim();
+                cleanContent = cleanContent.replace(result.url, '').trim();
               }
 
               await interaction.editReply({
                 content: cleanContent || undefined,
                 files: [
                   {
-                    attachment: toolResult.url,
-                    name: `${toolResult.type}.jpg`,
+                    attachment: result.url as string,
+                    name: `${result.type}.jpg`,
                   },
                 ],
               });
@@ -1168,69 +1229,73 @@ async function sendAIResponse(
 
   if (aiResponse.toolResults) {
     try {
-      const toolResult = JSON.parse(aiResponse.toolResults);
-
-      if (toolResult.alreadyResponded && !aiResponse.content) {
-        return;
-      }
-
-      if (toolResult.type === 'command') {
-        if (toolResult.image) {
-          const embed = new EmbedBuilder().setImage(toolResult.image).setColor(0x8a2be2);
-
-          if (toolResult.title) {
-            embed.setTitle(toolResult.title);
-          }
-          if (toolResult.source) {
-            embed.setFooter({ text: `Source: ${toolResult.source}` });
-          }
-
+      const toolResultLines = aiResponse.toolResults.split('\n').filter((line) => line.trim());
+      const toolResults = toolResultLines
+        .map((line) => {
           try {
-            await interaction.followUp({
-              embeds: [embed],
-              flags: MessageFlags.SuppressNotifications,
-            });
-            return;
-          } catch (error) {
-            logger.error('Failed to send embed with source:', error);
-            return;
+            return JSON.parse(line);
+          } catch {
+            return null;
           }
+        })
+        .filter(Boolean);
+
+      for (const toolResult of toolResults) {
+        if (toolResult.alreadyResponded && !aiResponse.content) {
+          return;
         }
 
-        if (toolResult.success && toolResult.data) {
-          const components = toolResult.data.components || [];
-          let imageUrl: string | null = null;
-          let caption = '';
+        if (toolResult.type === 'command') {
+          if (toolResult.image) {
+            const embed = new EmbedBuilder().setImage(toolResult.image).setColor(0x8a2be2);
 
-          for (const component of components) {
-            if (component.type === 12 && component.items?.[0]?.media?.url) {
-              imageUrl = component.items[0].media.url;
-              break;
+            if (toolResult.title) {
+              embed.setTitle(toolResult.title);
+            }
+            if (toolResult.source) {
+              embed.setFooter({ text: `Source: ${toolResult.source}` });
+            }
+
+            try {
+              await interaction.followUp({
+                embeds: [embed],
+                flags: MessageFlags.SuppressNotifications,
+              });
+              return;
+            } catch (error) {
+              logger.error('Failed to send embed with source:', error);
+              return;
             }
           }
 
-          for (const component of components) {
-            if (component.type === 10 && component.content) {
-              caption = component.content;
-              break;
+          if (toolResult.success && toolResult.data) {
+            const components = toolResult.data.components || [];
+            let imageUrl: string | null = null;
+            let caption = '';
+
+            for (const component of components) {
+              if (component.type === 12 && component.items?.[0]?.media?.url) {
+                imageUrl = component.items[0].media.url;
+                break;
+              }
+            }
+
+            for (const component of components) {
+              if (component.type === 10 && component.content) {
+                caption = component.content;
+                break;
+              }
+            }
+
+            if (imageUrl) {
+              await interaction.followUp({
+                content: caption || undefined,
+                files: [imageUrl],
+                flags: MessageFlags.SuppressNotifications,
+              });
+              return;
             }
           }
-
-          if (imageUrl) {
-            await interaction.followUp({
-              content: caption || undefined,
-              files: [imageUrl],
-              flags: MessageFlags.SuppressNotifications,
-            });
-            return;
-          }
-        }
-
-        if (aiResponse.toolResults) {
-          await interaction.followUp({
-            content: aiResponse.toolResults,
-            flags: MessageFlags.SuppressNotifications,
-          });
         }
       }
     } catch (error) {

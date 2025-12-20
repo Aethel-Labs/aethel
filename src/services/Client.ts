@@ -150,7 +150,7 @@ export default class BotClient extends Client {
           const ca = await promises.readFile(rootCertPath, 'utf8');
           ssl = { ca, rejectUnauthorized: true };
         } catch (e) {
-          console.warn('Failed to read CA certificate: unable to access the specified path.', e);
+          logger.warn('Failed to read CA certificate: unable to access the specified path.', e);
         }
       }
 
@@ -160,7 +160,7 @@ export default class BotClient extends Client {
       });
 
       pool.on('error', (err) => {
-        console.error('Unexpected error on idle PostgreSQL client:', err);
+        logger.error('Unexpected error on idle PostgreSQL client:', err);
       });
 
       const shutdown = async (signal?: NodeJS.Signals) => {
@@ -170,7 +170,7 @@ export default class BotClient extends Client {
           await pool.end();
           logger.info('Database pool closed. Exiting.');
         } catch (e) {
-          console.error('Error during graceful shutdown:', e);
+          logger.error('Error during graceful shutdown:', e);
         } finally {
           process.exit(0);
         }
@@ -182,7 +182,7 @@ export default class BotClient extends Client {
       this.socialMediaManager = initializeSocialMediaManager(this, pool);
       await this.socialMediaManager.initialize();
     } catch (error) {
-      console.error('Failed to initialize database and services:', error);
+      logger.error('Failed to initialize database and services:', error);
       throw error;
     }
   }

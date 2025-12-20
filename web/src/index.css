@@ -3,27 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --gradient-light: linear-gradient(135deg, #ffffff 0%, #ffcad4 100%);
-  --gradient-dark: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  --background: #f8fafc;
+  --foreground: #0f172a;
 }
 
 .dark {
-  --background: #0f0f23;
-  --foreground: #e5e7eb;
+  --background: #0f172a;
+  --foreground: #f1f5f9;
 }
 
 body {
   color: var(--foreground);
-  background: var(--gradient-light);
+  background: var(--background);
   min-height: 100vh;
-  font-family: 'Inter', Arial, sans-serif;
-  transition: background 0.3s ease, color 0.3s ease;
-}
-
-body.dark {
-  background: var(--gradient-dark);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -40,7 +34,7 @@ body.dark {
 }
 
 .btn {
-  @apply inline-flex items-center justify-center font-semibold rounded-full px-6 py-3 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg hover:shadow-xl;
+  @apply inline-flex items-center justify-center font-semibold rounded-xl px-6 py-3 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-md hover:shadow-lg;
 }
 
 .btn-discord {
@@ -48,31 +42,31 @@ body.dark {
 }
 
 .btn-glass {
-  @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur hover:bg-white dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 hover:-translate-y-0.5 focus:ring-gray-200 dark:focus:ring-gray-600;
+  @apply bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 hover:-translate-y-0.5 focus:ring-slate-300 dark:focus:ring-slate-600 border border-slate-200/50 dark:border-slate-700/50;
 }
 
 .btn-accent {
-  @apply bg-pink-500 hover:bg-pink-600 text-white hover:-translate-y-0.5 focus:ring-pink-500;
+  @apply bg-indigo-600 hover:bg-indigo-700 text-white hover:-translate-y-0.5 focus:ring-indigo-500;
 }
 
 .feature-card {
-  @apply relative rounded-2xl p-6 bg-white/80 dark:bg-gray-800/60 backdrop-blur ring-1 ring-gray-900/10 dark:ring-white/10 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 hover:ring-pink-300/30;
+  @apply relative rounded-2xl p-6 bg-white/70 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200/60 dark:border-slate-700/40 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 hover:border-indigo-300/50 dark:hover:border-indigo-500/30;
 }
 
 .badge {
-  @apply px-3 py-1 rounded-full bg-white/70 dark:bg-white/5 text-gray-700 dark:text-gray-300 ring-1 ring-gray-900/5 dark:ring-white/10 text-xs;
+  @apply px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-200/50 dark:border-indigo-500/20 text-xs font-medium;
 }
 
 .input {
-  @apply flex h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply flex h-10 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 transition-colors;
 }
 
 .command-card {
-  @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-6 shadow-lg;
+  @apply bg-white/80 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-slate-200/60 dark:border-slate-700/40 hover:shadow-lg transition-all;
 }
 
 .stats-card {
-  @apply bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-white/20 dark:border-gray-700/20;
+  @apply bg-white/90 dark:bg-slate-800/70 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-slate-200/50 dark:border-slate-700/30 transition-all hover:shadow-md;
 }
 
 .status-pulse {
@@ -92,3 +86,4 @@ body.dark {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
+

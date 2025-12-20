@@ -1,9 +1,9 @@
 import { SocialMediaFetcher, SocialMediaPost, SocialPlatform } from '../../../types/social';
 import { HandleResolver } from '@atproto/identity';
 import { lookupWebFinger } from '@fedify/fedify';
-import { extractFirstUrlMetadata } from '../../../utils/opengraph';
 import sanitizeHtml from 'sanitize-html';
 import he from 'he';
+import logger from '../../../utils/logger';
 interface BlueskyPost {
   uri: string;
   cid: string;
@@ -422,32 +422,6 @@ export class BlueskyFetcher implements SocialMediaFetcher {
           sourceUrl: external.uri,
         };
       }
-    } else {
-      try {
-        const urlRegex =
-          /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]*\.(?:com|org|net|edu|gov|mil|int|xyz|io|co|me|ly|app|dev|tech|info|biz|name|tv|cc|uk|de|fr|jp|cn|au|us|ca|nl|be|it|es|ru|in|br|mx|ch|se|no|dk|fi|pl|cz|hu|ro|bg|hr|sk|si|ee|lv|lt|gr|pt|ie|at|lu)\b(?:\/[^\s<>]*)?/g;
-        const matches = text.match(urlRegex);
-
-        if (matches && matches.length > 0) {
-          const originalUrl = matches[0].replace(/[.,;:!?)\]}>'"]*$/, '');
-          let cleanUrl = originalUrl;
-
-          if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
-            cleanUrl = 'https://' + cleanUrl;
-          }
-
-          const { fetchOpenGraphData } = await import('../../../utils/opengraph');
-          const ogData = await fetchOpenGraphData(cleanUrl);
-          if (ogData) {
-            socialPost.openGraphData = {
-              ...ogData,
-              sourceUrl: originalUrl,
-            };
-          }
-        }
-      } catch (_error) {
-        /* empty */
-      }
     }
 
     return socialPost;
@@ -656,7 +630,7 @@ export class FediverseFetcher implements SocialMediaFetcher {
 
       return null;
     } catch (error) {
-      console.warn(`Failed to fetch ActivityPub content from ${actorUri}:`, error);
+      logger.warn(`Failed to fetch ActivityPub content from ${actorUri}:`, error);
       return null;
     }
   }
@@ -748,7 +722,7 @@ export class FediverseFetcher implements SocialMediaFetcher {
           }
         }
       } catch (error) {
-        console.warn('Failed to fetch reply context:', error);
+        logger.warn('Failed to fetch reply context:', error);
       }
     }
 
@@ -806,31 +780,6 @@ export class FediverseFetcher implements SocialMediaFetcher {
       sensitive: post.sensitive === true,
       spoiler_text: typeof post.summary === 'string' ? post.summary : undefined,
     };
-
-    try {
-      const urlRegex =
-        /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]*\.(?:com|org|net|edu|gov|mil|int|xyz|io|co|me|ly|app|dev|tech|info|biz|name|tv|cc|uk|de|fr|jp|cn|au|us|ca|nl|be|it|es|ru|in|br|mx|ch|se|no|dk|fi|pl|cz|hu|ro|bg|hr|sk|si|ee|lv|lt|gr|pt|ie|at|lu)\b(?:\/[^\s<>]*)?/g;
-      const matches = content.match(urlRegex);
-
-      if (matches && matches.length > 0) {
-        const originalUrl = matches[0].replace(/[.,;:!?)\]}>'"]*$/, '');
-        let cleanUrl = originalUrl;
-
-        if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
-          cleanUrl = 'https://' + cleanUrl;
-        }
-
-        const ogData = await extractFirstUrlMetadata(cleanUrl);
-        if (ogData) {
-          socialPost.openGraphData = {
-            ...ogData,
-            sourceUrl: originalUrl,
-          };
-        }
-      }
-    } catch (_error) {
-      /* empty */
-    }
 
     return socialPost;
   }
@@ -891,7 +840,7 @@ export class UnifiedFetcher implements SocialMediaFetcher {
       this.cacheResult(account, post);
       return post;
     } catch (error) {
-      console.warn(`UnifiedFetcher: Failed to fetch post for ${account}:`, error);
+      logger.warn(`UnifiedFetcher: Failed to fetch post for ${account}:`, error);
       this.cacheResult(account, null);
       return null;
     }
@@ -939,7 +888,7 @@ export class UnifiedFetcher implements SocialMediaFetcher {
         }
       }
     } catch (error) {
-      console.warn(`UnifiedFetcher: Bluesky attempt failed for ${account}:`, error);
+      logger.warn(`UnifiedFetcher: Bluesky attempt failed for ${account}:`, error);
     }
 
     try {
@@ -947,7 +896,7 @@ export class UnifiedFetcher implements SocialMediaFetcher {
         return await this.fediverseFetcher.fetchLatestPost(account);
       }
     } catch (error) {
-      console.warn(`UnifiedFetcher: Fediverse attempt failed for ${account}:`, error);
+      logger.warn(`UnifiedFetcher: Fediverse attempt failed for ${account}:`, error);
     }
 
     return null;

@@ -6,7 +6,7 @@ import { BlueskyFetcher, FediverseFetcher } from './fetchers/UnifiedFetcher';
 import { JetstreamClient, JetstreamPostEvent } from './streams/JetstreamClient';
 import { FediversePoller } from './streams/FediversePoller';
 import { SocialMediaFetcher, SocialPlatform } from '../../types/social';
-import { SocialMediaPost, SocialMediaSubscription, OpenGraphData } from '../../types/social';
+import { SocialMediaPost, SocialMediaSubscription } from '../../types/social';
 import logger from '../../utils/logger';
 
 export class SocialMediaManager {
@@ -150,9 +150,7 @@ class NotificationService {
         ? `${post.authorDisplayName} (@${post.author})`
         : `@${post.author}`;
 
-    let cleanText = this.processPostText(post.text ?? '', post.openGraphData);
-
-    cleanText = this.removeMediaServiceUrls(cleanText);
+    const cleanText = this.preserveSpacing(post.text ?? '');
 
     const embed = new EmbedBuilder()
       .setColor(this.getPlatformColor(post.platform))
@@ -171,22 +169,21 @@ class NotificationService {
       embed.setTitle(`⚠️ ${post.spoiler_text}`);
     }
 
-    if (
-      post.openGraphData &&
-      !this.isMediaServiceUrl(post.openGraphData.sourceUrl || post.openGraphData.url || '')
-    ) {
-      if (post.openGraphData.title && post.openGraphData.title !== post.text) {
-        const url = post.openGraphData.url || post.openGraphData.sourceUrl || '';
-        const domain = this.getDomainFromUrl(url);
-        const title = this.truncateText(post.openGraphData.title, 100);
-        const desc = post.openGraphData.description
-          ? `\n> ${this.truncateText(post.openGraphData.description, 150)}`
-          : '';
+    if (post.openGraphData && post.platform === 'bluesky') {
+      const { title, description, url, image } = post.openGraphData;
+      if (title && url) {
+        const linkText = description
+          ? `> **[${this.truncateText(title, 80)}](${url})**\n> ${this.truncateText(description, 120)}`
+          : `> **[${this.truncateText(title, 80)}](${url})**`;
 
         embed.addFields({
-          name: `🔗 ${domain}`,
-          value: `> **[${title}](${url})**${desc}`,
+          name: '\u200b',
+          value: linkText,
         });
+
+        if (image && (!post.mediaUrls || post.mediaUrls.length === 0)) {
+          embed.setImage(image);
+        }
       }
     }
 
@@ -259,14 +256,6 @@ class NotificationService {
     return false;
   }
 
-  private getDomainFromUrl(url: string): string {
-    try {
-      return new URL(url).hostname;
-    } catch {
-      return 'Link';
-    }
-  }
-
   private getPlatformColor(platform: string): number {
     switch (platform) {
       case 'bluesky':
@@ -322,22 +311,6 @@ class NotificationService {
     return text.substring(0, maxLength - 3) + '...';
   }
 
-  private processPostText(text: string, openGraphData?: OpenGraphData): string {
-    let processedText = this.preserveSpacing(text);
-
-    if (openGraphData?.sourceUrl) {
-      if (openGraphData.sourceUrl.startsWith('https://')) {
-        processedText = this.removeSpecificUrlFromText(processedText, openGraphData.sourceUrl);
-      } else {
-        processedText = this.removeSpecificUrlFromText(processedText, openGraphData.sourceUrl);
-      }
-    } else {
-      processedText = this.addProtocolToUrls(processedText);
-    }
-
-    return processedText;
-  }
-
   private preserveSpacing(text: string): string {
     if (!text) return '';
 
@@ -359,141 +332,12 @@ class NotificationService {
     return result;
   }
 
-  private removeSpecificUrlFromText(text: string, sourceUrl: string): string {
-    const urlWithoutProtocol = sourceUrl.replace(/^https?:\/\//, '');
-    const escapedUrlWithoutProtocol = urlWithoutProtocol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    const lines = text.split('\n');
-    const processedLines = lines.map((line) => {
-      const isUrlOnlyLine = new RegExp(
-        `^\\s*(?:https?:\\/\\/)?${escapedUrlWithoutProtocol}\\s*$`,
-        'i',
-      ).test(line);
-
-      const isUrlAtLineEnd = new RegExp(
-        `\\s+(?:https?:\\/\\/)?${escapedUrlWithoutProtocol}\\s*$`,
-        'i',
-      ).test(line);
-
-      if (isUrlOnlyLine) {
-        return '';
-      } else if (isUrlAtLineEnd) {
-        return line.replace(
-          new RegExp(`\\s+(?:https?:\\/\\/)?${escapedUrlWithoutProtocol}\\s*$`, 'i'),
-          '',
-        );
-      }
-
-      return line;
-    });
-
-    return processedLines
-      .filter((line) => line.trim().length > 0)
-      .join('\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
-  }
-
-  private addProtocolToUrls(text: string): string {
-    const protocolLessUrlRegex =
-      /(?<!['"])(?<!https?:\/\/)(?<![\w.-])([a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]*\.(?:com|org|net|edu|gov|mil|int|xyz|io|co|me|ly|app|dev|tech|info|biz|name|tv|cc|uk|de|fr|jp|cn|au|us|ca|nl|be|it|es|ru|in|br|mx|ch|se|no|dk|fi|pl|cz|hu|ro|bg|hr|sk|si|ee|lv|lt|gr|pt|ie|at|lu)(?:\/[^\s<>]*)?)\b/g;
-
-    return text.replace(protocolLessUrlRegex, (match, url) => {
-      if (text.indexOf('@' + url) !== -1) {
-        return match;
-      }
-
-      if (!match.startsWith('http://') && !match.startsWith('https://')) {
-        return 'https://' + url;
-      }
-
-      return match;
-    });
-  }
-
   private isValidImageUrl(url: string): boolean {
     try {
       const parsed = new URL(url);
       return ['http:', 'https:'].includes(parsed.protocol);
     } catch {
       return false;
-    }
-  }
-
-  private extractUrlsFromText(text: string): string[] {
-    const urlRegex =
-      /https?:\/\/[^\s<>]+|(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9]*\.(?:com|org|net|edu|gov|mil|int|xyz|io|co|me|ly|app|dev|tech|info|biz|name|tv|cc|uk|de|fr|jp|cn|au|us|ca|nl|be|it|es|ru|in|br|mx|ch|se|no|dk|fi|pl|cz|hu|ro|bg|hr|sk|si|ee|lv|lt|gr|pt|ie|at|lu)\b(?:\/[^\s<>]*)?/g;
-    const matches = text.match(urlRegex);
-    if (!matches) return [];
-
-    return matches
-      .map((url) => {
-        let cleanUrl = url.replace(/[.,;:!?)\]}>'"]*$/, '');
-
-        if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
-          cleanUrl = 'https://' + cleanUrl;
-        }
-
-        return cleanUrl;
-      })
-      .filter((url) => {
-        try {
-          const parsed = new URL(url);
-          const hostname = parsed.hostname.toLowerCase();
-          return hostname.includes('.') && !hostname.endsWith('.') && !hostname.startsWith('.');
-        } catch {
-          return false;
-        }
-      })
-      .slice(0, 2);
-  }
-
-  private addOpenGraphFields(embed: EmbedBuilder, ogData: OpenGraphData): void {
-    if (!ogData.sourceUrl || !ogData.sourceUrl.startsWith('https://')) {
-      return;
-    }
-
-    if (ogData.title || ogData.description) {
-      let linkTitle = ogData.title || 'Link Preview';
-      let linkDescription = ogData.description || 'No description available';
-
-      linkTitle = linkTitle
-        .replace(/[\r\n\t]+/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      linkDescription = linkDescription
-        .replace(/[\r\n\t]+/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      if (linkTitle.length > 100) {
-        linkTitle = linkTitle.substring(0, 97) + '...';
-      }
-
-      if (linkDescription.length > 200) {
-        linkDescription = linkDescription.substring(0, 197) + '...';
-      }
-
-      const titleWithLink = ogData.url ? `[${linkTitle}](${ogData.url})` : linkTitle;
-      const siteName = ogData.siteName ? ` • ${ogData.siteName}` : '';
-
-      let quotedContent = `> **${titleWithLink}**${siteName}`;
-
-      if (linkDescription.toLowerCase() !== linkTitle.toLowerCase()) {
-        quotedContent += `\n> ${linkDescription}`;
-      }
-
-      const finalContent =
-        quotedContent.length > 1020 ? quotedContent.substring(0, 1017) + '...' : quotedContent;
-
-      embed.addFields([
-        {
-          name: '\u200b',
-          value: finalContent,
-          inline: false,
-        },
-      ]);
     }
   }
 
@@ -521,6 +365,9 @@ class HybridSocialMediaPoller {
   private fallbackPollInterval: NodeJS.Timeout | null = null;
   private readonly FALLBACK_POLL_INTERVAL_MS = 2 * 60 * 1000;
 
+  private recentlyAnnounced = new Map<string, number>();
+  private readonly DEDUP_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
   private fediverseFetcher: FediverseFetcher;
 
   constructor(
@@ -530,6 +377,31 @@ class HybridSocialMediaPoller {
     private readonly blueskyFetcher: BlueskyFetcher,
   ) {
     this.fediverseFetcher = new FediverseFetcher();
+  }
+
+  private isDuplicateAnnouncement(subscriptionId: number, postUri: string): boolean {
+    const key = `${subscriptionId}:${postUri.trim().toLowerCase()}`;
+    const existingTimestamp = this.recentlyAnnounced.get(key);
+
+    if (existingTimestamp && Date.now() - existingTimestamp < this.DEDUP_TTL_MS) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private markAsAnnounced(subscriptionId: number, postUri: string): void {
+    const key = `${subscriptionId}:${postUri.trim().toLowerCase()}`;
+    this.recentlyAnnounced.set(key, Date.now());
+
+    if (Math.random() < 0.1) {
+      const cutoff = Date.now() - this.DEDUP_TTL_MS;
+      for (const [k, v] of this.recentlyAnnounced.entries()) {
+        if (v < cutoff) {
+          this.recentlyAnnounced.delete(k);
+        }
+      }
+    }
   }
 
   public async start(): Promise<void> {
@@ -612,7 +484,16 @@ class HybridSocialMediaPoller {
       const normalizedUri = post.uri.trim().toLowerCase();
 
       for (const sub of subscriptions) {
+        if (this.isDuplicateAnnouncement(sub.id, normalizedUri)) {
+          logger.debug(
+            `HybridSocialMediaPoller: Skipping duplicate immediate check for ${accountHandle} in guild ${sub.guildId}`,
+          );
+          continue;
+        }
+
         if (!sub.lastPostTimestamp) {
+          this.markAsAnnounced(sub.id, normalizedUri);
+
           await this.socialService.batchUpdateLastPost([sub.id], normalizedUri, post.timestamp);
           await this.notificationService.sendNotification(post, sub);
 
@@ -769,6 +650,13 @@ class HybridSocialMediaPoller {
       for (const sub of subscriptions) {
         const normalizedUri = post.uri.trim().toLowerCase();
 
+        if (this.isDuplicateAnnouncement(sub.id, normalizedUri)) {
+          logger.debug(
+            `HybridSocialMediaPoller: Skipping duplicate announcement for ${handle} in guild ${sub.guildId}`,
+          );
+          continue;
+        }
+
         const isNew =
           !sub.lastPostTimestamp ||
           post.timestamp > sub.lastPostTimestamp ||
@@ -776,8 +664,9 @@ class HybridSocialMediaPoller {
             normalizedUri !== sub.lastPostUri);
 
         if (isNew) {
-          await this.socialService.batchUpdateLastPost([sub.id], normalizedUri, post.timestamp);
+          this.markAsAnnounced(sub.id, normalizedUri);
 
+          await this.socialService.batchUpdateLastPost([sub.id], normalizedUri, post.timestamp);
           await this.notificationService.sendNotification(post, sub);
 
           logger.info(
@@ -803,6 +692,13 @@ class HybridSocialMediaPoller {
       for (const sub of subscriptions) {
         const normalizedUri = post.uri.trim().toLowerCase();
 
+        if (this.isDuplicateAnnouncement(sub.id, normalizedUri)) {
+          logger.debug(
+            `HybridSocialMediaPoller: Skipping duplicate Fediverse announcement for ${handle} in guild ${sub.guildId}`,
+          );
+          continue;
+        }
+
         const isNew =
           !sub.lastPostTimestamp ||
           post.timestamp > sub.lastPostTimestamp ||
@@ -810,6 +706,8 @@ class HybridSocialMediaPoller {
             normalizedUri !== sub.lastPostUri);
 
         if (isNew) {
+          this.markAsAnnounced(sub.id, normalizedUri);
+
           await this.socialService.batchUpdateLastPost([sub.id], normalizedUri, post.timestamp);
           await this.notificationService.sendNotification(post, sub);
 

@@ -50,6 +50,39 @@ function buildSystemPrompt(
 - IMPORTANT: If you use a reaction tool, you MUST also provide a text response - never use ONLY a reaction tool
 - The reaction tool is for adding emoji reactions, not for replacing your response
 
+**WEB SEARCH TOOL (TAVILY) - USE THIS FOR CURRENT INFO:**
+- {tavily:{"query":"your search query"}} - Search the web for current/real-time information
+- THIS IS YOUR PRIMARY TOOL for anything you don't know or anything recent/current
+
+**WHEN TO USE TAVILY (IMPORTANT):**
+- ANY question about recent events, news, or things after your knowledge cutoff
+- Memes, slang, trends, viral content (e.g., "what does 67 mean", "what is brain rot")
+- Current prices, stock info, crypto prices
+- Recent releases (games, movies, music, products)
+- Sports scores, election results, current standings
+- Documentation for recent software versions
+- Anything the user asks that you're not 100% confident about
+
+**HOW TO USE TAVILY EFFECTIVELY:**
+- Be SPECIFIC in your queries - include context, dates, platforms
+
+**TAVILY PARAMETERS:**
+- query (required): Your search query
+- max_results (optional, 1-10): How many results to get (default 5)
+- include_images (optional): Set to true if user wants image-related info
+
+**TAVILY EXAMPLES:**
+- Basic: {tavily:{"query":"67 meme meaning TikTok origin 2025"}}
+- More results: {tavily:{"query":"iPhone 16 Pro Max price December 2025","max_results":5}}
+- With images: {tavily:{"query":"GTA 6 screenshots trailer","include_images":true}}
+- BAD: {tavily:{"query":"meme"}} (too vague)
+
+**AFTER GETTING RESULTS:**
+- Summarize the information naturally in your own words
+- Cite sources when stating facts (e.g., "According to [source]...")
+- If results are unclear or conflicting, mention that
+- Don't just dump raw search results - be conversational
+
 **NEW MESSAGE TOOL - CRITICAL GUIDELINES:**
 **WHAT IT DOES:**
 - {newmessage:} splits your response into multiple Discord messages
