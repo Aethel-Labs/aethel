@@ -370,6 +370,7 @@ class HybridSocialMediaPoller {
   private readonly DEDUP_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
   private fediverseFetcher: FediverseFetcher;
+  private processingPosts = new Set<string>();
 
   constructor(
     private readonly client: Client,
@@ -668,30 +669,63 @@ class HybridSocialMediaPoller {
   }
 
   private async handleJetstreamPost(event: JetstreamPostEvent): Promise<void> {
+    const { did, record, uri } = event;
+    const handle = this.didToHandleMap.get(did);
+
+    if (!handle) {
+      // We're not watching this DID, so ignore
+      return;
+    }
+
+    // Immediate synchronous check for race condition
+    const normalizedUri = uri.trim().toLowerCase();
+    if (this.processingPosts.has(normalizedUri)) {
+      logger.debug(
+        `HybridSocialMediaPoller [${this.instanceId}]: Already processing post ${normalizedUri}, skipping race condition`,
+      );
+      return;
+    }
+
+    // Add to processing set immediately
+    this.processingPosts.add(normalizedUri);
+
     try {
-      const handle = this.didToHandleMap.get(event.did);
-      if (!handle) {
-        return;
-      }
+      // Also check recent history (in case it finished processing just before this check)
+      // We check this again inside the subscriptions loop, but checking here saves resources
+      // Note: We can't easily check per-subscription here without the subscription list,
+      // but if we've announced this URI to *any* subscription recently, we might want to be careful.
+      // However, the `isDuplicateAnnouncement` check inside the loop is the authoritative one for per-channel dedup.
 
       const subscriptions = await this.socialService.getSubscriptionsForAccount('bluesky', handle);
       if (subscriptions.length === 0) {
-        logger.debug(`HybridSocialMediaPoller: No subscriptions for ${handle}`);
+        logger.debug(
+          `HybridSocialMediaPoller [${this.instanceId}]: No subscriptions for ${handle}`,
+        );
         return;
       }
 
+      logger.debug(
+        `HybridSocialMediaPoller [${this.instanceId}]: Found ${subscriptions.length} subscriptions for ${handle}`,
+        {
+          subscriptionIds: subscriptions.map((s) => s.id),
+          guildIds: subscriptions.map((s) => s.guildId),
+          channelIds: subscriptions.map((s) => s.channelId),
+        },
+      );
+
       const post = await this.blueskyFetcher.fetchLatestPost(handle);
       if (!post) {
-        logger.warn(`HybridSocialMediaPoller: Failed to fetch full post data for ${handle}`);
+        logger.warn(
+          `HybridSocialMediaPoller [${this.instanceId}]: Failed to fetch full post data for ${handle}`,
+        );
         return;
       }
 
       for (const sub of subscriptions) {
-        const normalizedUri = post.uri.trim().toLowerCase();
-
+        // Double check against recent history for this specific subscription
         if (this.isDuplicateAnnouncement(sub.id, normalizedUri)) {
           logger.debug(
-            `HybridSocialMediaPoller: Skipping duplicate announcement for ${handle} in guild ${sub.guildId}`,
+            `HybridSocialMediaPoller [${this.instanceId}]: Skipping duplicate announcement for ${handle} in guild ${sub.guildId} (subId: ${sub.id})`,
           );
           continue;
         }
@@ -703,18 +737,28 @@ class HybridSocialMediaPoller {
             normalizedUri !== sub.lastPostUri);
 
         if (isNew) {
+          logger.info(
+            `HybridSocialMediaPoller [${this.instanceId}]: Preparing to announce post for ${handle} to channel ${sub.channelId} (subId: ${sub.id})`,
+          );
           this.markAsAnnounced(sub.id, normalizedUri);
 
+          // Update DB first to minimize window for other pollers (if any exist)
           await this.socialService.batchUpdateLastPost([sub.id], normalizedUri, post.timestamp);
           await this.notificationService.sendNotification(post, sub);
 
           logger.info(
-            `HybridSocialMediaPoller: Sent real-time notification for ${handle} to guild ${sub.guildId}`,
+            `HybridSocialMediaPoller [${this.instanceId}]: Sent real-time notification for ${handle} to guild ${sub.guildId}`,
           );
         }
       }
     } catch (error) {
-      logger.error('HybridSocialMediaPoller: Error handling Jetstream post:', error);
+      logger.error(
+        `HybridSocialMediaPoller [${this.instanceId}]: Error handling Jetstream post:`,
+        error,
+      );
+    } finally {
+      // Always remove from processing set
+      this.processingPosts.delete(normalizedUri);
     }
   }
 
