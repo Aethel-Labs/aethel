@@ -143,6 +143,7 @@ const DEFAULT_ENDPOINT = 'wss://jetstream2.us-east.bsky.network/subscribe';
 const MAX_DIDS_PER_CONNECTION = 10_000;
 
 export class JetstreamClient extends EventEmitter {
+  private instanceId = crypto.randomUUID();
   private ws: WebSocketLike | null = null;
   private WebSocketClass: (new (url: string) => WebSocketLike) | null = null;
   private watchedDids = new Set<string>();
@@ -179,6 +180,8 @@ export class JetstreamClient extends EventEmitter {
     if (options.cursor) {
       this.cursor = options.cursor;
     }
+
+    logger.debug(`JetstreamClient: Initialized instance ${this.instanceId}`);
   }
 
   override on<K extends keyof JetstreamClientEvents>(
@@ -197,7 +200,7 @@ export class JetstreamClient extends EventEmitter {
 
   async connect(): Promise<void> {
     if (this.ws || this.isConnecting) {
-      logger.debug('JetstreamClient: Already connected or connecting');
+      logger.debug(`JetstreamClient [${this.instanceId}]: Already connected or connecting`);
       return;
     }
 
@@ -205,7 +208,7 @@ export class JetstreamClient extends EventEmitter {
     this.shouldReconnect = true;
 
     const url = this.buildConnectionUrl();
-    logger.info(`JetstreamClient: Connecting to ${url}`);
+    logger.info(`JetstreamClient [${this.instanceId}]: Connecting to ${url}`);
 
     try {
       if (!this.WebSocketClass) {
@@ -216,14 +219,14 @@ export class JetstreamClient extends EventEmitter {
       this.setupWebSocketHandlers();
     } catch (error) {
       this.isConnecting = false;
-      logger.error('JetstreamClient: Failed to create WebSocket:', error);
+      logger.error(`JetstreamClient [${this.instanceId}]: Failed to create WebSocket:`, error);
       this.emit('error', error instanceof Error ? error : new Error(String(error)));
       this.scheduleReconnect();
     }
   }
 
   disconnect(): void {
-    logger.info('JetstreamClient: Disconnecting...');
+    logger.info(`JetstreamClient [${this.instanceId}]: Disconnecting...`);
     this.shouldReconnect = false;
 
     if (this.reconnectTimeout) {

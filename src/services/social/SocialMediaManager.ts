@@ -354,6 +354,7 @@ class NotificationService {
 }
 
 class HybridSocialMediaPoller {
+  private instanceId = crypto.randomUUID();
   private jetstreamClient: JetstreamClient | null = null;
   private fediversePoller: FediversePoller | null = null;
   private handleResolver = new HandleResolver();
@@ -377,6 +378,7 @@ class HybridSocialMediaPoller {
     private readonly blueskyFetcher: BlueskyFetcher,
   ) {
     this.fediverseFetcher = new FediverseFetcher();
+    logger.debug(`HybridSocialMediaPoller: Initialized instance ${this.instanceId}`);
   }
 
   private isDuplicateAnnouncement(subscriptionId: number, postUri: string): boolean {
@@ -406,12 +408,12 @@ class HybridSocialMediaPoller {
 
   public async start(): Promise<void> {
     if (this.isRunning) {
-      logger.warn('HybridSocialMediaPoller: Already running');
+      logger.warn(`HybridSocialMediaPoller [${this.instanceId}]: Already running`);
       return;
     }
 
     this.isRunning = true;
-    logger.info('HybridSocialMediaPoller: Starting hybrid architecture...');
+    logger.info(`HybridSocialMediaPoller [${this.instanceId}]: Starting hybrid architecture...`);
 
     await this.initializeJetstream();
     await this.initializeFediversePoller();
@@ -425,19 +427,24 @@ class HybridSocialMediaPoller {
 
     this.startFallbackPolling();
 
-    logger.info('HybridSocialMediaPoller: Started successfully');
+    logger.info(`HybridSocialMediaPoller [${this.instanceId}]: Started successfully`);
   }
 
   public stop(): void {
     if (!this.isRunning) return;
 
-    logger.info('HybridSocialMediaPoller: Stopping...');
+    logger.info(`HybridSocialMediaPoller [${this.instanceId}]: Stopping...`);
     this.isRunning = false;
 
-    this.jetstreamClient?.disconnect();
-    this.jetstreamClient = null;
-    this.fediversePoller?.stop();
-    this.fediversePoller = null;
+    if (this.jetstreamClient) {
+      this.jetstreamClient.disconnect();
+      this.jetstreamClient = null;
+    }
+
+    if (this.fediversePoller) {
+      this.fediversePoller.stop();
+      this.fediversePoller = null;
+    }
 
     if (this.activityDecayInterval) {
       clearInterval(this.activityDecayInterval);
@@ -449,7 +456,7 @@ class HybridSocialMediaPoller {
       this.fallbackPollInterval = null;
     }
 
-    logger.info('HybridSocialMediaPoller: Stopped');
+    logger.info(`HybridSocialMediaPoller [${this.instanceId}]: Stopped`);
   }
 
   public async addAccount(platform: SocialPlatform, accountHandle: string): Promise<void> {
@@ -554,10 +561,18 @@ class HybridSocialMediaPoller {
   }
 
   private async initializeJetstream(): Promise<void> {
+    if (this.jetstreamClient) {
+      logger.warn(
+        `HybridSocialMediaPoller [${this.instanceId}]: Overwriting existing JetstreamClient - potential leak detected`,
+      );
+      this.jetstreamClient.disconnect();
+      this.jetstreamClient = null;
+    }
+
     try {
       const blueskyAccounts = await this.socialService.getBlueskyAccounts();
       logger.info(
-        `HybridSocialMediaPoller: Resolving ${blueskyAccounts.length} Bluesky accounts to DIDs...`,
+        `HybridSocialMediaPoller [${this.instanceId}]: Resolving ${blueskyAccounts.length} Bluesky accounts to DIDs...`,
       );
 
       const dids: string[] = [];
@@ -570,12 +585,15 @@ class HybridSocialMediaPoller {
             this.handleToDidMap.set(handle.toLowerCase(), did);
           }
         } catch (error) {
-          logger.warn(`HybridSocialMediaPoller: Failed to resolve DID for ${handle}:`, error);
+          logger.warn(
+            `HybridSocialMediaPoller [${this.instanceId}]: Failed to resolve DID for ${handle}:`,
+            error,
+          );
         }
       }
 
       logger.info(
-        `HybridSocialMediaPoller: Resolved ${dids.length}/${blueskyAccounts.length} DIDs`,
+        `HybridSocialMediaPoller [${this.instanceId}]: Resolved ${dids.length}/${blueskyAccounts.length} DIDs`,
       );
 
       this.jetstreamClient = new JetstreamClient({
@@ -585,26 +603,41 @@ class HybridSocialMediaPoller {
 
       this.jetstreamClient.on('post', (event) => this.handleJetstreamPost(event));
       this.jetstreamClient.on('connected', () => {
-        logger.info(`HybridSocialMediaPoller: Jetstream connected, watching ${dids.length} DIDs`);
+        logger.info(
+          `HybridSocialMediaPoller [${this.instanceId}]: Jetstream connected, watching ${dids.length} DIDs`,
+        );
       });
       this.jetstreamClient.on('disconnected', (code, reason) => {
-        logger.warn(`HybridSocialMediaPoller: Jetstream disconnected: ${code} - ${reason}`);
+        logger.warn(
+          `HybridSocialMediaPoller [${this.instanceId}]: Jetstream disconnected: ${code} - ${reason}`,
+        );
       });
       this.jetstreamClient.on('error', (error) => {
-        logger.error('HybridSocialMediaPoller: Jetstream error:', error);
+        logger.error(`HybridSocialMediaPoller [${this.instanceId}]: Jetstream error:`, error);
       });
 
       this.jetstreamClient.connect();
     } catch (error) {
-      logger.error('HybridSocialMediaPoller: Failed to initialize Jetstream:', error);
+      logger.error(
+        `HybridSocialMediaPoller [${this.instanceId}]: Failed to initialize Jetstream:`,
+        error,
+      );
     }
   }
 
   private async initializeFediversePoller(): Promise<void> {
+    if (this.fediversePoller) {
+      logger.warn(
+        `HybridSocialMediaPoller [${this.instanceId}]: Overwriting existing FediversePoller - potential leak detected`,
+      );
+      this.fediversePoller.stop();
+      this.fediversePoller = null;
+    }
+
     try {
       const fediverseAccounts = await this.socialService.getFediverseAccounts();
       logger.info(
-        `HybridSocialMediaPoller: Setting up poller for ${fediverseAccounts.length} Fediverse accounts`,
+        `HybridSocialMediaPoller [${this.instanceId}]: Setting up poller for ${fediverseAccounts.length} Fediverse accounts`,
       );
 
       this.fediversePoller = new FediversePoller({
@@ -619,12 +652,18 @@ class HybridSocialMediaPoller {
       });
 
       this.fediversePoller.on('error', (error, handle) => {
-        logger.warn(`HybridSocialMediaPoller: Fediverse error for ${handle}:`, error.message);
+        logger.warn(
+          `HybridSocialMediaPoller [${this.instanceId}]: Fediverse error for ${handle}:`,
+          error.message,
+        );
       });
 
       this.fediversePoller.start();
     } catch (error) {
-      logger.error('HybridSocialMediaPoller: Failed to initialize Fediverse poller:', error);
+      logger.error(
+        `HybridSocialMediaPoller [${this.instanceId}]: Failed to initialize Fediverse poller:`,
+        error,
+      );
     }
   }
 
