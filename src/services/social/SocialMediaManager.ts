@@ -60,17 +60,7 @@ export class SocialMediaManager {
   }
 
   public async refreshOnce(): Promise<number> {
-    const updates = await this.socialService.checkForUpdates();
-    let count = 0;
-    for (const { post, subscription } of updates) {
-      try {
-        await this.notificationService.sendNotification(post, subscription);
-        count++;
-      } catch (error) {
-        logger.error('Error sending notification during manual refresh:', error);
-      }
-    }
-    return count;
+    return this.hybridPoller.dedupedRefresh();
   }
 
   public getStats(): {
@@ -90,7 +80,7 @@ export class SocialMediaManager {
 }
 
 class NotificationService {
-  constructor(private client: Client) {}
+  constructor(private client: Client) { }
 
   async sendNotification(
     post: SocialMediaPost,
@@ -669,7 +659,7 @@ class HybridSocialMediaPoller {
   }
 
   private async handleJetstreamPost(event: JetstreamPostEvent): Promise<void> {
-    const { did, record, uri } = event;
+    const { did, record: _record, uri } = event;
     const handle = this.didToHandleMap.get(did);
 
     if (!handle) {
@@ -841,120 +831,65 @@ class HybridSocialMediaPoller {
     return null;
   }
 
+  public async dedupedRefresh(): Promise<number> {
+    try {
+      const updates = await this.socialService.checkForUpdates();
+      let count = 0;
+
+      for (const { post, subscription } of updates) {
+        const normalizedUri = post.uri.trim().toLowerCase();
+
+        if (this.isDuplicateAnnouncement(subscription.id, normalizedUri)) {
+          logger.debug(
+            `HybridSocialMediaPoller [${this.instanceId}]: Skipping duplicate refresh for ${post.author} in guild ${subscription.guildId}`,
+          );
+          continue;
+        }
+
+        this.markAsAnnounced(subscription.id, normalizedUri);
+        await this.notificationService.sendNotification(post, subscription);
+        count++;
+      }
+
+      return count;
+    } catch (error) {
+      logger.error('HybridSocialMediaPoller: Deduped refresh error:', error);
+      return 0;
+    }
+  }
+
   private startFallbackPolling(): void {
     this.fallbackPollInterval = setInterval(async () => {
       if (!this.isRunning) return;
 
       try {
         const updates = await this.socialService.checkForUpdates();
+        let sent = 0;
 
         for (const { post, subscription } of updates) {
+          const normalizedUri = post.uri.trim().toLowerCase();
+
+          if (this.isDuplicateAnnouncement(subscription.id, normalizedUri)) {
+            logger.debug(
+              `HybridSocialMediaPoller [${this.instanceId}]: Skipping duplicate fallback for ${post.author} in guild ${subscription.guildId}`,
+            );
+            continue;
+          }
+
+          this.markAsAnnounced(subscription.id, normalizedUri);
           await this.notificationService.sendNotification(post, subscription);
+          sent++;
         }
 
-        if (updates.length > 0) {
+        if (sent > 0) {
           logger.debug(
-            `HybridSocialMediaPoller: Fallback poll found ${updates.length} missed updates`,
+            `HybridSocialMediaPoller [${this.instanceId}]: Fallback poll sent ${sent} missed updates (filtered from ${updates.length})`,
           );
         }
       } catch (error) {
         logger.error('HybridSocialMediaPoller: Fallback poll error:', error);
       }
     }, this.FALLBACK_POLL_INTERVAL_MS);
-  }
-}
-
-class _SocialMediaPoller {
-  private isRunning = false;
-  private inProgress = false;
-  private pollInterval: NodeJS.Timeout | null = null;
-  private readonly POLL_INTERVAL_MS = 20 * 1000;
-
-  constructor(
-    private readonly client: Client,
-    private readonly socialService: SocialMediaService,
-    private readonly notificationService: NotificationService,
-  ) {}
-
-  public start(): void {
-    if (this.isRunning) {
-      logger.warn('Social media poller is already running');
-      return;
-    }
-
-    this.isRunning = true;
-    logger.info('Starting social media poller...');
-
-    this.safeCheckForUpdates();
-
-    this.pollInterval = setInterval(() => {
-      this.safeCheckForUpdates();
-    }, this.POLL_INTERVAL_MS);
-  }
-
-  public stop(): void {
-    if (!this.isRunning) return;
-    logger.info('Stopping social media poller...');
-
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval);
-      this.pollInterval = null;
-    }
-    this.isRunning = false;
-  }
-
-  public isActive(): boolean {
-    return this.isRunning;
-  }
-
-  private async checkForUpdates(): Promise<void> {
-    if (!this.isRunning) return;
-    logger.debug('Checking for social media updates...');
-    try {
-      const newPosts = await this.socialService.checkForUpdates();
-      if (newPosts.length > 0) {
-        for (const { post, subscription } of newPosts) {
-          try {
-            await this.notificationService.sendNotification(post, subscription);
-          } catch (error) {
-            logger.error(`Error sending notification for ${post.platform} post:`, error);
-          }
-        }
-      }
-    } catch (error) {
-      logger.error('Error checking for social media updates:', error);
-    }
-  }
-
-  private async safeCheckForUpdates(): Promise<void> {
-    if (!this.isRunning || this.inProgress) {
-      logger.debug('Poll already in progress, skipping...');
-      return;
-    }
-
-    this.inProgress = true;
-    try {
-      const updates = await this.socialService.checkForUpdates();
-      if (updates.length > 0) {
-        logger.info(
-          `Found ${updates.length} new social media posts across ${updates.length} subscriptions`,
-        );
-        await Promise.allSettled(
-          updates.map(({ post, subscription }) =>
-            this.notificationService.sendNotification(post, subscription),
-          ),
-        );
-      } else {
-        logger.debug('Social media polling completed - no new posts found');
-      }
-    } catch (error) {
-      logger.error(
-        'Error during social media update check:',
-        error instanceof Error ? error.message : 'Unknown error',
-      );
-    } finally {
-      this.inProgress = false;
-    }
   }
 }
 
