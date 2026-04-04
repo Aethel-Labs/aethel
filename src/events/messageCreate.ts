@@ -252,12 +252,12 @@ export default class MessageCreateEvent {
 
         selectedModel = hasImages
           ? 'google/gemma-3-4b-it'
-          : userCustomModel || 'moonshotai/kimi-k2';
+          : userCustomModel || 'moonshotai/kimi-k2.5';
 
         config = getApiConfiguration(userApiKey ?? null, selectedModel, userApiUrl ?? null);
         usingDefaultKey = config.usingDefaultKey;
       } else {
-        selectedModel = hasImages ? 'google/gemma-3-4b-it' : 'moonshotai/kimi-k2';
+        selectedModel = hasImages ? 'google/gemma-3-4b-it' : 'moonshotai/kimi-k2.5';
 
         config = getApiConfiguration(null, selectedModel, null);
         if (config.usingDefaultKey && !config.finalApiKey) {
@@ -385,7 +385,7 @@ export default class MessageCreateEvent {
       }
 
       let filteredConversation = conversation;
-      if (selectedModel === 'moonshotai/kimi-k2') {
+      if (selectedModel === 'moonshotai/kimi-k2.5') {
         filteredConversation = conversation.map((msg) => {
           if (Array.isArray(msg.content)) {
             const textContent = msg.content
@@ -528,9 +528,9 @@ export default class MessageCreateEvent {
 
         const fallbackModel =
           isDM && !usingDefaultKey
-            ? 'moonshotai/kimi-k2'
+            ? 'moonshotai/kimi-k2.5'
             : isDM
-              ? 'moonshotai/kimi-k2'
+              ? 'moonshotai/kimi-k2.5'
               : 'google/gemini-2.5-flash-lite';
 
         const fallbackConversation = buildConversation(
