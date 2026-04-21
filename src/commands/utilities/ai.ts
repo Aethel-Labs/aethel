@@ -681,10 +681,7 @@ async function makeAIRequestInternal(
             model: config.finalModel,
             messages: currentConversation as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
             max_tokens: maxTokens,
-            ...(configuredHost === 'openrouter.ai' && {
-              reasoning: { exclude: true },
-            }),
-          } as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming);
+          });
 
           logger.debug('OpenAI API call completed successfully');
         } catch (apiError) {
@@ -1082,20 +1079,10 @@ async function sendAIResponse(
   try {
     let fullResponse = '';
 
+    // Skip displaying reasoning/thinking tokens in Discord — the model
+    // still reasons internally for better answers, we just don't surface it.
     if (aiResponse.reasoning) {
-      const cleanedReasoning = aiResponse.reasoning
-        .split('\n')
-        .map((line: string) => line.trim())
-        .filter((line: string) => line)
-        .join('\n');
-
-      const formattedReasoning = cleanedReasoning
-        .split('\n')
-        .map((line: string) => `> ${line}`)
-        .join('\n');
-
-      fullResponse = `${formattedReasoning}\n\n${aiResponse.content}`;
-      aiResponse.content = '';
+      logger.debug('Reasoning tokens received but suppressed from display');
     }
 
     fullResponse += aiResponse.content;
