@@ -80,7 +80,7 @@ export class SocialMediaManager {
 }
 
 class NotificationService {
-  constructor(private client: Client) { }
+  constructor(private client: Client) {}
 
   async sendNotification(
     post: SocialMediaPost,

@@ -132,7 +132,7 @@ function getApiConfiguration(apiKey: string | null, model: string | null, apiUrl
   const usingCustomApi = !!apiKey;
   const finalApiUrl = apiUrl || 'https://openrouter.ai/api/v1';
   const finalApiKey = apiKey || process.env.OPENROUTER_API_KEY;
-  const finalModel = model || (usingCustomApi ? 'openai/gpt-4o-mini' : 'z-ai/glm-4.7-flash');
+  const finalModel = model || (usingCustomApi ? 'openai/gpt-4o-mini' : 'openrouter/elephant-alpha');
   const usingDefaultKey = !usingCustomApi && !!process.env.OPENROUTER_API_KEY;
 
   return {
@@ -180,7 +180,8 @@ function buildSystemPrompt(
       .join('\n');
   }
 
-  const currentModel = model || (usingDefaultKey ? 'z-ai/glm-4.7-flash (default)' : 'custom model');
+  const currentModel =
+    model || (usingDefaultKey ? 'openrouter/elephant-alpha (default)' : 'custom model');
 
   const contextInfo = isServer
     ? `**CONTEXT:**
@@ -680,7 +681,10 @@ async function makeAIRequestInternal(
             model: config.finalModel,
             messages: currentConversation as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
             max_tokens: maxTokens,
-          });
+            ...(configuredHost === 'openrouter.ai' && {
+              reasoning: { exclude: true },
+            }),
+          } as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming);
 
           logger.debug('OpenAI API call completed successfully');
         } catch (apiError) {
