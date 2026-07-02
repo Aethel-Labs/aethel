@@ -344,6 +344,7 @@ class NotificationService {
 }
 
 class HybridSocialMediaPoller {
+  private static readonly JETSTREAM_CURSOR_KEY = 'jetstream_social_cursor';
   private instanceId = crypto.randomUUID();
   private jetstreamClient: JetstreamClient | null = null;
   private fediversePoller: FediversePoller | null = null;
@@ -590,6 +591,15 @@ class HybridSocialMediaPoller {
       this.jetstreamClient = new JetstreamClient({
         wantedCollections: ['app.bsky.feed.post'],
         wantedDids: dids,
+        persistCursor: async (c) => {
+          await this.socialService.setKv(HybridSocialMediaPoller.JETSTREAM_CURSOR_KEY, String(c));
+        },
+        loadCursor: async () => {
+          const raw = await this.socialService.getKv(HybridSocialMediaPoller.JETSTREAM_CURSOR_KEY);
+          if (!raw) return null;
+          const parsed = Number(raw);
+          return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+        },
       });
 
       this.jetstreamClient.on('post', (event) => this.handleJetstreamPost(event));
@@ -703,10 +713,10 @@ class HybridSocialMediaPoller {
         },
       );
 
-      const post = await this.blueskyFetcher.fetchLatestPost(handle);
+      const post = await this.blueskyFetcher.fetchPostByUri(normalizedUri);
       if (!post) {
         logger.warn(
-          `HybridSocialMediaPoller [${this.instanceId}]: Failed to fetch full post data for ${handle}`,
+          `HybridSocialMediaPoller [${this.instanceId}]: Failed to fetch post ${normalizedUri} for ${handle}`,
         );
         return;
       }

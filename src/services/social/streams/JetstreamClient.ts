@@ -118,7 +118,7 @@ export interface JetstreamPostEvent {
 }
 
 interface JetstreamOptions {
-  endpoint?: string;
+  endpoints?: string[];
   wantedCollections?: string[];
   wantedDids?: string[];
   cursor?: number;
@@ -127,6 +127,9 @@ interface JetstreamOptions {
   maxReconnectAttempts?: number;
   reconnectBaseDelay?: number;
   reconnectMaxDelay?: number;
+  maxFailuresBeforeRelaySwitch?: number;
+  persistCursor?: (cursor: number) => Promise<void> | void;
+  loadCursor?: () => Promise<number | null> | number | null;
 }
 
 interface JetstreamClientEvents {
@@ -139,7 +142,13 @@ interface JetstreamClientEvents {
   cursorUpdate: (cursor: number) => void;
 }
 
-const DEFAULT_ENDPOINT = 'wss://jetstream2.us-east.bsky.network/subscribe';
+const DEFAULT_ENDPOINTS = [
+  'wss://jetstream1.us-east.bsky.network/subscribe',
+  'wss://jetstream2.us-east.bsky.network/subscribe',
+  'wss://jetstream1.us-west.bsky.network/subscribe',
+  'wss://jetstream2.us-west.bsky.network/subscribe',
+  'wss://jetstream1.eurosky.network/subscribe',
+];
 const MAX_DIDS_PER_CONNECTION = 10_000;
 
 export class JetstreamClient extends EventEmitter {
@@ -153,25 +162,36 @@ export class JetstreamClient extends EventEmitter {
   private shouldReconnect = true;
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private heartbeatInterval: NodeJS.Timeout | null = null;
+  private cursorFlushInterval: NodeJS.Timeout | null = null;
   private lastMessageTime = 0;
+  private relayIdx = 0;
+  private consecutiveFailures = 0;
+  private pendingCursorFlush: number | null = null;
 
-  private readonly endpoint: string;
+  private readonly endpoints: string[];
   private readonly wantedCollections: string[];
   private readonly compress: boolean;
   private readonly requireHello: boolean;
   private readonly maxReconnectAttempts: number;
   private readonly reconnectBaseDelay: number;
   private readonly reconnectMaxDelay: number;
+  private readonly maxFailuresBeforeRelaySwitch: number;
+  private readonly persistCursor?: (cursor: number) => Promise<void> | void;
+  private readonly loadCursor?: () => Promise<number | null> | number | null;
 
   constructor(options: JetstreamOptions = {}) {
     super();
-    this.endpoint = options.endpoint || DEFAULT_ENDPOINT;
+    this.endpoints =
+      options.endpoints && options.endpoints.length > 0 ? options.endpoints : DEFAULT_ENDPOINTS;
     this.wantedCollections = options.wantedCollections || ['app.bsky.feed.post'];
     this.compress = options.compress ?? false;
     this.requireHello = options.requireHello ?? true;
     this.maxReconnectAttempts = options.maxReconnectAttempts ?? 0;
     this.reconnectBaseDelay = options.reconnectBaseDelay ?? 1000;
     this.reconnectMaxDelay = options.reconnectMaxDelay ?? 30000;
+    this.maxFailuresBeforeRelaySwitch = options.maxFailuresBeforeRelaySwitch ?? 2;
+    this.persistCursor = options.persistCursor;
+    this.loadCursor = options.loadCursor;
 
     if (options.wantedDids) {
       options.wantedDids.forEach((did) => this.watchedDids.add(did));
@@ -204,11 +224,35 @@ export class JetstreamClient extends EventEmitter {
       return;
     }
 
+    // Load the persisted cursor before connecting so we resume from where we
+    // left off instead of replaying recent history (which caused duplicate
+    // notifications after every reconnect). This mirrors atregistrar's firehose
+    // consumers, which reload `jetstream_cursor` from the KV store on every
+    // (re)connect.
+    if (this.loadCursor && this.cursor === null) {
+      try {
+        const persisted = await this.loadCursor();
+        if (typeof persisted === 'number' && persisted > 0) {
+          this.cursor = persisted;
+          logger.info(
+            `JetstreamClient [${this.instanceId}]: Resumed cursor from store: ${persisted}`,
+          );
+        }
+      } catch (error) {
+        logger.warn(
+          `JetstreamClient [${this.instanceId}]: Failed to load persisted cursor:`,
+          error,
+        );
+      }
+    }
+
     this.isConnecting = true;
     this.shouldReconnect = true;
 
     const url = this.buildConnectionUrl();
-    logger.info(`JetstreamClient [${this.instanceId}]: Connecting to ${url}`);
+    logger.info(
+      `JetstreamClient [${this.instanceId}]: Connecting to ${this.endpoints[this.relayIdx]} (cursor=${this.cursor ?? 'none'})`,
+    );
 
     try {
       if (!this.WebSocketClass) {
@@ -238,6 +282,15 @@ export class JetstreamClient extends EventEmitter {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
     }
+
+    if (this.cursorFlushInterval) {
+      clearInterval(this.cursorFlushInterval);
+      this.cursorFlushInterval = null;
+    }
+
+    // Flush the final cursor synchronously so the next connection resumes
+    // after the last event we actually observed.
+    this.flushPendingCursor();
 
     if (this.ws) {
       this.ws.close(1000, 'Client disconnecting');
@@ -321,7 +374,7 @@ export class JetstreamClient extends EventEmitter {
   }
 
   private buildConnectionUrl(): string {
-    const url = new URL(this.endpoint);
+    const url = new URL(this.endpoints[this.relayIdx]);
 
     for (const collection of this.wantedCollections) {
       url.searchParams.append('wantedCollections', collection);
@@ -349,10 +402,14 @@ export class JetstreamClient extends EventEmitter {
     this.ws.onopen = () => {
       this.isConnecting = false;
       this.reconnectAttempts = 0;
+      this.consecutiveFailures = 0;
       this.lastMessageTime = Date.now();
-      logger.info(`JetstreamClient: Connected! Watching ${this.watchedDids.size} DIDs`);
+      logger.info(
+        `JetstreamClient: Connected to ${this.endpoints[this.relayIdx]}! Watching ${this.watchedDids.size} DIDs`,
+      );
       this.emit('connected');
       this.startHeartbeat();
+      this.startCursorFlush();
     };
 
     this.ws.onmessage = (event: { data: unknown }) => {
@@ -365,9 +422,20 @@ export class JetstreamClient extends EventEmitter {
       this.ws = null;
       this.isConnecting = false;
       this.stopHeartbeat();
+      this.stopCursorFlush();
+      // Flush the last seen cursor before reconnecting so we don't replay.
+      this.flushPendingCursor();
       this.emit('disconnected', event.code, event.reason || '');
 
       if (this.shouldReconnect) {
+        // Track relay health and rotate to the next endpoint after repeated
+        // failures, matching atregistrar's MAX_FAILURES_BEFORE_RELAY_SWITCH.
+        this.consecutiveFailures++;
+        if (this.consecutiveFailures >= this.maxFailuresBeforeRelaySwitch) {
+          this.relayIdx = (this.relayIdx + 1) % this.endpoints.length;
+          this.consecutiveFailures = 0;
+          logger.info(`JetstreamClient: switching relay to ${this.endpoints[this.relayIdx]}`);
+        }
         this.scheduleReconnect();
       }
     };
@@ -386,6 +454,9 @@ export class JetstreamClient extends EventEmitter {
 
       if (message.time_us) {
         this.cursor = message.time_us;
+        // Track the most recent cursor for periodic flushing; persisting it
+        // means a reconnect resumes from here instead of replaying history.
+        this.pendingCursorFlush = message.time_us;
         this.emit('cursorUpdate', this.cursor);
       }
 
@@ -497,13 +568,55 @@ export class JetstreamClient extends EventEmitter {
       this.heartbeatInterval = null;
     }
   }
+
+  private startCursorFlush(): void {
+    if (this.cursorFlushInterval || !this.persistCursor) return;
+    // Flush every 3s, matching atregistrar's CURSOR_FLUSH_INTERVAL. We only
+    // persist when the cursor advanced, so steady-state load is minimal.
+    this.cursorFlushInterval = setInterval(() => {
+      this.flushPendingCursor();
+    }, 3_000);
+  }
+
+  private stopCursorFlush(): void {
+    if (this.cursorFlushInterval) {
+      clearInterval(this.cursorFlushInterval);
+      this.cursorFlushInterval = null;
+    }
+  }
+
+  private lastFlushedCursor: number | null = null;
+
+  private flushPendingCursor(): void {
+    if (!this.persistCursor) return;
+    if (this.pendingCursorFlush === null) return;
+    if (this.pendingCursorFlush === this.lastFlushedCursor) return;
+
+    const cursor = this.pendingCursorFlush;
+    this.lastFlushedCursor = cursor;
+    try {
+      const result = this.persistCursor(cursor);
+      if (result instanceof Promise) {
+        result.catch((error) => logger.warn(`JetstreamClient: Failed to persist cursor:`, error));
+      }
+    } catch (error) {
+      logger.warn(`JetstreamClient: Failed to persist cursor:`, error);
+    }
+  }
 }
 
-export function createJetstreamClient(dids?: string[], cursor?: number): JetstreamClient {
+export function createJetstreamClient(
+  dids?: string[],
+  cursor?: number,
+  persistCursor?: (cursor: number) => Promise<void> | void,
+  loadCursor?: () => Promise<number | null> | number | null,
+): JetstreamClient {
   return new JetstreamClient({
     wantedCollections: ['app.bsky.feed.post'],
     wantedDids: dids,
     cursor,
     requireHello: true,
+    persistCursor,
+    loadCursor,
   });
 }

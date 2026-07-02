@@ -427,6 +427,18 @@ export class BlueskyFetcher implements SocialMediaFetcher {
     return socialPost;
   }
 
+  async fetchPostByUri(uri: string): Promise<SocialMediaPost | null> {
+    const post = await this.fetchPost(uri);
+    if (!post || !post.record) return null;
+
+    const actorId = post.author?.did || post.author?.handle || '';
+    const profile = actorId ? await this.fetchBlueskyProfile(actorId) : null;
+    const avatarUrl = profile?.avatar ?? undefined;
+    const displayName = profile?.displayName ?? post.author?.displayName;
+
+    return this.mapToSocialMediaPost(post, avatarUrl, displayName);
+  }
+
   private async fetchPost(uri: string): Promise<BlueskyPost | null> {
     try {
       if (!uri.startsWith('at://')) return null;

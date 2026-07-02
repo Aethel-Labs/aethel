@@ -20,6 +20,20 @@ export class SocialMediaService {
     this.fetchers = new Map(fetchers.map((f) => [f.platform, f]));
   }
 
+  async getKv(key: string): Promise<string | null> {
+    const result = await this.pool.query(`SELECT value FROM app_kv WHERE key = $1`, [key]);
+    return result.rows.length > 0 ? result.rows[0].value : null;
+  }
+
+  async setKv(key: string, value: string): Promise<void> {
+    await this.pool.query(
+      `INSERT INTO app_kv (key, value, updated_at)
+       VALUES ($1, $2, NOW())
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+      [key, value],
+    );
+  }
+
   async addSubscription(
     guildId: string,
     platform: SocialPlatform,
