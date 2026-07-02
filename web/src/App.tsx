@@ -21,7 +21,6 @@ function App() {
 
   return (
     <Routes>
-      {/* Public routes */}
       <Route
         path="/"
         element={<LandingPage />}
@@ -52,7 +51,6 @@ function App() {
         element={<TermsPage />}
       />
 
-      {/* Protected routes */}
       {isAuthenticated ? (
         <Route
           path="/*"

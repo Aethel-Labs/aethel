@@ -44,7 +44,7 @@ const features = [
     icon: BellAlertIcon,
     title: 'Reminders',
     description:
-      'Set reminders for important messages using /remind or in Right Click -> Apps -> Remind Me',
+      'Set reminders for important messages using /remind or in Right Click → Apps → Remind Me',
     color: 'text-orange-500',
   },
   {
@@ -68,7 +68,7 @@ const features = [
   {
     icon: UserIcon,
     title: 'Utilities',
-    description: 'Look up domains with /whois, check what time it is on any city with /time.',
+    description: 'Look up domains with /whois, check what time it is in any city with /time.',
     color: 'text-blue-500',
   },
   {
@@ -87,26 +87,26 @@ const features = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen bg-bg text-ink">
       <a
         href="#main-content"
-        className="sr-only focus:absolute focus:not-sr-only focus:top-3 focus:left-3 focus:bg-white dark:focus:bg-slate-900 focus:text-slate-900 dark:focus:text-slate-100 focus:px-4 focus:py-2 focus:rounded-md focus:shadow"
+        className="sr-only focus:absolute focus:not-sr-only focus:top-3 focus:left-3 focus:bg-surface focus:text-ink focus:px-4 focus:py-2 focus:rounded-md focus:shadow-md focus:z-50"
       >
         Skip to content
       </a>
 
       <header className="absolute top-4 right-4 z-10">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-2">
           <ThemeToggle />
           <a
             href="https://github.com/Aethel-Labs/aethel"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 shadow-md hover:shadow-lg border border-slate-200/50 dark:border-slate-700/50"
+            className="rounded-lg border border-line-strong bg-surface p-2.5 text-muted transition-colors hover:bg-surface-hover hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label="View on GitHub"
           >
             <svg
-              className="w-5 h-5"
+              className="h-5 w-5"
               fill="currentColor"
               viewBox="0 0 24 24"
               aria-hidden="true"
@@ -123,46 +123,45 @@ export default function Home() {
 
       <main
         id="main-content"
-        className="relative max-w-6xl mx-auto px-6 sm:px-8 pt-24 pb-20"
+        className="relative mx-auto max-w-5xl px-6 pt-24 pb-20 sm:px-8"
       >
         <section className="text-center">
           <img
             src="/bot_icon.png"
             alt="Aethel Bot Logo"
-            className="mx-auto mb-8 w-28 h-28 md:w-36 md:h-36 rounded-2xl object-contain shadow-lg border border-slate-200 dark:border-slate-700"
-            style={{ imageRendering: 'auto' }}
+            className="mx-auto mb-8 h-28 w-28 rounded-2xl object-contain border border-line shadow-md md:h-36 md:w-36"
             width={256}
             height={256}
             loading="eager"
             decoding="async"
           />
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4 text-slate-900 dark:text-white">
+          <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-ink md:text-6xl">
             Aethel
           </h1>
-          <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
             An amazing, feature-rich open-source Discord bot with useful and fun commands to have a
             good time with friends.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3 md:gap-4">
             <a
-              href={`https://discord.com/oauth2/authorize?client_id=1371031984230371369`}
-              className="btn btn-discord"
+              href="https://discord.com/oauth2/authorize?client_id=1371031984230371369"
+              className="btn btn-primary"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span>Add to Discord</span>
+              Add to Discord
             </a>
             <Link
               to="/status"
-              className="btn btn-glass"
+              className="btn btn-secondary"
             >
-              <span>View Status</span>
+              View Status
             </Link>
             <Link
               to="/login"
-              className="btn btn-accent"
+              className="btn btn-ghost"
             >
-              <span>Dashboard</span>
+              Dashboard
             </Link>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-2 text-xs md:text-sm">
@@ -173,63 +172,46 @@ export default function Home() {
         </section>
 
         <section className="mt-20 md:mt-24">
-          <h2 className="text-center text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100 mb-10">
-            What you can do with{' '}
-            <span className="text-indigo-600 dark:text-indigo-400">Aethel</span>
+          <h2 className="mb-10 text-center text-2xl font-bold text-ink md:text-3xl">
+            What you can do with Aethel
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map(({ icon: Icon, title, description, color }) => (
               <div
                 key={title}
-                className="feature-card group"
+                className="feature-card"
               >
-                <Icon
-                  className={`w-8 h-8 ${color} mb-3 group-hover:scale-110 transition-transform`}
-                />
-                <h3 className="text-lg font-semibold mb-2 text-slate-800 dark:text-slate-100">
-                  {title}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                  {description}
-                </p>
+                <Icon className={`mb-3 h-7 w-7 ${color}`} />
+                <h3 className="mb-2 text-lg font-semibold text-ink">{title}</h3>
+                <p className="text-sm leading-relaxed text-muted">{description}</p>
               </div>
             ))}
           </div>
         </section>
 
         <div className="mt-16 text-center">
-          <p className="text-slate-500 dark:text-slate-400 text-sm">
+          <p className="text-sm text-faint">
             Use Aethel in DMs or servers that allow external applications.
           </p>
         </div>
       </main>
 
-      <footer className="relative border-t border-slate-200/50 dark:border-slate-700/30 bg-white/40 dark:bg-slate-900/20 backdrop-blur-sm py-10 text-center">
-        <div className="flex flex-wrap justify-center gap-6 mb-6">
+      <footer className="border-t border-line bg-surface py-10 text-center">
+        <div className="mb-6 flex flex-wrap justify-center gap-6">
           <Link
             to="/legal/privacy"
-            className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm"
+            className="text-sm text-muted transition-colors hover:text-accent"
           >
             Privacy Policy
           </Link>
           <Link
             to="/legal/terms"
-            className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm"
+            className="text-sm text-muted transition-colors hover:text-accent"
           >
             Terms of Service
           </Link>
         </div>
-        <div className="mb-4">
-          <a
-            href="https://scanash.com/oss-hosting"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block hover:opacity-80 transition-opacity text-sm text-slate-500 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400"
-          >
-            Hosted by Scan's OSS Hosting
-          </a>
-        </div>
-        <p className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm">
+        <p className="text-sm text-muted">
           Made with ♥ by scanash and the Aethel Labs contributors
         </p>
       </footer>

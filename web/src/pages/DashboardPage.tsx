@@ -1,9 +1,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckSquare, Bell, Plus, ArrowRight, Bot } from 'lucide-react';
+import { Check, Bell, Bot, ArrowRight, Circle, Clock, AlertTriangle, ListTodo } from 'lucide-react';
 import { todosAPI, apiKeysAPI, remindersAPI } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 const DashboardPage = () => {
   const { user } = useAuthStore();
@@ -52,22 +53,18 @@ const DashboardPage = () => {
 
   const activeRemindersCount = activeReminders?.length || 0;
   const overdueReminders =
-    activeReminders?.filter((reminder: Reminder) => new Date(reminder.expires_at) < new Date()) ||
-    [];
-
-  const overviewData = {
-    todos: { total: totalTodos, completed: completedTodos, pending: pendingTodos },
-    reminders: { active: activeRemindersCount, overdue: overdueReminders.length },
-    aiConfigured: hasApiKey,
-  };
+    activeReminders?.filter(
+      (reminder: Reminder) => new Date(reminder.expires_at).getTime() < Date.now(),
+    ) || [];
 
   const activeTodosForDisplay = todos?.filter((todo: Todo) => !todo.done) || [];
-  const recentTodos = activeTodosForDisplay.slice(0, 5);
+  const recentTodos = activeTodosForDisplay.slice(0, 6);
   const activeRemindersForDisplay =
     reminders?.filter(
-      (reminder: Reminder) => !reminder.completed && new Date(reminder.expires_at) >= new Date(),
+      (reminder: Reminder) =>
+        !reminder.completed && new Date(reminder.expires_at).getTime() >= Date.now(),
     ) || [];
-  const recentReminders = activeRemindersForDisplay.slice(0, 5);
+  const recentReminders = activeRemindersForDisplay.slice(0, 4);
 
   useEffect(() => {
     if (overdueReminders.length > 0) {
@@ -90,7 +87,7 @@ const DashboardPage = () => {
   const handleCompleteReminder = async (id: string) => {
     try {
       await remindersAPI.completeReminder(id);
-      toast.success('Reminder completed!');
+      toast.success('Reminder completed');
       setNotifications((prev) => prev.filter((notif) => notif !== `reminder-${id}`));
       queryClient.invalidateQueries({ queryKey: ['reminders'] });
       queryClient.invalidateQueries({ queryKey: ['active-reminders'] });
@@ -102,243 +99,287 @@ const DashboardPage = () => {
   const handleCompleteTodo = async (id: number) => {
     try {
       await todosAPI.updateTodo(id, { done: true });
-      toast.success('Todo completed!');
+      toast.success('Todo completed');
       queryClient.invalidateQueries({ queryKey: ['todos'] });
     } catch (_error) {
       toast.error('Failed to complete todo');
     }
   };
 
+  const hasOverdue = overdueReminders.length > 0;
+  const todoProgress = totalTodos > 0 ? Math.round((completedTodos / totalTodos) * 100) : 0;
+
+  const relativeTime = (date: string) => {
+    const diff = Date.now() - new Date(date).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
+
+  const formatDueTime = (date: string) => {
+    const d = new Date(date);
+    const now = new Date();
+    const diff = d.getTime() - now.getTime();
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(hours / 24);
+    if (days > 0) return `in ${days}d`;
+    if (hours > 0) return `in ${hours}h`;
+    const mins = Math.floor(diff / 60000);
+    if (mins > 0) return `in ${mins}m`;
+    return 'now';
+  };
+
   return (
-    <div className="min-h-screen">
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Welcome back, {user?.username}👋
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-            Keep track of your todos, reminders, and AI configuration all in one place.
+    <div className="space-y-8">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-muted">
+            {hasOverdue
+              ? 'Needs your attention'
+              : pendingTodos > 0
+                ? 'You have things to do'
+                : 'All caught up'}
           </p>
+          <h1 className="mt-1.5 text-3xl font-semibold tracking-tight text-ink">
+            Hey, {user?.username}
+          </h1>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <div className="command-card">
-            <Bot className="w-8 h-8 text-purple-500 mb-3" />
-            <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">Custom AI Assistant</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              {overviewData.aiConfigured
-                ? 'AI is ready to assist you with tasks and questions'
-                : 'Bring your own AI API key to unlock a limit-free AI command.'}
-            </p>
-            <a
-              href="/api-keys"
-              className="bg-white/90 text-gray-800 font-bold py-3 px-8 rounded-full inline-flex items-center space-x-2 transition-all hover:bg-gray-50 hover:shadow-xl hover:scale-102 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 shadow-lg"
-            >
-              <span>{overviewData.aiConfigured ? 'Manage Configuration' : 'Configure AI'}</span>
-            </a>
-          </div>
-
-          <div className="command-card">
-            <CheckSquare className="w-8 h-8 text-green-500 mb-3" />
-            <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">Todos</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              {recentTodos.length > 0
-                ? `You have ${recentTodos.length} active todo${recentTodos.length > 1 ? 's' : ''} to complete`
-                : 'No active todos. Create your first task to get started.'}
-            </p>
-            <a
-              href="/todos"
-              className="bg-white/90 text-gray-800 font-bold py-3 px-8 rounded-full inline-flex items-center space-x-2 transition-all hover:bg-gray-50 hover:shadow-xl hover:scale-102 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 shadow-lg"
-            >
-              <span>{recentTodos.length > 0 ? 'View All Todos' : 'Create Todo'}</span>
-            </a>
-          </div>
-
-          <div className="command-card">
-            <Bell className="w-8 h-8 text-orange-500 mb-3" />
-            <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">Reminders</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              {overdueReminders.length > 0
-                ? `${overdueReminders.length} overdue reminder${overdueReminders.length > 1 ? 's' : ''} need attention`
-                : recentReminders.length > 0
-                  ? `You have ${recentReminders.length} active reminder${recentReminders.length > 1 ? 's' : ''}`
-                  : 'No active reminders. Set your first reminder and receive it on Discord.'}
-            </p>
-            <a
-              href="/reminders"
-              className="bg-white/90 text-gray-800 font-bold py-3 px-8 rounded-full inline-flex items-center space-x-2 transition-all hover:bg-gray-50 hover:shadow-xl hover:scale-102 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 shadow-lg"
-            >
-              <span>
-                {overdueReminders.length > 0
-                  ? 'View Overdue'
-                  : recentReminders.length > 0
-                    ? 'View All Reminders'
-                    : 'Create Reminder'}
-              </span>
-            </a>
-          </div>
+        <div className="flex items-center gap-2 text-sm text-muted">
+          <span className="flex h-2 w-2 rounded-full bg-success" />
+          Bot online
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Recent Todos</h3>
-              <a
-                href="/todos"
-                className="text-pink-600 hover:text-pink-700 dark:text-pink-400 dark:hover:text-pink-300 transition-colors flex items-center space-x-1"
-              >
-                <span>View All</span>
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
-            {recentTodos.length > 0 ? (
-              <div className="space-y-3">
-                {recentTodos.slice(0, 5).map((todo: Todo) => (
-                  <div
-                    key={todo.id}
-                    className="stats-card"
+      {hasOverdue ? (
+        <div className="overflow-hidden rounded-xl border border-danger/30 bg-danger-tint/30">
+          <div className="flex items-center gap-2.5 border-b border-danger/20 px-5 py-3.5">
+            <AlertTriangle className="h-4 w-4 text-danger" />
+            <span className="text-base font-semibold text-danger">
+              {overdueReminders.length} overdue reminder{overdueReminders.length > 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="divide-y divide-danger/10">
+            {overdueReminders.slice(0, 3).map((reminder: Reminder) => {
+              const daysOverdue = Math.ceil(
+                (Date.now() - new Date(reminder.expires_at).getTime()) / 86400000,
+              );
+              return (
+                <div
+                  key={reminder.reminder_id}
+                  className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-danger-tint/50"
+                >
+                  <Clock className="h-4 w-4 flex-shrink-0 text-danger" />
+                  <p className="flex-1 truncate text-sm text-ink">{reminder.message}</p>
+                  <span className="flex-shrink-0 text-sm font-medium text-danger">
+                    {daysOverdue}d overdue
+                  </span>
+                  <button
+                    onClick={() => handleCompleteReminder(reminder.reminder_id)}
+                    className="btn btn-ghost btn-sm flex-shrink-0"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3 flex-1">
-                        <div
-                          className={`w-3 h-3 rounded-full ${
-                            todo.done ? 'bg-green-500' : 'bg-yellow-500'
-                          }`}
-                        ></div>
-                        <div className="flex-1">
-                          <p
-                            className={`font-medium ${
-                              todo.done
-                                ? 'text-gray-500 dark:text-gray-400 line-through'
-                                : 'text-gray-900 dark:text-gray-100'
-                            }`}
-                          >
-                            {todo.item}
-                          </p>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">
-                            Created {new Date(todo.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      {!todo.done && (
-                        <button
-                          onClick={() => handleCompleteTodo(todo.id)}
-                          className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/30 text-sm font-medium px-3 py-1 rounded transition-colors"
-                        >
-                          Complete
-                        </button>
-                      )}
+                    Done
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          {overdueReminders.length > 3 && (
+            <Link
+              to="/reminders"
+              className="block px-5 py-3 text-center text-sm font-medium text-danger hover:bg-danger-tint/50"
+            >
+              View all {overdueReminders.length} overdue →
+            </Link>
+          )}
+        </div>
+      ) : pendingTodos > 0 ? (
+        <Link
+          to="/todos"
+          className="flex items-center gap-3 rounded-xl border border-line bg-surface px-5 py-4 transition-colors hover:bg-surface-hover"
+        >
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-tint">
+            <ListTodo className="h-4 w-4 text-accent" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-ink">
+              {pendingTodos} todo{pendingTodos > 1 ? 's' : ''} pending
+            </p>
+            <p className="text-sm text-muted">No reminders overdue — you're on track.</p>
+          </div>
+          <ArrowRight className="h-4 w-4 text-faint" />
+        </Link>
+      ) : (
+        <div className="flex items-center gap-3 rounded-xl border border-line bg-surface px-5 py-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-success-tint">
+            <Check className="h-4 w-4 text-success" />
+          </div>
+          <p className="text-sm text-muted">Nothing pending. You're fully caught up.</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-line bg-line">
+        <Link
+          to="/todos"
+          className="group flex flex-col gap-2.5 bg-surface p-5 transition-colors hover:bg-surface-hover"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Todos</span>
+            <Check className="h-4 w-4 text-faint" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-semibold tabular-nums text-ink">{pendingTodos}</span>
+            <span className="text-sm text-faint">pending</span>
+          </div>
+          {totalTodos > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line-strong">
+                <div
+                  className="h-full rounded-full bg-success transition-all"
+                  style={{ width: `${todoProgress}%` }}
+                />
+              </div>
+              <span className="text-xs tabular-nums text-faint">{todoProgress}%</span>
+            </div>
+          )}
+        </Link>
+
+        <Link
+          to="/reminders"
+          className="group flex flex-col gap-2.5 bg-surface p-5 transition-colors hover:bg-surface-hover"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Reminders</span>
+            <Bell className="h-4 w-4 text-faint" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-semibold tabular-nums text-ink">
+              {activeRemindersCount}
+            </span>
+            <span className="text-sm text-faint">active</span>
+          </div>
+          {recentReminders.length > 0 ? (
+            <p className="text-xs text-faint">
+              Next: {formatDueTime(recentReminders[0].expires_at)}
+            </p>
+          ) : (
+            <p className="text-xs text-faint">None scheduled</p>
+          )}
+        </Link>
+
+        <Link
+          to="/api-keys"
+          className="group flex flex-col gap-2.5 bg-surface p-5 transition-colors hover:bg-surface-hover"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">AI</span>
+            <Bot className="h-4 w-4 text-faint" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            {hasApiKey ? (
+              <span className="text-xl font-semibold text-ink">Ready</span>
+            ) : (
+              <span className="text-base font-medium text-muted">Not set up</span>
+            )}
+          </div>
+          <p className="truncate text-xs text-faint">
+            {hasApiKey ? apiKeyInfo?.model || 'Configured' : 'Bring your own key'}
+          </p>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+        <section className="lg:col-span-3">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-ink">Recent todos</h2>
+            <Link
+              to="/todos"
+              className="flex items-center gap-1.5 text-sm font-medium text-accent hover:text-accent-hover"
+            >
+              All {pendingTodos > 0 && <span className="text-faint">({pendingTodos})</span>}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          {recentTodos.length > 0 ? (
+            <div className="overflow-hidden rounded-lg border border-line bg-surface">
+              {recentTodos.map((todo: Todo, i: number) => (
+                <div
+                  key={todo.id}
+                  className={`group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-hover ${
+                    i !== recentTodos.length - 1 ? 'border-b border-line' : ''
+                  }`}
+                >
+                  <button
+                    onClick={() => handleCompleteTodo(todo.id)}
+                    className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border border-line-strong text-transparent transition-colors hover:border-success hover:text-success"
+                    aria-label="Complete todo"
+                  >
+                    <Check className="h-3 w-3" />
+                  </button>
+                  <span className="flex-1 truncate text-sm text-ink">{todo.item}</span>
+                  <span className="flex-shrink-0 text-xs text-faint">
+                    {relativeTime(todo.created_at)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-line py-14">
+              <Check className="mb-2 h-7 w-7 text-faint" />
+              <p className="text-sm text-muted">No pending todos</p>
+            </div>
+          )}
+        </section>
+
+        <section className="lg:col-span-2">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-ink">Upcoming</h2>
+            <Link
+              to="/reminders"
+              className="flex items-center gap-1.5 text-sm font-medium text-accent hover:text-accent-hover"
+            >
+              All
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          {recentReminders.length > 0 ? (
+            <div className="overflow-hidden rounded-lg border border-line bg-surface">
+              {recentReminders.map((reminder: Reminder, i: number) => {
+                const overdue = new Date(reminder.expires_at).getTime() < Date.now();
+                return (
+                  <div
+                    key={reminder.reminder_id}
+                    className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-surface-hover ${
+                      i !== recentReminders.length - 1 ? 'border-b border-line' : ''
+                    }`}
+                  >
+                    <Circle
+                      className={`mt-1 h-3.5 w-3.5 flex-shrink-0 ${
+                        overdue ? 'fill-danger text-danger' : 'fill-success text-success'
+                      }`}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-ink">{reminder.message}</p>
+                      <p className="mt-0.5 text-xs text-faint">
+                        {formatDueTime(reminder.expires_at)}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="stats-card text-center">
-                <CheckSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  No todos yet
-                </h4>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Create your first todo to start organizing your tasks
-                </p>
-                <a
-                  href="/todos"
-                  className="inline-flex items-center space-x-2 bg-green-600 text-white py-3 px-8 rounded-full transition-all transform hover:bg-green-700 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 shadow-lg font-bold"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Create Todo</span>
-                </a>
-              </div>
-            )}
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Recent Reminders
-              </h3>
-              <a
-                href="/reminders"
-                className="text-pink-600 hover:text-pink-700 dark:text-pink-400 dark:hover:text-pink-300 transition-colors flex items-center space-x-1"
-              >
-                <span>View All</span>
-                <ArrowRight className="h-4 w-4" />
-              </a>
+                );
+              })}
             </div>
-            {recentReminders.length > 0 ? (
-              <div className="space-y-3">
-                {recentReminders.slice(0, 5).map((reminder: Reminder) => {
-                  const isOverdue = new Date(reminder.expires_at) < new Date();
-                  const daysOverdue = isOverdue
-                    ? Math.ceil(
-                        (Date.now() - new Date(reminder.expires_at).getTime()) /
-                          (1000 * 60 * 60 * 24),
-                      )
-                    : 0;
-
-                  return (
-                    <div
-                      key={reminder.reminder_id}
-                      className="stats-card"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3 flex-1">
-                          <div
-                            className={`w-3 h-3 rounded-full ${
-                              isOverdue ? 'bg-red-500' : 'bg-green-500'
-                            }`}
-                          ></div>
-                          <div className="flex-1">
-                            <p className="text-gray-900 dark:text-gray-100 font-medium">
-                              {reminder.message}
-                            </p>
-                            <div className="flex items-center space-x-4 mt-1">
-                              <p className="text-gray-600 dark:text-gray-400 text-sm">
-                                Due {new Date(reminder.expires_at).toLocaleDateString()}
-                              </p>
-                              {isOverdue && (
-                                <p className="text-red-600 dark:text-red-400 text-sm font-medium">
-                                  {daysOverdue} day{daysOverdue > 1 ? 's' : ''} overdue
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => handleCompleteReminder(reminder.reminder_id)}
-                          className={`text-sm font-medium px-3 py-1 rounded transition-colors ${
-                            isOverdue
-                              ? 'text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30'
-                              : 'text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/30'
-                          }`}
-                        >
-                          Complete
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="stats-card text-center">
-                <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  No reminders yet
-                </h4>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Set up your first reminder to never miss important events
-                </p>
-                <a
-                  href="/reminders"
-                  className="inline-flex items-center space-x-2 bg-orange-600 text-white py-3 px-8 rounded-full transition-all transform hover:bg-orange-700 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 shadow-lg font-bold"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Create Reminder</span>
-                </a>
-              </div>
-            )}
-          </div>
-        </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-line py-14">
+              <Bell className="mb-2 h-7 w-7 text-faint" />
+              <p className="text-sm text-muted">No reminders</p>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

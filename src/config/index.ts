@@ -40,5 +40,8 @@ if (OPENWEATHER_API_KEY && OPENWEATHER_API_KEY.length < 10) {
 }
 
 export const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10); // 15 minutes
-export const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX || '100', 10);
+export const RATE_LIMIT_MAX = parseInt(
+  process.env.RATE_LIMIT_MAX || (process.env.NODE_ENV === 'production' ? '100' : '10000'),
+  10,
+);
 export const LOG_LEVEL = process.env.LOG_LEVEL || 'info';

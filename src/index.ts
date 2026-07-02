@@ -51,6 +51,22 @@ app.use(
   rateLimit({
     windowMs: RATE_LIMIT_WINDOW_MS,
     max: RATE_LIMIT_MAX,
+    // Skip limiting for static assets and the dashboard shell in dev — only
+    // throttle API routes. Static asset requests shouldn't eat the budget.
+    skip: (req) =>
+      process.env.NODE_ENV !== 'production' &&
+      (req.path.startsWith('/assets/') ||
+        req.path.startsWith('/bot_icon') ||
+        req.path === '/' ||
+        req.path === '/index.html' ||
+        req.path === '/favicon.ico' ||
+        req.path.startsWith('/login') ||
+        req.path.startsWith('/dashboard') ||
+        req.path.startsWith('/todos') ||
+        req.path.startsWith('/reminders') ||
+        req.path.startsWith('/api-keys') ||
+        req.path.startsWith('/status') ||
+        req.path.startsWith('/legal')),
     message: { error: 'Too many requests, please try again later.' },
     standardHeaders: true,
     legacyHeaders: false,

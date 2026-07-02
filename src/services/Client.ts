@@ -9,6 +9,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import logger from '@/utils/logger';
+import { runMigrations } from '@/utils/migrations';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -162,6 +163,10 @@ export default class BotClient extends Client {
       pool.on('error', (err) => {
         logger.error('Unexpected error on idle PostgreSQL client:', err);
       });
+
+      // Run pending migrations before any service touches the DB so the schema
+      // is always current without a separate manual step.
+      await runMigrations(pool);
 
       const shutdown = async (signal?: NodeJS.Signals) => {
         try {

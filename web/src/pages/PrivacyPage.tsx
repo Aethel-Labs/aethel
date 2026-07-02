@@ -6,15 +6,11 @@ export default function PrivacyPolicy() {
       title="Privacy Policy"
       lastUpdated="July 26, 2025"
     >
-      <div className="space-y-8">
+      <div className="legal-body space-y-10">
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            1. Information We Collect
-          </h2>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            When you use our Discord Bot, we collect the following information:
-          </p>
-          <ul className="list-disc pl-6 space-y-3 text-gray-700 dark:text-gray-300 mt-2">
+          <h2 className="legal-h2">1. Information We Collect</h2>
+          <p>When you use our Discord Bot, we collect the following information:</p>
+          <ul>
             <li>
               <strong>Discord Account Information:</strong> User ID, username, discriminator (if
               applicable), and avatar hash through Discord OAuth
@@ -55,13 +51,9 @@ export default function PrivacyPolicy() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            2. How We Use Your Information
-          </h2>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            We use the collected information for the following purposes:
-          </p>
-          <ul className="list-disc pl-6 space-y-3 text-gray-700 dark:text-gray-300 mt-2">
+          <h2 className="legal-h2">2. How We Use Your Information</h2>
+          <p>We use the collected information for the following purposes:</p>
+          <ul>
             <li>
               <strong>Service Functionality:</strong> Process Discord commands, provide AI
               responses, manage reminders and todos
@@ -94,19 +86,12 @@ export default function PrivacyPolicy() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            3. Data Storage and Retention
-          </h2>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            We implement the following data storage and retention practices:
-          </p>
-          <ul className="list-disc pl-6 space-y-3 text-gray-700 dark:text-gray-300 mt-2">
+          <h2 className="legal-h2">3. Data Storage and Retention</h2>
+          <p>We implement the following data storage and retention practices:</p>
+          <ul>
             <li>
               <strong>API Keys:</strong> Encrypted using AES-256-GCM encryption before database
-              storage. You can remove them anytime using{' '}
-              <code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-sm font-mono text-gray-800 dark:text-gray-200">
-                /ai use_custom_api:false
-              </code>
+              storage. You can remove them anytime using <code>/ai use_custom_api:false</code>
             </li>
             <li>
               <strong>Reminders:</strong> Stored until completion, with automatic cleanup of
@@ -134,14 +119,12 @@ export default function PrivacyPolicy() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            4. Third-Party Services
-          </h2>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+          <h2 className="legal-h2">4. Third-Party Services</h2>
+          <p>
             Our Bot integrates with the following third-party services. Each service has its own
             privacy policy and terms of service:
           </p>
-          <ul className="list-disc pl-6 space-y-3 text-gray-700 dark:text-gray-300 mt-2">
+          <ul>
             <li>
               <strong>Discord:</strong> User authentication, command processing, and message
               delivery through Discord's platform
@@ -165,20 +148,16 @@ export default function PrivacyPolicy() {
               <strong>PostgreSQL Database:</strong> Hosted database service for data storage
             </li>
           </ul>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
+          <p className="mt-4">
             We have no control over and assume no responsibility for the content, privacy policies,
             or practices of these third-party services.
           </p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            5. Data Security
-          </h2>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            We implement the following security measures to protect your information:
-          </p>
-          <ul className="list-disc pl-6 space-y-3 text-gray-700 dark:text-gray-300 mt-2">
+          <h2 className="legal-h2">5. Data Security</h2>
+          <p>We implement the following security measures to protect your information:</p>
+          <ul>
             <li>
               <strong>API Key Encryption:</strong> AES-256-GCM encryption for all stored API keys
             </li>
@@ -205,17 +184,15 @@ export default function PrivacyPolicy() {
               <strong>Database Security:</strong> Parameterized queries to prevent SQL injection
             </li>
           </ul>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
+          <p className="mt-4">
             While we implement reasonable security measures, no method of transmission over the
             internet or electronic storage is 100% secure. We cannot guarantee absolute security.
           </p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            6. Children&apos;s Privacy
-          </h2>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+          <h2 className="legal-h2">6. Children's Privacy</h2>
+          <p>
             Our Bot is not intended for use by children under the age of 13. We do not knowingly
             collect personally identifiable information from children under 13. If you are a parent
             or guardian and you are aware that your child has provided us with personal information,
@@ -224,28 +201,18 @@ export default function PrivacyPolicy() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            7. Changes to This Policy
-          </h2>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+          <h2 className="legal-h2">7. Changes to This Policy</h2>
+          <p>
             We may update our Privacy Policy from time to time. We will notify you of any changes by
             posting the new Privacy Policy on this page.
           </p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            8. Contact Us
-          </h2>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+          <h2 className="legal-h2">8. Contact Us</h2>
+          <p>
             If you have any questions about this Privacy Policy, please contact us at{' '}
-            <a
-              href="mailto:scan@scanash.com"
-              className="text-pink-600 hover:text-pink-700 hover:underline font-medium"
-            >
-              scan@scanash.com
-            </a>
-            .
+            <a href="mailto:scan@scanash.com">scan@scanash.com</a>.
           </p>
         </section>
       </div>

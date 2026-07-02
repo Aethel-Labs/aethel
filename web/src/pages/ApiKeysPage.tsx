@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiKeysAPI } from '../lib/api';
+import Modal from '../components/Modal';
 
 interface ApiKeyInfo {
   apiKey?: string;
@@ -264,327 +265,302 @@ const ApiKeysPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-discord-blurple"></div>
+      <div className="flex items-center justify-center py-24">
+        <div className="spinner h-5 w-5" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI API Keys</h1>
-        <p className="text-gray-600 dark:text-gray-300">
-          Configure your custom AI API keys and endpoints for personalized AI interactions.
-        </p>
-      </div>
-
-      <div className="bg-white/80 dark:bg-gray-800/90 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-            Current Configuration
-          </h2>
-          {apiKeyInfo?.hasApiKey && !isEditing && (
-            <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2 sm:gap-0">
-              <button
-                onClick={handleEdit}
-                className="btn btn-secondary active:scale-95 transition-transform"
-              >
-                <Key className="h-4 w-4 mr-2" />
-                Edit
-              </button>
-              <button
-                onClick={() => deleteApiKeyMutation.mutate()}
-                className="btn btn-danger active:scale-95 transition-transform"
-                disabled={deleteApiKeyMutation.isPending}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Remove
-              </button>
-            </div>
-          )}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-faint">Configuration</p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-ink">AI Keys</h1>
         </div>
-
-        {apiKeyInfo?.hasApiKey && !isEditing ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-300 dark:border-green-700">
-                <CheckCircle className="h-3 w-3 mr-1" />
-                Configured
-              </span>
-            </div>
-            {apiKeyInfo.model && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Model</span>
-                <span className="text-sm text-gray-900 dark:text-gray-100">{apiKeyInfo.model}</span>
-              </div>
-            )}
-            {apiKeyInfo.apiUrl && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  API Endpoint
-                </span>
-                <span className="text-sm text-gray-900 dark:text-gray-100 truncate max-w-64">
-                  {apiKeyInfo.apiUrl}
-                </span>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <Key className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-              No API Key Configured
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Set up your custom AI API key to use personalized models and endpoints.
-            </p>
+        {apiKeyInfo?.hasApiKey && !isEditing && (
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsEditing(true)}
-              className="btn btn-primary active:scale-95 transition-transform"
+              onClick={handleEdit}
+              className="btn btn-secondary btn-sm"
             >
-              <Key className="h-4 w-4 mr-2" />
-              Configure API Key
+              <Key className="h-3.5 w-3.5" />
+              Edit
+            </button>
+            <button
+              onClick={() => deleteApiKeyMutation.mutate()}
+              className="btn btn-ghost btn-sm"
+              disabled={deleteApiKeyMutation.isPending}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Remove
             </button>
           </div>
         )}
       </div>
 
-      {isEditing && (
-        <div className="bg-white/80 dark:bg-gray-800/90 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-            {apiKeyInfo?.hasApiKey ? 'Update' : 'Configure'} API Key
-          </h2>
-
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-4"
-          >
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                <span className="text-red-600 dark:text-red-400">*</span> You must test the API key
-                before saving to ensure it works correctly.
-              </p>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  AI Provider *
-                </label>
-                <select
-                  value={formData.apiUrl}
-                  onChange={(e) => {
-                    const url = e.target.value;
-                    setFormData({ ...formData, apiUrl: url, model: '' });
-                    setAvailableModels([]);
-                    setHasPassedTest(false);
-                    setTestResult(null);
-                  }}
-                  className="input dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 w-full"
-                >
-                  <option value="https://api.openai.com/v1">OpenAI (api.openai.com/v1)</option>
-                  <option value="https://openrouter.ai/api/v1">
-                    OpenRouter (openrouter.ai/api/v1)
-                  </option>
-                  <option value="https://api.anthropic.com/v1">
-                    Anthropic Claude (api.anthropic.com/v1)
-                  </option>
-                  <option value="https://api.mistral.ai/v1">Mistral AI (api.mistral.ai/v1)</option>
-                  <option value="https://api.deepseek.com/v1">
-                    DeepSeek (api.deepseek.com/v1)
-                  </option>
-                  <option value="https://api.together.xyz/v1">
-                    Together AI (api.together.xyz/v1)
-                  </option>
-                  <option value="https://api.perplexity.ai/v1">
-                    Perplexity AI (api.perplexity.ai/v1)
-                  </option>
-                  <option value="https://generativelanguage.googleapis.com/v1beta">
-                    Google Gemini (generativelanguage.googleapis.com)
-                  </option>
-                  <option value="https://api.groq.com/openai/v1">
-                    Groq (api.groq.com/openai/v1)
-                  </option>
-                  <option value="https://api.lepton.ai/v1">Lepton AI (api.lepton.ai/v1)</option>
-                  <option value="https://api.deepinfra.com/v1/openai">
-                    DeepInfra (api.deepinfra.com/v1/openai)
-                  </option>
-                  <option value="https://api.x.ai/v1">xAI (api.x.ai/v1)</option>
-                  <option value="https://api.moonshot.ai/v1">
-                    Moonshot AI (api.moonshot.ai/v1)
-                  </option>
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  API Key *
-                </label>
-                <div className="relative">
-                  <input
-                    type={showApiKey ? 'text' : 'password'}
-                    name="apiKey"
-                    value={formData.apiKey}
-                    onChange={(e) => {
-                      handleInputChange(e);
-                      setHasPassedTest(false);
-                      setTestResult(null);
-                    }}
-                    placeholder="Enter your API key"
-                    className="input pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400 w-full"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowApiKey(!showApiKey)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  >
-                    {showApiKey ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
-                    )}
-                  </button>
-                </div>
-              </div>
+      {apiKeyInfo?.hasApiKey && !isEditing ? (
+        <div className="overflow-hidden rounded-lg border border-line bg-surface">
+          <div className="flex items-center gap-3 border-b border-line px-4 py-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-success-tint">
+              <CheckCircle className="h-4 w-4 text-success" />
             </div>
-
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Model (Optional)
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="model"
-                  value={formData.model}
-                  onFocus={() => setShowModelDropdown(true)}
-                  onChange={handleModelInputChange}
-                  onBlur={() => {
-                    setTimeout(() => setShowModelDropdown(false), 200);
-                  }}
-                  placeholder="Select or type a model name"
-                  className="model-input input dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400 w-full pr-8"
-                />
-                {isLoadingModels && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                  </div>
-                )}
-                {showModelDropdown && (availableModels.length > 0 || modelSearch) && (
-                  <div className="absolute z-10 mt-1 w-full rounded-md bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto">
-                    {filteredModels.length > 0 ? (
-                      filteredModels.map((model: string) => (
-                        <div
-                          key={model}
-                          className="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            handleModelSelect(model);
-                          }}
-                        >
-                          {model}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        No matching models found
-                      </div>
-                    )}
-                  </div>
-                )}
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  {availableModels.length > 0
-                    ? `Found ${availableModels.length} models`
-                    : 'Type to search or leave empty for default'}
-                </p>
-              </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-ink">AI assistant ready</p>
+              <p className="text-xs text-muted">Configured and encrypted</p>
             </div>
-
-            {testResult && (
-              <div
-                className={`p-3 rounded-lg flex items-center space-x-2 ${
-                  testResult.success
-                    ? 'bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300'
-                    : 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-300'
-                }`}
-              >
-                {testResult.success ? (
-                  <CheckCircle className="h-4 w-4" />
-                ) : (
-                  <AlertCircle className="h-4 w-4" />
-                )}
-                <span className="text-sm">{testResult.message}</span>
+          </div>
+          <dl className="divide-y divide-line">
+            {apiKeyInfo.model && (
+              <div className="flex items-center justify-between px-4 py-2.5">
+                <dt className="text-xs font-medium uppercase tracking-wider text-faint">Model</dt>
+                <dd className="font-mono text-sm text-ink">{apiKeyInfo.model}</dd>
               </div>
             )}
+            {apiKeyInfo.apiUrl && (
+              <div className="flex items-center justify-between gap-3 px-4 py-2.5">
+                <dt className="text-xs font-medium uppercase tracking-wider text-faint">
+                  Endpoint
+                </dt>
+                <dd
+                  className="truncate font-mono text-sm text-muted"
+                  title={apiKeyInfo.apiUrl}
+                >
+                  {apiKeyInfo.apiUrl}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      ) : !isEditing ? (
+        <div className="rounded-lg border border-dashed border-line bg-surface py-12 text-center">
+          <Key className="mx-auto mb-3 h-8 w-8 text-faint" />
+          <p className="text-sm font-medium text-ink">No API key configured</p>
+          <p className="mt-0.5 text-xs text-muted">
+            Bring your own key to unlock AI without limits.
+          </p>
+          <button
+            onClick={() => setIsEditing(true)}
+            className="btn btn-primary btn-sm mt-4"
+          >
+            <Key className="h-3.5 w-3.5" />
+            Configure
+          </button>
+        </div>
+      ) : null}
 
-            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
+      <Modal
+        open={isEditing}
+        onClose={handleCancel}
+        title={apiKeyInfo?.hasApiKey ? 'Update API key' : 'Configure API key'}
+        closeDisabled={updateApiKeyMutation.isPending || testApiKeyMutation.isPending}
+        size="md"
+      >
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
+          <p className="text-xs text-muted">
+            <span className="text-danger">*</span> Test before saving to verify the key works.
+          </p>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-faint">
+              Provider *
+            </label>
+            <select
+              value={formData.apiUrl}
+              onChange={(e) => {
+                const url = e.target.value;
+                setFormData({ ...formData, apiUrl: url, model: '' });
+                setAvailableModels([]);
+                setHasPassedTest(false);
+                setTestResult(null);
+              }}
+              className="input w-full"
+            >
+              <option value="https://api.openai.com/v1">OpenAI (api.openai.com/v1)</option>
+              <option value="https://openrouter.ai/api/v1">
+                OpenRouter (openrouter.ai/api/v1)
+              </option>
+              <option value="https://api.anthropic.com/v1">
+                Anthropic Claude (api.anthropic.com/v1)
+              </option>
+              <option value="https://api.mistral.ai/v1">Mistral AI (api.mistral.ai/v1)</option>
+              <option value="https://api.deepseek.com/v1">DeepSeek (api.deepseek.com/v1)</option>
+              <option value="https://api.together.xyz/v1">Together AI (api.together.xyz/v1)</option>
+              <option value="https://api.perplexity.ai/v1">
+                Perplexity AI (api.perplexity.ai/v1)
+              </option>
+              <option value="https://generativelanguage.googleapis.com/v1beta">
+                Google Gemini (generativelanguage.googleapis.com)
+              </option>
+              <option value="https://api.groq.com/openai/v1">Groq (api.groq.com/openai/v1)</option>
+              <option value="https://api.lepton.ai/v1">Lepton AI (api.lepton.ai/v1)</option>
+              <option value="https://api.deepinfra.com/v1/openai">
+                DeepInfra (api.deepinfra.com/v1/openai)
+              </option>
+              <option value="https://api.x.ai/v1">xAI (api.x.ai/v1)</option>
+              <option value="https://api.moonshot.ai/v1">Moonshot AI (api.moonshot.ai/v1)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-faint">
+              API Key *
+            </label>
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                name="apiKey"
+                value={formData.apiKey}
+                onChange={(e) => {
+                  handleInputChange(e);
+                  setHasPassedTest(false);
+                  setTestResult(null);
+                }}
+                placeholder="Enter your API key"
+                className="input pr-10 w-full"
+                required
+                autoFocus
+              />
               <button
                 type="button"
-                onClick={handleCancel}
-                className="btn btn-secondary active:scale-95 transition-transform"
-                disabled={updateApiKeyMutation.isPending || testApiKeyMutation.isPending}
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={
-                  !formData.apiKey.trim() ||
-                  updateApiKeyMutation.isPending ||
-                  testApiKeyMutation.isPending
-                }
-                className={`btn active:scale-95 transition-transform ${
-                  hasPassedTest ? 'btn-primary' : 'btn-secondary'
-                }`}
-              >
-                {testApiKeyMutation.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Testing...
-                  </>
-                ) : updateApiKeyMutation.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : hasPassedTest ? (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save
-                  </>
+                {showApiKey ? (
+                  <EyeOff className="h-4 w-4 text-faint" />
                 ) : (
-                  <>
-                    <TestTube className="h-4 w-4 mr-2" />
-                    Test & Save
-                  </>
+                  <Eye className="h-4 w-4 text-faint" />
                 )}
               </button>
             </div>
-          </form>
-        </div>
-      )}
+          </div>
 
-      <div className="bg-white/60 dark:bg-gray-800/70 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
-        <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Information</h2>
-        <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-          <div className="flex items-start space-x-2">
-            <AlertCircle className="h-4 w-4 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-            <p>
-              Your API key is encrypted and stored securely. It will only be used for AI
-              interactions within the Discord bot.
-            </p>
+          <div className="relative">
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-faint">
+              Model <span className="text-faint/60 normal-case">(optional)</span>
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                name="model"
+                value={formData.model}
+                onFocus={() => setShowModelDropdown(true)}
+                onChange={handleModelInputChange}
+                onBlur={() => {
+                  setTimeout(() => setShowModelDropdown(false), 200);
+                }}
+                placeholder="Select or type a model name"
+                className="model-input input w-full pr-8"
+              />
+              {isLoadingModels && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <Loader2 className="h-4 w-4 animate-spin text-faint" />
+                </div>
+              )}
+              {showModelDropdown && (availableModels.length > 0 || modelSearch) && (
+                <div className="absolute z-10 mt-1 w-full rounded-md border border-line bg-surface shadow-md max-h-60 overflow-auto">
+                  {filteredModels.length > 0 ? (
+                    filteredModels.map((model: string) => (
+                      <div
+                        key={model}
+                        className="px-3 py-2 text-sm text-ink hover:bg-surface-hover cursor-pointer"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleModelSelect(model);
+                        }}
+                      >
+                        {model}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-muted">No matching models</div>
+                  )}
+                </div>
+              )}
+              <p className="mt-1 text-xs text-faint">
+                {availableModels.length > 0
+                  ? `${availableModels.length} models found`
+                  : 'Type to search or leave empty for default'}
+              </p>
+            </div>
           </div>
-          <div className="flex items-start space-x-2">
-            <Key className="h-4 w-4 text-green-500 dark:text-green-400 mt-0.5 flex-shrink-0" />
-            <p>
-              Supported providers include OpenAI, OpenRouter, Anthropic, and any OpenAI-compatible
-              API endpoints.
-            </p>
+
+          {testResult && (
+            <div
+              className={`flex items-center gap-2 rounded-md p-3 text-sm ${
+                testResult.success ? 'bg-success-tint text-success' : 'bg-danger-tint text-danger'
+              }`}
+            >
+              {testResult.success ? (
+                <CheckCircle className="h-4 w-4 flex-shrink-0" />
+              ) : (
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              )}
+              <span>{testResult.message}</span>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 border-t border-line pt-3">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="btn btn-secondary btn-sm"
+              disabled={updateApiKeyMutation.isPending || testApiKeyMutation.isPending}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={
+                !formData.apiKey.trim() ||
+                updateApiKeyMutation.isPending ||
+                testApiKeyMutation.isPending
+              }
+              className={`btn btn-sm ${hasPassedTest ? 'btn-primary' : 'btn-secondary'}`}
+            >
+              {testApiKeyMutation.isPending ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Testing...
+                </>
+              ) : updateApiKeyMutation.isPending ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Saving...
+                </>
+              ) : hasPassedTest ? (
+                <>
+                  <Save className="h-3.5 w-3.5" />
+                  Save
+                </>
+              ) : (
+                <>
+                  <TestTube className="h-3.5 w-3.5" />
+                  Test & Save
+                </>
+              )}
+            </button>
           </div>
-          <div className="flex items-start space-x-2">
-            <TestTube className="h-4 w-4 text-purple-500 dark:text-purple-400 mt-0.5 flex-shrink-0" />
-            <p>Use the test function to verify your API key works before saving.</p>
+        </form>
+      </Modal>
+
+      <div className="rounded-lg border border-line bg-surface p-4">
+        <h2 className="mb-3 text-xs font-medium uppercase tracking-wider text-faint">About</h2>
+        <div className="space-y-2 text-xs text-muted">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="mt-0.5 h-3 w-3 flex-shrink-0 text-accent" />
+            <p>Keys are encrypted (AES-256-GCM) and used only for AI within the bot.</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <Key className="mt-0.5 h-3 w-3 flex-shrink-0 text-success" />
+            <p>Supports OpenAI, OpenRouter, Anthropic, and OpenAI-compatible endpoints.</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <TestTube className="mt-0.5 h-3 w-3 flex-shrink-0 text-accent" />
+            <p>Always test before saving to verify the key works.</p>
           </div>
         </div>
       </div>

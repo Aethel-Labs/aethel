@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Check, Trash2, AlertCircle } from 'lucide-react';
+import { Plus, Check, Trash2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { todosAPI } from '../lib/api';
+import Modal from '../components/Modal';
 
 interface Todo {
   id: number;
@@ -11,6 +12,17 @@ interface Todo {
   created_at: string;
   completed_at?: string;
 }
+
+const relativeTime = (date: string) => {
+  const diff = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
+};
 
 const TodosPage = () => {
   const [newTodo, setNewTodo] = useState('');
@@ -27,32 +39,24 @@ const TodosPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
       setNewTodo('');
-      toast.success('Todo added successfully!');
+      toast.success('Todo added');
     },
-    onError: () => {
-      toast.error('Failed to add todo');
-    },
+    onError: () => toast.error('Failed to add todo'),
   });
 
   const updateTodoMutation = useMutation({
     mutationFn: ({ id, done }: { id: number; done: boolean }) => todosAPI.updateTodo(id, { done }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] });
-    },
-    onError: () => {
-      toast.error('Failed to update todo');
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
+    onError: () => toast.error('Failed to update todo'),
   });
 
   const deleteTodoMutation = useMutation({
     mutationFn: (id: number) => todosAPI.deleteTodo(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
-      toast.success('Todo deleted successfully!');
+      toast.success('Todo deleted');
     },
-    onError: () => {
-      toast.error('Failed to delete todo');
-    },
+    onError: () => toast.error('Failed to delete todo'),
   });
 
   const clearAllMutation = useMutation({
@@ -60,203 +64,195 @@ const TodosPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
       setShowClearConfirm(false);
-      toast.success('All todos cleared successfully!');
+      toast.success('All todos cleared');
     },
-    onError: () => {
-      toast.error('Failed to clear todos');
-    },
+    onError: () => toast.error('Failed to clear todos'),
   });
 
   const handleAddTodo = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newTodo.trim()) {
-      addTodoMutation.mutate(newTodo.trim());
-    }
+    if (newTodo.trim()) addTodoMutation.mutate(newTodo.trim());
   };
 
-  const handleToggleTodo = (id: number, done: boolean) => {
-    updateTodoMutation.mutate({ id, done: !done });
-  };
-
-  const handleDeleteTodo = (id: number) => {
-    deleteTodoMutation.mutate(id);
-  };
-
-  const handleClearAll = () => {
-    clearAllMutation.mutate();
-  };
-
-  const completedTodos = todos?.filter((todo: Todo) => todo.done) || [];
-  const pendingTodos = todos?.filter((todo: Todo) => !todo.done) || [];
+  const completedTodos = todos?.filter((t: Todo) => t.done) || [];
+  const pendingTodos = todos?.filter((t: Todo) => !t.done) || [];
+  const progress = todos?.length ? Math.round((completedTodos.length / todos.length) * 100) : 0;
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-discord-blurple"></div>
+      <div className="flex items-center justify-center py-24">
+        <div className="spinner h-5 w-5" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-7">
+      <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Todos</h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Manage your todo list. {todos?.length || 0} total, {completedTodos.length} completed
-          </p>
+          <p className="text-sm font-medium text-muted">Productivity</p>
+          <h1 className="mt-1.5 text-3xl font-semibold tracking-tight text-ink">Todos</h1>
         </div>
         {todos && todos.length > 0 && (
-          <button
-            onClick={() => setShowClearConfirm(true)}
-            className="btn btn-danger active:scale-95 transition-transform"
-            disabled={clearAllMutation.isPending}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Clear All
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="hidden items-center gap-2 sm:flex">
+              <div className="h-1.5 w-24 overflow-hidden rounded-full bg-line-strong">
+                <div
+                  className="h-full rounded-full bg-success transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <span className="text-sm tabular-nums text-muted">
+                {completedTodos.length}/{todos.length}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowClearConfirm(true)}
+              className="btn btn-ghost btn-sm"
+              disabled={clearAllMutation.isPending}
+            >
+              <Trash2 className="h-4 w-4" />
+              Clear all
+            </button>
+          </div>
         )}
       </div>
 
-      <div className="card p-6">
-        <form
-          onSubmit={handleAddTodo}
-          className="flex gap-3"
+      <form
+        onSubmit={handleAddTodo}
+        className="flex gap-2"
+      >
+        <input
+          type="text"
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+          placeholder="Add a todo and press enter..."
+          className="input flex-1"
+          disabled={addTodoMutation.isPending}
+          autoFocus
+        />
+        <button
+          type="submit"
+          disabled={!newTodo.trim() || addTodoMutation.isPending}
+          className="btn btn-primary"
         >
-          <input
-            type="text"
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            placeholder="Add a new todo..."
-            className="input flex-1"
-            disabled={addTodoMutation.isPending}
-          />
-          <button
-            type="submit"
-            disabled={!newTodo.trim() || addTodoMutation.isPending}
-            className="btn btn-primary active:scale-95 transition-transform"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Todo
-          </button>
-        </form>
-      </div>
+          <Plus className="h-4 w-4" />
+          Add
+        </button>
+      </form>
 
       {todos && todos.length > 0 ? (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {pendingTodos.length > 0 && (
-            <div className="bg-white/80 dark:bg-gray-800/90 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-                Pending ({pendingTodos.length})
+            <section>
+              <h2 className="mb-2.5 text-sm font-medium text-faint">
+                Pending · {pendingTodos.length}
               </h2>
-              <div className="space-y-3">
-                {pendingTodos.map((todo: Todo) => (
+              <div className="overflow-hidden rounded-lg border border-line bg-surface">
+                {pendingTodos.map((todo: Todo, i: number) => (
                   <div
                     key={todo.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600"
+                    className={`group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-hover ${
+                      i !== pendingTodos.length - 1 ? 'border-b border-line' : ''
+                    }`}
                   >
-                    <div className="flex items-center space-x-3">
-                      <button
-                        onClick={() => handleToggleTodo(todo.id, todo.done)}
-                        className="flex-shrink-0 w-5 h-5 border-2 border-gray-300 dark:border-gray-500 rounded hover:border-green-500 transition-colors"
-                        disabled={updateTodoMutation.isPending}
-                      >
-                        {updateTodoMutation.isPending ? (
-                          <div className="w-full h-full animate-spin rounded-full border-b border-gray-400"></div>
-                        ) : null}
-                      </button>
-                      <span className="text-gray-900 dark:text-gray-100">{todo.item}</span>
-                    </div>
                     <button
-                      onClick={() => handleDeleteTodo(todo.id)}
-                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 p-1"
+                      onClick={() => updateTodoMutation.mutate({ id: todo.id, done: !todo.done })}
+                      className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border border-line-strong text-transparent transition-colors hover:border-success hover:text-success"
+                      disabled={updateTodoMutation.isPending}
+                      aria-label="Complete"
+                    >
+                      <Check className="h-3 w-3" />
+                    </button>
+                    <span className="flex-1 text-sm text-ink">{todo.item}</span>
+                    <span className="flex-shrink-0 text-xs text-faint">
+                      {relativeTime(todo.created_at)}
+                    </span>
+                    <button
+                      onClick={() => deleteTodoMutation.mutate(todo.id)}
+                      className="rounded p-1 text-faint opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
                       disabled={deleteTodoMutation.isPending}
+                      aria-label="Delete"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
           {completedTodos.length > 0 && (
-            <div className="bg-white/80 dark:bg-gray-800/90 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-                Completed ({completedTodos.length})
+            <section>
+              <h2 className="mb-2.5 text-sm font-medium text-faint">
+                Completed · {completedTodos.length}
               </h2>
-              <div className="space-y-3">
-                {completedTodos.map((todo: Todo) => (
+              <div className="overflow-hidden rounded-lg border border-line bg-surface">
+                {completedTodos.map((todo: Todo, i: number) => (
                   <div
                     key={todo.id}
-                    className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-700"
+                    className={`group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-hover ${
+                      i !== completedTodos.length - 1 ? 'border-b border-line' : ''
+                    }`}
                   >
-                    <div className="flex items-center space-x-3">
-                      <button
-                        onClick={() => handleToggleTodo(todo.id, todo.done)}
-                        className="flex-shrink-0 w-5 h-5 bg-green-500 border-2 border-green-500 rounded flex items-center justify-center hover:bg-green-600 transition-colors"
-                        disabled={updateTodoMutation.isPending}
-                      >
-                        <Check className="h-3 w-3 text-white" />
-                      </button>
-                      <span className="text-gray-600 dark:text-gray-400 line-through">
-                        {todo.item}
-                      </span>
-                    </div>
                     <button
-                      onClick={() => handleDeleteTodo(todo.id)}
-                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 p-1"
+                      onClick={() => updateTodoMutation.mutate({ id: todo.id, done: !todo.done })}
+                      className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-success text-white transition-transform hover:scale-110"
+                      disabled={updateTodoMutation.isPending}
+                      aria-label="Undo"
+                    >
+                      <Check className="h-3 w-3" />
+                    </button>
+                    <span className="flex-1 text-sm text-muted line-through">{todo.item}</span>
+                    <button
+                      onClick={() => deleteTodoMutation.mutate(todo.id)}
+                      className="rounded p-1 text-faint opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
                       disabled={deleteTodoMutation.isPending}
+                      aria-label="Delete"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
         </div>
       ) : (
-        <div className="card p-12 text-center">
-          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-            No todos yet
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300">Create your first todo to get started!</p>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-line py-20">
+          <CheckCircle2 className="mb-3 h-8 w-8 text-faint" />
+          <p className="text-sm font-medium text-ink">No todos</p>
+          <p className="mt-0.5 text-xs text-muted">Add one above to get started.</p>
         </div>
       )}
 
-      {showClearConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-            <div className="flex items-center mb-4">
-              <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 mr-3" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Clear All Todos
-              </h3>
-            </div>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Are you sure you want to clear all todos? This action cannot be undone.
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowClearConfirm(false)}
-                className="btn btn-secondary active:scale-95 transition-transform"
-                disabled={clearAllMutation.isPending}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleClearAll}
-                className="btn btn-danger active:scale-95 transition-transform"
-                disabled={clearAllMutation.isPending}
-              >
-                {clearAllMutation.isPending ? 'Clearing...' : 'Clear All'}
-              </button>
-            </div>
-          </div>
+      <Modal
+        open={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        title="Clear all todos?"
+        closeDisabled={clearAllMutation.isPending}
+        size="sm"
+      >
+        <p className="text-sm text-muted">
+          Permanently deletes all {todos?.length || 0} todos. Cannot be undone.
+        </p>
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            onClick={() => setShowClearConfirm(false)}
+            className="btn btn-secondary btn-sm"
+            disabled={clearAllMutation.isPending}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => clearAllMutation.mutate()}
+            className="btn btn-danger btn-sm"
+            disabled={clearAllMutation.isPending}
+          >
+            {clearAllMutation.isPending ? 'Clearing...' : 'Clear all'}
+          </button>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };

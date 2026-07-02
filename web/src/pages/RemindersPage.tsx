@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Clock, Check, Trash2, Bell } from 'lucide-react';
+import { Plus, Check, Bell, Clock, Calendar } from 'lucide-react';
 import { remindersAPI } from '../lib/api';
 import { toast } from 'sonner';
 
@@ -11,14 +11,36 @@ interface Reminder {
   created_at: string;
 }
 
+const formatTime = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+const relativeDue = (dateString: string) => {
+  const diff = new Date(dateString).getTime() - Date.now();
+  const overdue = diff < 0;
+  const abs = Math.abs(diff);
+  const mins = Math.floor(abs / 60000);
+  const hours = Math.floor(mins / 60);
+  const days = Math.floor(hours / 24);
+  let str;
+  if (days > 0) str = `${days}d`;
+  else if (hours > 0) str = `${hours}h`;
+  else if (mins > 0) str = `${mins}m`;
+  else str = 'now';
+  return overdue ? `${str} ago` : `in ${str}`;
+};
+
 const RemindersPage: React.FC = () => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newReminder, setNewReminder] = useState({
-    message: '',
-    expires_at: '',
-  });
+  const [newReminder, setNewReminder] = useState({ message: '', expires_at: '' });
 
   useEffect(() => {
     fetchReminders();
@@ -37,19 +59,16 @@ const RemindersPage: React.FC = () => {
 
   const handleCreateReminder = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!newReminder.message.trim() || !newReminder.expires_at) {
       toast.error('Please fill in all fields');
       return;
     }
-
     try {
       await remindersAPI.createReminder({
         message: newReminder.message.trim(),
         expires_at: newReminder.expires_at,
       });
-
-      toast.success('Reminder created successfully!');
+      toast.success('Reminder created');
       setNewReminder({ message: '', expires_at: '' });
       setShowCreateForm(false);
       fetchReminders();
@@ -61,7 +80,7 @@ const RemindersPage: React.FC = () => {
   const handleCompleteReminder = async (id: string) => {
     try {
       await remindersAPI.completeReminder(id);
-      toast.success('Reminder completed!');
+      toast.success('Reminder completed');
       fetchReminders();
     } catch (_error) {
       toast.error('Failed to complete reminder');
@@ -70,215 +89,236 @@ const RemindersPage: React.FC = () => {
 
   const handleClearCompleted = async () => {
     try {
-      const completedReminders = reminders.filter((r) => r.is_completed);
-      if (completedReminders.length === 0) {
+      const completed = reminders.filter((r) => r.is_completed);
+      if (completed.length === 0) {
         toast.info('No completed reminders to clear');
         return;
       }
-
       await remindersAPI.clearCompletedReminders();
-      toast.success('Completed reminders cleared!');
+      toast.success('Completed reminders cleared');
       fetchReminders();
     } catch (_error) {
       toast.error('Failed to clear completed reminders');
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
-
-  const isExpired = (dateString: string) => {
-    return new Date(dateString) < new Date();
-  };
-
   const getMinDateTime = () => {
-    const now = new Date();
-    const minTime = new Date(now.getTime() + 60000);
-    const year = minTime.getFullYear();
-    const month = String(minTime.getMonth() + 1).padStart(2, '0');
-    const day = String(minTime.getDate()).padStart(2, '0');
-    const hours = String(minTime.getHours()).padStart(2, '0');
-    const minutes = String(minTime.getMinutes()).padStart(2, '0');
-
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    const minTime = new Date(Date.now() + 60000);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${minTime.getFullYear()}-${pad(minTime.getMonth() + 1)}-${pad(minTime.getDate())}T${pad(minTime.getHours())}:${pad(minTime.getMinutes())}`;
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-discord-blurple"></div>
+      <div className="flex items-center justify-center py-24">
+        <div className="spinner h-5 w-5" />
       </div>
     );
   }
 
+  const activeReminders = reminders.filter((r) => !r.is_completed);
+  const overdue = activeReminders.filter((r) => new Date(r.expires_at).getTime() < Date.now());
+  const upcoming = activeReminders.filter((r) => new Date(r.expires_at).getTime() >= Date.now());
+  const completedReminders = reminders.filter((r) => r.is_completed);
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-7">
+      <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Reminders
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Manage your personal reminders and notifications
+          <p className="text-sm font-medium text-muted">
+            {overdue.length > 0 ? `${overdue.length} overdue` : 'Notifications'}
           </p>
+          <h1 className="mt-1.5 text-3xl font-semibold tracking-tight text-ink">Reminders</h1>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          {reminders.some((r) => r.is_completed) && (
+        <div className="flex items-center gap-2">
+          {completedReminders.length > 0 && (
             <button
               onClick={handleClearCompleted}
-              className="btn btn-danger active:scale-95 transition-transform"
+              className="btn btn-ghost btn-sm"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Clear Completed</span>
-              <span className="sm:hidden">Clear</span>
+              Clear completed
             </button>
           )}
           <button
-            onClick={() => setShowCreateForm(true)}
-            className="btn btn-primary active:scale-95 transition-transform"
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            className="btn btn-primary"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            New Reminder
+            <Plus className="h-4 w-4" />
+            New
           </button>
         </div>
       </div>
 
       {showCreateForm && (
-        <div className="bg-white/80 dark:bg-gray-800/90 p-4 sm:p-8 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">
-            Create New Reminder
-          </h2>
-          <form
-            onSubmit={handleCreateReminder}
-            className="space-y-4 sm:space-y-6"
-          >
-            <div>
-              <label
-                htmlFor="message"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Reminder Message
-              </label>
-              <textarea
-                id="message"
-                value={newReminder.message}
-                onChange={(e) => setNewReminder({ ...newReminder, message: e.target.value })}
-                placeholder="What would you like to be reminded about?"
-                className="input dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
-                rows={3}
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="expires_at"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Remind me at
-              </label>
-              <input
-                type="datetime-local"
-                id="expires_at"
-                value={newReminder.expires_at}
-                onChange={(e) => setNewReminder({ ...newReminder, expires_at: e.target.value })}
-                min={getMinDateTime()}
-                className="input dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                required
-              />
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                type="submit"
-                className="btn btn-primary active:scale-95 transition-transform"
-              >
-                Create Reminder
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowCreateForm(false);
-                  setNewReminder({ message: '', expires_at: '' });
-                }}
-                className="btn btn-secondary active:scale-95 transition-transform"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="space-y-4">
-        {reminders.length === 0 ? (
-          <div className="text-center py-12">
-            <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-              No reminders yet
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Create your first reminder to get started!
-            </p>
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="btn btn-primary active:scale-95 transition-transform"
+        <form
+          onSubmit={handleCreateReminder}
+          className="space-y-4 rounded-lg border border-line bg-surface p-4"
+        >
+          <div>
+            <label
+              htmlFor="message"
+              className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-faint"
             >
-              Create Reminder
+              Message
+            </label>
+            <textarea
+              id="message"
+              value={newReminder.message}
+              onChange={(e) => setNewReminder({ ...newReminder, message: e.target.value })}
+              placeholder="What should I remind you about?"
+              className="input min-h-[72px] resize-y"
+              rows={3}
+              required
+              autoFocus
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="expires_at"
+              className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-faint"
+            >
+              Remind me at
+            </label>
+            <input
+              type="datetime-local"
+              id="expires_at"
+              value={newReminder.expires_at}
+              onChange={(e) => setNewReminder({ ...newReminder, expires_at: e.target.value })}
+              min={getMinDateTime()}
+              className="input"
+              required
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              className="btn btn-primary"
+            >
+              Create
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowCreateForm(false);
+                setNewReminder({ message: '', expires_at: '' });
+              }}
+              className="btn btn-secondary"
+            >
+              Cancel
             </button>
           </div>
-        ) : (
-          reminders.map((reminder) => (
-            <div
-              key={reminder.reminder_id}
-              className={`card p-4 sm:p-6 border-l-4 ${
-                reminder.is_completed
-                  ? 'border-green-500 bg-green-900/20'
-                  : isExpired(reminder.expires_at)
-                    ? 'border-red-500 bg-red-900/20'
-                    : 'border-blue-500'
-              }`}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                <div className="flex-1">
-                  <p
-                    className={`text-base sm:text-lg ${reminder.is_completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}
+        </form>
+      )}
+
+      {reminders.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-line py-20">
+          <Bell className="mb-3 h-8 w-8 text-faint" />
+          <p className="text-sm font-medium text-ink">No reminders</p>
+          <p className="mt-0.5 text-xs text-muted">Get notified on Discord when it's time.</p>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="btn btn-secondary btn-sm mt-4"
+          >
+            Create reminder
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {overdue.length > 0 && (
+            <section>
+              <h2 className="mb-2.5 text-sm font-medium text-danger">Overdue · {overdue.length}</h2>
+              <div className="overflow-hidden rounded-lg border border-danger/30 bg-danger-tint/20">
+                {overdue.map((reminder, i) => (
+                  <div
+                    key={reminder.reminder_id}
+                    className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-danger-tint/40 ${
+                      i !== overdue.length - 1 ? 'border-b border-danger/20' : ''
+                    }`}
                   >
-                    {reminder.message}
-                  </p>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-3 text-sm text-gray-600 dark:text-gray-300">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span className="break-all">
-                        Remind at: {formatDate(reminder.expires_at)}
-                      </span>
+                    <div className="h-2 w-2 flex-shrink-0 rounded-full bg-danger" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-ink">{reminder.message}</p>
+                      <p className="mt-0.5 text-xs font-medium text-danger">
+                        {relativeDue(reminder.expires_at)}
+                      </p>
                     </div>
-                    <div className="flex gap-2">
-                      {isExpired(reminder.expires_at) && !reminder.is_completed && (
-                        <span className="text-red-600 font-medium">Overdue</span>
-                      )}
-                      {reminder.is_completed && (
-                        <span className="text-green-600 font-medium">Completed</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center justify-end sm:justify-start gap-2 sm:ml-4">
-                  {!reminder.is_completed && (
                     <button
                       onClick={() => handleCompleteReminder(reminder.reminder_id)}
-                      className="btn btn-success p-2 active:scale-95 transition-transform"
-                      title="Mark as completed"
+                      className="btn btn-ghost btn-sm"
                     >
                       <Check className="h-4 w-4" />
+                      Done
                     </button>
-                  )}
-                </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            </section>
+          )}
+
+          {upcoming.length > 0 && (
+            <section>
+              <h2 className="mb-2.5 text-sm font-medium text-faint">
+                Upcoming · {upcoming.length}
+              </h2>
+              <div className="overflow-hidden rounded-lg border border-line bg-surface">
+                {upcoming.map((reminder, i) => (
+                  <div
+                    key={reminder.reminder_id}
+                    className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-hover ${
+                      i !== upcoming.length - 1 ? 'border-b border-line' : ''
+                    }`}
+                  >
+                    <div className="h-2 w-2 flex-shrink-0 rounded-full bg-success" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-ink">{reminder.message}</p>
+                      <div className="mt-0.5 flex items-center gap-2 text-xs text-faint">
+                        <Clock className="h-3 w-3" />
+                        {relativeDue(reminder.expires_at)}
+                        <span className="text-faint/60">·</span>
+                        <Calendar className="h-3 w-3" />
+                        {formatTime(reminder.expires_at)}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleCompleteReminder(reminder.reminder_id)}
+                      className="btn btn-ghost btn-sm"
+                    >
+                      <Check className="h-4 w-4" />
+                      Done
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {completedReminders.length > 0 && (
+            <section>
+              <h2 className="mb-2.5 text-sm font-medium text-faint">
+                Completed · {completedReminders.length}
+              </h2>
+              <div className="overflow-hidden rounded-lg border border-line bg-surface">
+                {completedReminders.map((reminder, i) => (
+                  <div
+                    key={reminder.reminder_id}
+                    className={`flex items-center gap-3 px-4 py-3 ${
+                      i !== completedReminders.length - 1 ? 'border-b border-line' : ''
+                    }`}
+                  >
+                    <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-success">
+                      <Check className="h-3 w-3 text-white" />
+                    </div>
+                    <p className="flex-1 truncate text-sm text-muted line-through">
+                      {reminder.message}
+                    </p>
+                    <span className="text-xs text-faint">{formatTime(reminder.expires_at)}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      )}
     </div>
   );
 };
