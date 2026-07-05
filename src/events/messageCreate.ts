@@ -225,6 +225,8 @@ export default class MessageCreateEvent {
 
     logger.info(isDM ? 'Processing DM message...' : 'Processing mention in server...');
 
+    let typingInterval: ReturnType<typeof setInterval> | null = null;
+
     try {
       logger.debug(
         `${isDM ? 'DM' : 'Message'} received (${message.content.length} characters) - content hidden for privacy`,
@@ -436,8 +438,8 @@ export default class MessageCreateEvent {
             }
 
             const voteBonus = await pool.query(
-              `SELECT COUNT(DISTINCT user_id) as voter_count 
-               FROM votes 
+              `SELECT COUNT(DISTINCT user_id) as voter_count
+               FROM votes
                WHERE vote_timestamp > NOW() - INTERVAL '24 hours'
                AND user_id IN (
                  SELECT user_id FROM votes WHERE server_id IS NULL
@@ -483,6 +485,17 @@ export default class MessageCreateEvent {
 
       const conversationWithTools = [...updatedConversation];
       const executedResults: Array<{ type: string; payload: Record<string, unknown> }> = [];
+
+      const triggerTyping = () => {
+        const channel = message.channel;
+        if (typeof (channel as { sendTyping?: () => Promise<unknown> }).sendTyping === 'function') {
+          (channel as { sendTyping: () => Promise<unknown> }).sendTyping().catch(() => undefined);
+        }
+      };
+
+      triggerTyping();
+      typingInterval = setInterval(triggerTyping, 8000);
+
       let aiResponse = await makeAIRequest(config, conversationWithTools);
 
       if (!aiResponse && hasImages) {
@@ -777,6 +790,11 @@ export default class MessageCreateEvent {
         }
       }
 
+      if (typingInterval) {
+        clearInterval(typingInterval);
+        typingInterval = null;
+      }
+
       const sent = await this.sendResponse(message, aiResponse, executedResults);
       const sentMessage: Message | undefined = sent as Message | undefined;
 
@@ -878,6 +896,10 @@ export default class MessageCreateEvent {
       } catch (replyError) {
         logger.error('Failed to send error message:', replyError);
       }
+    } finally {
+      if (typingInterval) {
+        clearInterval(typingInterval);
+      }
     }
   }
 
@@ -889,7 +911,7 @@ export default class MessageCreateEvent {
     let fullResponse = '';
 
     if (aiResponse.reasoning) {
-      fullResponse += `> ${aiResponse.reasoning}\n\n`;
+      logger.debug('Reasoning tokens received but suppressed from display');
     }
 
     fullResponse += aiResponse.content;
